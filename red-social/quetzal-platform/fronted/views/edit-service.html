@@ -1,0 +1,219 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Servicio - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    </head>
+    <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+        <a href="dashboard.html" class="navbar-brand">
+            <span class="navbar-brand-icon">🦜</span>
+            <span>Quetzal</span>
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
+            <li><a href="services.html" class="navbar-link active">Servicios</a></li>
+            <li><a href="wallet.html" class="navbar-link">Cartera</a></li>
+            <li><a href="profile.html" class="navbar-link">Perfil</a></li>
+            <li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
+        </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="container">
+        <h1 class="page-title">Editar Servicio</h1>
+        <p class="page-subtitle">Actualiza la información de tu servicio</p>
+        </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="container" style="padding-bottom: 3rem;">
+        <div class="container-sm">
+        <div class="card">
+            <div id="alert-container"></div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="flex-center" style="padding: 3rem;">
+            <div class="spinner"></div>
+            </div>
+
+            <!-- Form -->
+            <form id="edit-service-form" style="display: none;">
+            <input type="hidden" id="serviceId" name="serviceId">
+
+            <!-- Información Básica -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
+                Información Básica
+                </h3>
+
+                <div class="form-group">
+                <label for="title" class="form-label form-label-required">Título del Servicio</label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    name="title"
+                    class="form-input" 
+                    required
+                    maxlength="100">
+                <span class="form-help" id="title-counter">0/100 caracteres</span>
+                <span class="form-error" id="title-error"></span>
+                </div>
+
+                <div class="form-group">
+                <label for="category" class="form-label form-label-required">Categoría</label>
+                <select id="category" name="category" class="form-select" required>
+                    <option value="">Selecciona una categoría</option>
+                    <option value="desarrollo">Desarrollo y Programación</option>
+                    <option value="diseno">Diseño Gráfico</option>
+                    <option value="marketing">Marketing Digital</option>
+                    <option value="escritura">Escritura y Traducción</option>
+                    <option value="video">Video y Animación</option>
+                    <option value="musica">Música y Audio</option>
+                    <option value="negocios">Negocios y Consultoría</option>
+                    <option value="educacion">Educación y Tutorías</option>
+                    <option value="lifestyle">Estilo de Vida</option>
+                    <option value="otros">Otros</option>
+                </select>
+                <span class="form-error" id="category-error"></span>
+                </div>
+
+                <div class="form-group">
+                <label for="description" class="form-label form-label-required">Descripción</label>
+                <textarea 
+                    id="description" 
+                    name="description"
+                    class="form-textarea" 
+                    required
+                    maxlength="1000"
+                    style="min-height: 150px;"></textarea>
+                <span class="form-help" id="description-counter">0/1000 caracteres</span>
+                <span class="form-error" id="description-error"></span>
+                </div>
+            </div>
+
+            <!-- Precio y Disponibilidad -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
+                Precio y Disponibilidad
+                </h3>
+
+                <div class="grid grid-cols-2">
+                <div class="form-group">
+                    <label for="price" class="form-label form-label-required">Precio en Quetzales (Q)</label>
+                    <input 
+                    type="number" 
+                    id="price" 
+                    name="price"
+                    class="form-input" 
+                    step="0.1"
+                    min="0.1"
+                    required>
+                    <span class="form-help" id="price-cop">≈ $0 COP</span>
+                    <span class="form-error" id="price-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveryTime" class="form-label form-label-required">Tiempo de Entrega</label>
+                    <select id="deliveryTime" name="deliveryTime" class="form-select" required>
+                    <option value="">Selecciona</option>
+                    <option value="1">1 día</option>
+                    <option value="2">2 días</option>
+                    <option value="3">3 días</option>
+                    <option value="5">5 días</option>
+                    <option value="7">1 semana</option>
+                    <option value="14">2 semanas</option>
+                    <option value="30">1 mes</option>
+                    <option value="custom">Personalizado</option>
+                    </select>
+                    <span class="form-error" id="deliveryTime-error"></span>
+                </div>
+                </div>
+
+                <div class="form-group">
+                <label for="availability" class="form-label form-label-required">Estado</label>
+                <select id="availability" name="availability" class="form-select" required>
+                    <option value="active">Activo - Recibir solicitudes</option>
+                    <option value="inactive">Inactivo - No visible</option>
+                    <option value="paused">Pausado - Visible pero sin solicitudes</option>
+                </select>
+                <span class="form-error" id="availability-error"></span>
+                </div>
+            </div>
+
+            <!-- Imágenes Actuales -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
+                Imágenes Actuales
+                </h3>
+                <div id="current-images" class="grid grid-cols-3" style="gap: 1rem;"></div>
+            </div>
+
+            <!-- Nuevas Imágenes -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
+                Agregar Nuevas Imágenes
+                </h3>
+
+                <div class="form-group">
+                <label for="images" class="form-label">Subir Imágenes</label>
+                <input 
+                    type="file" 
+                    id="images" 
+                    name="images"
+                    accept="image/*"
+                    multiple
+                    class="form-input"
+                    style="padding: 0.75rem;">
+                <span class="form-help">Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB por imagen</span>
+                <span class="form-error" id="images-error"></span>
+                </div>
+
+                <div id="images-preview" class="grid grid-cols-3" style="margin-top: 1rem; gap: 1rem;"></div>
+            </div>
+
+            <!-- Requisitos del Cliente -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
+                Requisitos del Cliente
+                </h3>
+
+                <div class="form-group">
+                <label for="requirements" class="form-label">¿Qué necesitas del cliente para comenzar?</label>
+                <textarea 
+                    id="requirements" 
+                    name="requirements"
+                    class="form-textarea" 
+                    maxlength="500"></textarea>
+                <span class="form-help" id="requirements-counter">0/500 caracteres</span>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-2" style="justify-content: space-between;">
+                <button type="button" class="btn btn-secondary" style="background-color: var(--error); color: white;" id="delete-btn">
+                Eliminar Servicio
+                </button>
+                <div class="flex gap-2">
+                <a href="services.html" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary" id="submit-btn">
+                    Guardar Cambios
+                </button>
+                </div>
+            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script src="../public/js/edit-service.js"></script>
+    </body>
+    </html>

@@ -1,0 +1,149 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrarse - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    </head>
+    <body>
+    <div class="auth-page">
+        <div class="auth-card card">
+        <div class="auth-header">
+            <div class="auth-logo">🦜</div>
+            <h1 class="card-title">Crear Cuenta</h1>
+            <p class="card-subtitle">Únete a la comunidad de servicios profesionales</p>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <form id="register-form">
+            <!-- Información Personal -->
+            <div class="form-group">
+            <label for="fullName" class="form-label form-label-required">Nombre Completo</label>
+            <input 
+                type="text" 
+                id="fullName" 
+                name="fullName"
+                class="form-input" 
+                placeholder="Juan Pérez García"
+                required>
+            <span class="form-error" id="fullName-error"></span>
+            </div>
+
+            <div class="form-group">
+            <label for="email" class="form-label form-label-required">Correo Electrónico</label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email"
+                class="form-input" 
+                placeholder="tu@email.com"
+                required>
+            <span class="form-error" id="email-error"></span>
+            </div>
+
+            <div class="form-group">
+            <label for="phone" class="form-label form-label-required">Teléfono</label>
+            <input 
+                type="tel" 
+                id="phone" 
+                name="phone"
+                class="form-input" 
+                placeholder="+57 300 123 4567"
+                required>
+            <span class="form-error" id="phone-error"></span>
+            </div>
+
+            <!-- Ubicación -->
+            <div class="form-group">
+            <label for="city" class="form-label form-label-required">Ciudad</label>
+            <select id="city" name="city" class="form-select" required>
+                <option value="">Selecciona tu ciudad</option>
+                <option value="bogota">Bogotá</option>
+                <option value="medellin">Medellín</option>
+                <option value="cali">Cali</option>
+                <option value="barranquilla">Barranquilla</option>
+                <option value="cartagena">Cartagena</option>
+                <option value="cucuta">Cúcuta</option>
+                <option value="bucaramanga">Bucaramanga</option>
+                <option value="pereira">Pereira</option>
+                <option value="manizales">Manizales</option>
+                <option value="otro">Otro</option>
+            </select>
+            <span class="form-error" id="city-error"></span>
+            </div>
+
+            <!-- Tipo de Usuario -->
+            <div class="form-group">
+            <label for="userType" class="form-label form-label-required">Tipo de Cuenta</label>
+            <select id="userType" name="userType" class="form-select" required>
+                <option value="">Selecciona el tipo de cuenta</option>
+                <option value="provider">Proveedor de Servicios</option>
+                <option value="consumer">Consumidor</option>
+                <option value="both">Ambos</option>
+            </select>
+            <span class="form-help">Los proveedores pueden ofrecer servicios</span>
+            <span class="form-error" id="userType-error"></span>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="form-group">
+            <label for="password" class="form-label form-label-required">Contraseña</label>
+            <input 
+                type="password" 
+                id="password" 
+                name="password"
+                class="form-input" 
+                placeholder="Mínimo 8 caracteres"
+                required>
+            <span class="form-help">Debe contener al menos 8 caracteres, una mayúscula y un número</span>
+            <span class="form-error" id="password-error"></span>
+            </div>
+
+            <div class="form-group">
+            <label for="confirmPassword" class="form-label form-label-required">Confirmar Contraseña</label>
+            <input 
+                type="password" 
+                id="confirmPassword" 
+                name="confirmPassword"
+                class="form-input" 
+                placeholder="Repite tu contraseña"
+                required>
+            <span class="form-error" id="confirmPassword-error"></span>
+            </div>
+
+            <!-- Términos y Condiciones -->
+            <div class="form-group">
+            <label style="display: flex; align-items: start; gap: 0.5rem; cursor: pointer;">
+                <input 
+                type="checkbox" 
+                id="terms" 
+                name="terms"
+                required>
+                <span style="font-size: 0.875rem; color: var(--gray-600);">
+                Acepto los <a href="#" class="auth-link">términos y condiciones</a> y la 
+                <a href="#" class="auth-link">política de privacidad</a>
+                </span>
+            </label>
+            <span class="form-error" id="terms-error"></span>
+            </div>
+
+            <!-- Botón Submit -->
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="submit-btn">
+            Crear Cuenta
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            ¿Ya tienes una cuenta? 
+            <a href="login.html" class="auth-link">Inicia sesión</a>
+        </div>
+        </div>
+    </div>
+
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script src="../public/js/register.js"></script>
+    </body>
+    </html>
