@@ -1,64 +1,3 @@
-### 🧩 Diagrama General del Sistema de Casos de Uso
-
-El siguiente diagrama muestra la relación general entre los **actores principales** y los **casos de uso** más relevantes del sistema, incluyendo las dependencias con sistemas externos como pagos y notificaciones.
-
-```mermaid
-graph TB 
-    subgraph Sistema["Sistema de Plataforma de Servicios"]
-        CU1[Registrarse en plataforma]
-        CU2[Verificar identidad]
-        CU3[Personalizar perfil]
-        CU4[Buscar perfiles]
-        CU5[Publicar servicio]
-        CU6[Gestionar servicios]
-        CU7[Buscar servicios]
-        CU8[Solicitar cotización]
-        CU9[Gestionar solicitudes]
-        CU10[Enviar mensajes]
-        CU11[Realizar pago con Quetzales]
-        CU12[Gestionar cuenta Quetzales]
-        CU13[Activar garantía Escrow]
-        CU14[Liberar fondos Escrow]
-        CU15[Valorar servicio]
-        CU16[Gestionar disputas]
-    end
-    
-    Usuario((Usuario))
-    Proveedor((Proveedor))
-    Consumidor((Consumidor))
-    Admin((Administrador))
-    SistemaPago[Sistema de Pagos]
-    SistemaNotif[Sistema de Notificaciones]
-    
-    Usuario --> CU1
-    Usuario --> CU2
-    Usuario --> CU3
-    Usuario --> CU4
-    Usuario --> CU10
-    Usuario --> CU12
-    
-    Proveedor --> CU5
-    Proveedor --> CU6
-    Proveedor --> CU9
-    Proveedor --> CU14
-    
-    Consumidor --> CU7
-    Consumidor --> CU8
-    Consumidor --> CU11
-    Consumidor --> CU13
-    Consumidor --> CU15
-    
-    Admin --> CU16
-    
-    CU11 -.-> SistemaPago
-    CU13 -.-> SistemaPago
-    CU14 -.-> SistemaPago
-    CU2 -.-> SistemaNotif
-    CU9 -.-> SistemaNotif
-    
-    Proveedor -.->|es un| Usuario
-    Consumidor -.->|es un| Usuario
-
 # Especificación de Casos de Uso
 
 ## CU1: Registrarse en la plataforma
@@ -352,3 +291,64 @@ graph TB
 - 7a. Resolución parcial: El sistema divide fondos según porcentaje determinado
 
 **Postcondiciones:** Disputa resuelta y fondos distribuidos
+
+
+### 🧩 Diagrama General del Sistema de Casos de Uso
+
+El siguiente diagrama muestra la relación general entre los **actores principales** y los **casos de uso** más relevantes del sistema, incluyendo las dependencias con sistemas externos como pagos y notificaciones.
+
+graph TB 
+    subgraph Sistema["Sistema de Plataforma de Servicios"]
+        CU1[Registrarse en plataforma]
+        CU2[Verificar identidad]
+        CU3[Personalizar perfil]
+        CU4[Buscar perfiles]
+        CU5[Publicar servicio]
+        CU6[Gestionar servicios]
+        CU7[Buscar servicios]
+        CU8[Solicitar cotización]
+        CU9[Gestionar solicitudes]
+        CU10[Enviar mensajes]
+        CU11[Realizar pago con Quetzales]
+        CU12[Gestionar cuenta Quetzales]
+        CU13[Activar garantía Escrow]
+        CU14[Liberar fondos Escrow]
+        CU15[Valorar servicio]
+        CU16[Gestionar disputas]
+    end
+    
+    Usuario((Usuario))
+    Proveedor((Proveedor))
+    Consumidor((Consumidor))
+    Admin((Administrador))
+    SistemaPago[Sistema de Pagos]
+    SistemaNotif[Sistema de Notificaciones]
+    
+    Usuario --> CU1
+    Usuario --> CU2
+    Usuario --> CU3
+    Usuario --> CU4
+    Usuario --> CU10
+    Usuario --> CU12
+    
+    Proveedor --> CU5
+    Proveedor --> CU6
+    Proveedor --> CU9
+    Proveedor --> CU14
+    
+    Consumidor --> CU7
+    Consumidor --> CU8
+    Consumidor --> CU11
+    Consumidor --> CU13
+    Consumidor --> CU15
+    
+    Admin --> CU16
+    
+    CU11 -.-> SistemaPago
+    CU13 -.-> SistemaPago
+    CU14 -.-> SistemaPago
+    CU2 -.-> SistemaNotif
+    CU9 -.-> SistemaNotif
+    
+    Proveedor -.->|es un| Usuario
+    Consumidor -.->|es un| Usuario
