@@ -33,25 +33,23 @@
     </div>
 
     <!-- Contenido -->
-    <div class="container" style="padding-bottom: 3rem;">
+    <div class="container pb-6">
         <div class="container-sm">
         <div class="card">
             <div id="alert-container"></div>
 
             <!-- Loading State -->
-            <div id="loading-state" class="flex-center" style="padding: 3rem;">
+            <div id="loading-state" class="flex-center p-6">
             <div class="spinner"></div>
             </div>
 
             <!-- Form -->
-            <form id="edit-service-form" style="display: none;">
+            <form id="edit-service-form" class="d-none">
             <input type="hidden" id="serviceId" name="serviceId">
 
             <!-- Información Básica -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Información Básica
-                </h3>
+            <div class="form-section">
+                <h3 class="form-section-title">Información Básica</h3>
 
                 <div class="form-group">
                 <label for="title" class="form-label form-label-required">Título del Servicio</label>
@@ -91,7 +89,15 @@
                     name="description"
                     class="form-textarea" 
                     required
-                    maxlength="1000"
+                    maxlength="1000"></textarea>
+                <span class="form-help" id="description-counter">0/1000 caracteres</span>
+                <span class="form-error" id="description-error"></span>
+                </div>
+            </div>
+
+            <!-- Precio y Disponibilidad -->
+            <div class="form-section">
+                <h3 class="form-section-title">Precio y Disponibilidad</h3>"
                     style="min-height: 150px;"></textarea>
                 <span class="form-help" id="description-counter">0/1000 caracteres</span>
                 <span class="form-error" id="description-error"></span>
@@ -100,9 +106,7 @@
 
             <!-- Precio y Disponibilidad -->
             <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Precio y Disponibilidad
-                </h3>
+                <h3 class="section-subtitle">Precio y Disponibilidad</h3>
 
                 <div class="grid grid-cols-2">
                 <div class="form-group">
@@ -149,17 +153,13 @@
 
             <!-- Imágenes Actuales -->
             <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Imágenes Actuales
-                </h3>
+                <h3 class="section-subtitle">Imágenes Actuales</h3>
                 <div id="current-images" class="grid grid-cols-3" style="gap: 1rem;"></div>
             </div>
 
             <!-- Nuevas Imágenes -->
             <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Agregar Nuevas Imágenes
-                </h3>
+                <h3 class="section-subtitle">Agregar Nuevas Imágenes</h3>
 
                 <div class="form-group">
                 <label for="images" class="form-label">Subir Imágenes</label>
@@ -180,9 +180,7 @@
 
             <!-- Requisitos del Cliente -->
             <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Requisitos del Cliente
-                </h3>
+                <h3 class="section-subtitle">Requisitos del Cliente</h3>
 
                 <div class="form-group">
                 <label for="requirements" class="form-label">¿Qué necesitas del cliente para comenzar?</label>

@@ -16,7 +16,7 @@
         </a>
         <ul class="navbar-menu">
             <li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
-            <li><a href="create-service.html" class="navbar-link">Servicios</a></li>
+            <li><a href="services.html" class="navbar-link">Servicios</a></li>
             <li><a href="wallet.html" class="navbar-link">Cartera</a></li>
             <li><a href="profile.html" class="navbar-link active">Perfil</a></li>
             <li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
@@ -32,26 +32,25 @@
         </div>
     </div>
 
-    <div class="container" style="padding-bottom: 3rem;">
-        <div class="grid" style="grid-template-columns: 300px 1fr; gap: 2rem;">
+    <div class="container pb-6">
+        <div class="grid" style="grid-template-columns: 300px 1fr;">
         
         <!-- Sidebar -->
-        <aside>
+        <aside class="profile-sidebar">
             <div class="card">
-            <div style="text-align: center;">
+            <div class="profile-avatar-wrapper">
                 <img 
                 src="https://ui-avatars.com/api/?name=Usuario+Demo&size=120&background=6366f1&color=fff" 
                 alt="Avatar" 
-                class="avatar avatar-xl"
-                id="profile-avatar"
-                style="margin-bottom: 1rem;">
+                class="avatar avatar-xl mb-3"
+                id="profile-avatar">
                 <button class="btn btn-sm btn-outline" onclick="document.getElementById('avatar-input').click()">
                 Cambiar Foto
                 </button>
-                <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                <input type="file" id="avatar-input" accept="image/*" class="profile-avatar-upload">
             </div>
             
-            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--gray-200);">
+            <hr class="my-4 border-top">
             
             <div class="profile-stats">
                 <div class="profile-stat">
@@ -66,8 +65,8 @@
             </div>
 
             <!-- Navigation Menu -->
-            <div class="card mt-3" style="padding: 0;">
-            <nav>
+            <div class="card mt-3 p-0">
+            <nav class="profile-nav">
                 <a href="#info-personal" class="profile-nav-link active" data-tab="info-personal">
                 📋 Información Personal
                 </a>
@@ -169,8 +168,7 @@
 
                 <form id="security-form">
                 <div class="form-group">
-                    <label for="currentPassword" class="form-label form-label-required">Contraseña Actual</label>
-                    <input 
+                    <label for="currentPassword" class="form-label form-label-required">Contraseña Actual</label> 
                     type="password" 
                     id="currentPassword" 
                     class="form-input" 
@@ -214,7 +212,7 @@
 
                 <div class="form-group">
                 <label class="form-label">Agregar Habilidad</label>
-                <div style="display: flex; gap: 0.5rem;">
+                <div class="flex gap-2">
                     <input 
                     type="text" 
                     id="skill-input" 
@@ -224,15 +222,15 @@
                 </div>
                 </div>
 
-                <div id="skills-container" class="flex" style="flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;">
-                <span class="badge badge-info" style="padding: 0.5rem 1rem; font-size: 0.875rem; cursor: pointer;">
-                    Node.js <span style="margin-left: 0.5rem; font-weight: bold;">×</span>
+                <div id="skills-container" class="skills-container">
+                <span class="skill-badge">
+                    Node.js <span class="skill-remove">×</span>
                 </span>
-                <span class="badge badge-info" style="padding: 0.5rem 1rem; font-size: 0.875rem; cursor: pointer;">
-                    React <span style="margin-left: 0.5rem; font-weight: bold;">×</span>
+                <span class="skill-badge">
+                    React <span class="skill-remove">×</span>
                 </span>
-                <span class="badge badge-info" style="padding: 0.5rem 1rem; font-size: 0.875rem; cursor: pointer;">
-                    PostgreSQL <span style="margin-left: 0.5rem; font-weight: bold;">×</span>
+                <span class="skill-badge">
+                    PostgreSQL <span class="skill-remove">×</span>
                 </span>
                 </div>
             </div>
@@ -247,62 +245,58 @@
                 </div>
 
                 <form id="notifications-form">
-                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                    Notificaciones por Email
-                </h3>
+                <h3 class="section-subtitle">Notificaciones por Email</h3>
 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                    <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" id="email-transactions" checked>
                     <div>
-                        <div style="font-weight: 600; color: var(--gray-800);">Transacciones</div>
-                        <div style="font-size: 0.875rem; color: var(--gray-600);">Recibe notificaciones de pagos y transferencias</div>
+                        <div class="font-semibold text-primary">Transacciones</div>
+                        <div class="text-sm text-secondary">Recibe notificaciones de pagos y transferencias</div>
                     </div>
                     </label>
                 </div>
 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                    <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" id="email-messages" checked>
                     <div>
-                        <div style="font-weight: 600; color: var(--gray-800);">Mensajes</div>
-                        <div style="font-size: 0.875rem; color: var(--gray-600);">Recibe notificaciones de nuevos mensajes</div>
+                        <div class="font-semibold text-primary">Mensajes</div>
+                        <div class="text-sm text-secondary">Recibe notificaciones de nuevos mensajes</div>
                     </div>
                     </label>
                 </div>
 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                    <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" id="email-services">
                     <div>
-                        <div style="font-weight: 600; color: var(--gray-800);">Actualizaciones de Servicios</div>
-                        <div style="font-size: 0.875rem; color: var(--gray-600);">Recibe notificaciones sobre tus servicios publicados</div>
+                        <div class="font-semibold text-primary">Actualizaciones de Servicios</div>
+                        <div class="text-sm text-secondary">Recibe notificaciones sobre tus servicios publicados</div>
                     </div>
                     </label>
                 </div>
 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                    <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" id="email-marketing">
                     <div>
-                        <div style="font-weight: 600; color: var(--gray-800);">Novedades y Promociones</div>
-                        <div style="font-size: 0.875rem; color: var(--gray-600);">Recibe información sobre nuevas funciones</div>
+                        <div class="font-semibold text-primary">Novedades y Promociones</div>
+                        <div class="text-sm text-secondary">Recibe información sobre nuevas funciones</div>
                     </div>
                     </label>
                 </div>
 
-                <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--gray-200);">
+                <hr class="my-5 border-top">
 
-                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                    Notificaciones Push
-                </h3>
+                <h3 class="section-subtitle">Notificaciones Push</h3>
 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                    <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" id="push-enabled" checked>
                     <div>
-                        <div style="font-weight: 600; color: var(--gray-800);">Habilitar Notificaciones Push</div>
-                        <div style="font-size: 0.875rem; color: var(--gray-600);">Recibe notificaciones en tiempo real en tu navegador</div>
+                        <div class="font-semibold text-primary">Habilitar Notificaciones Push</div>
+                        <div class="text-sm text-secondary">Recibe notificaciones en tiempo real en tu navegador</div>
                     </div>
                     </label>
                 </div>

@@ -33,17 +33,15 @@
     </div>
 
     <!-- Contenido -->
-    <div class="container" style="padding-bottom: 3rem;">
+    <div class="container pb-6">
         <div class="container-sm">
         <div class="card">
             <div id="alert-container"></div>
 
             <form id="create-service-form">
             <!-- Información Básica -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Información Básica
-                </h3>
+            <div class="form-section">
+                <h3 class="form-section-title">Información Básica</h3>
 
                 <div class="form-group">
                 <label for="title" class="form-label form-label-required">Título del Servicio</label>
@@ -85,18 +83,15 @@
                     class="form-textarea" 
                     placeholder="Describe detalladamente qué incluye tu servicio, qué entregarás, tiempos estimados, etc."
                     required
-                    maxlength="1000"
-                    style="min-height: 150px;"></textarea>
+                    maxlength="1000"></textarea>
                 <span class="form-help" id="description-counter">0/1000 caracteres</span>
                 <span class="form-error" id="description-error"></span>
                 </div>
             </div>
 
             <!-- Precio y Disponibilidad -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Precio y Disponibilidad
-                </h3>
+            <div class="form-section">
+                <h3 class="form-section-title">Precio y Disponibilidad</h3>
 
                 <div class="grid grid-cols-2">
                 <div class="form-group">
@@ -143,10 +138,8 @@
             </div>
 
             <!-- Imágenes -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Imágenes del Servicio
-                </h3>
+            <div class="form-section">
+                <h3 class="form-section-title">Imágenes del Servicio</h3>
 
                 <div class="form-group">
                 <label for="images" class="form-label">Subir Imágenes (Máx. 5)</label>
@@ -156,20 +149,17 @@
                     name="images"
                     accept="image/*"
                     multiple
-                    class="form-input"
-                    style="padding: 0.75rem;">
+                    class="form-input p-3">
                 <span class="form-help">Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB por imagen</span>
                 <span class="form-error" id="images-error"></span>
                 </div>
 
-                <div id="images-preview" class="grid grid-cols-3" style="margin-top: 1rem; gap: 1rem;"></div>
+                <div id="images-preview" class="images-preview-grid"></div>
             </div>
 
             <!-- Requisitos del Cliente -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800);">
-                Requisitos del Cliente
-                </h3>
+            <div class="form-section">
+                <h3 class="form-section-title">Requisitos del Cliente</h3>
 
                 <div class="form-group">
                 <label for="requirements" class="form-label">¿Qué necesitas del cliente para comenzar?</label>
@@ -185,13 +175,13 @@
 
             <!-- Términos -->
             <div class="form-group">
-                <label style="display: flex; align-items: start; gap: 0.5rem; cursor: pointer;">
+                <label class="flex items-start gap-2 cursor-pointer">
                 <input 
                     type="checkbox" 
                     id="terms" 
                     name="terms"
                     required>
-                <span style="font-size: 0.875rem; color: var(--gray-600);">
+                <span class="text-sm text-secondary">
                     Confirmo que este servicio cumple con las 
                     <a href="#" class="auth-link">políticas de la plataforma</a> y no infringe 
                     derechos de autor o propiedad intelectual.
@@ -201,7 +191,7 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex gap-2" style="justify-content: flex-end;">
+            <div class="flex gap-2 justify-end">
                 <a href="services.html" class="btn btn-secondary">Cancelar</a>
                 <button type="submit" class="btn btn-primary" id="submit-btn">
                 Publicar Servicio
@@ -212,8 +202,8 @@
         </div>
     </div>
 
-    <script src="../public/js/utils.js"></script>
+    <!-- <script src="../public/js/utils.js"></script>
     <script src="../public/js/api.js"></script>
-    <script src="../public/js/create-service.js"></script>
+    <script src="../public/js/create-service.js"></script> -->
     </body>
     </html>
