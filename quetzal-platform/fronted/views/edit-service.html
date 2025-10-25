@@ -152,14 +152,14 @@
             </div>
 
             <!-- Imágenes Actuales -->
-            <div style="margin-bottom: 2rem;">
-                <h3 class="section-subtitle">Imágenes Actuales</h3>
-                <div id="current-images" class="grid grid-cols-3" style="gap: 1rem;"></div>
+            <div class="form-section">
+                <h3 class="form-section-title">Imágenes Actuales</h3>
+                <div id="current-images" class="images-preview-grid"></div>
             </div>
 
             <!-- Nuevas Imágenes -->
-            <div style="margin-bottom: 2rem;">
-                <h3 class="section-subtitle">Agregar Nuevas Imágenes</h3>
+            <div class="form-section">
+                <h3 class="form-section-title">Agregar Nuevas Imágenes</h3>
 
                 <div class="form-group">
                 <label for="images" class="form-label">Subir Imágenes</label>
@@ -169,18 +169,17 @@
                     name="images"
                     accept="image/*"
                     multiple
-                    class="form-input"
-                    style="padding: 0.75rem;">
+                    class="form-input p-3">
                 <span class="form-help">Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB por imagen</span>
                 <span class="form-error" id="images-error"></span>
                 </div>
 
-                <div id="images-preview" class="grid grid-cols-3" style="margin-top: 1rem; gap: 1rem;"></div>
+                <div id="images-preview" class="images-preview-grid"></div>
             </div>
 
             <!-- Requisitos del Cliente -->
-            <div style="margin-bottom: 2rem;">
-                <h3 class="section-subtitle">Requisitos del Cliente</h3>
+            <div class="form-section">
+                <h3 class="form-section-title">Requisitos del Cliente</h3>
 
                 <div class="form-group">
                 <label for="requirements" class="form-label">¿Qué necesitas del cliente para comenzar?</label>

@@ -112,16 +112,15 @@
         
         reader.onload = (e) => {
         const preview = document.createElement('div');
-        preview.style.position = 'relative';
+        preview.className = 'image-preview-item';
         preview.innerHTML = `
             <img 
             src="${e.target.result}" 
             alt="Preview ${index + 1}"
-            style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius-md);">
+            class="image-preview-img">
             <button 
             type="button"
-            class="btn btn-sm"
-            style="position: absolute; top: 0.5rem; right: 0.5rem; background-color: var(--error); color: white; padding: 0.25rem 0.5rem;"
+            class="image-preview-remove"
             data-index="${index}">
             ✕
             </button>

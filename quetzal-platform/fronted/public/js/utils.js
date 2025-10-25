@@ -370,3 +370,37 @@
     const message = error.message || defaultMessage;
     showAlert(message, 'error');
     }
+
+    // Hacer disponibles las funciones de formateo para otros módulos
+    if (typeof window !== 'undefined') {
+    window.utils = {
+        showAlert,
+        showFieldError,
+        clearFormErrors,
+        isValidEmail,
+        isValidPassword,
+        isValidPhone,
+        formatQuetzales,
+        formatCOP,
+        quetzalesToCOP,
+        copToQuetzales,
+        formatDate,
+        formatDateTime,
+        getTimeAgo,
+        debounce,
+        getAuthUser,
+        getAuthToken,
+        isAuthenticated,
+        logout,
+        requireAuth,
+        redirectIfAuthenticated,
+        truncateText,
+        getInitials,
+        copyToClipboard,
+        validateImageFile,
+        readFileAsDataURL,
+        sanitizeHTML,
+        generateId,
+        handleError
+    };
+    }

@@ -249,21 +249,43 @@
         alt="${service.title}"
         class="service-card-image">
         
-        <span class="badge badge-info" style="margin-bottom: 0.5rem;">
+        <span class="badge badge-info mb-2">
         ${getCategoryName(service.category)}
         </span>
         
         <h3 class="service-card-title">${service.title}</h3>
         <p class="service-card-description">${truncateText(service.description, 120)}</p>
         
-        <div class="flex-between" style="margin-top: 1rem;">
+        <div class="flex-between mt-3">
         <div>
-            <div style="display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.25rem;">
+            <div class="flex items-center gap-1 mb-1">
             <span style="color: var(--warning);">⭐</span>
-            <span style="font-weight: 600;">${service.rating}</span>
-            <span style="color: var(--gray-500); font-size: 0.875rem;">(${service.reviews})</span>
+            <span class="font-semibold">${service.rating}</span>
+            <span class="text-sm text-muted">(${service.reviews})</span>
             </div>
-            <div style="font-size: 0.875rem; color: var(--gray-600);">
+            <div class="text-sm text-secondary">
+            📦 ${service.deliveryTime}
+            </div>
+        </div>
+        <div class="service-card-price">
+            ${formatQuetzales(service.price)}
+        </div>
+        </div>
+        
+        <div class="service-card-footer">
+        <div class="flex items-center gap-2">
+            <img src="${service.provider.avatar}" alt="${service.provider.name}" class="avatar avatar-sm">
+            <span class="text-sm text-secondary">${service.provider.name}</span>
+        </div>
+        <button class="btn btn-sm btn-primary">Ver Más</button>
+        </div>
+    `;
+    
+    // Event listener para abrir modal
+    card.addEventListener('click', () => openServiceModal(service));
+    
+    return card;
+    }gray-600);">
             📦 ${service.deliveryTime}
             </div>
         </div>
@@ -288,63 +310,64 @@
     }
 
     /**
-     * Abre el modal con los detalles del servicio
-     */
+    * Abre el modal con los detalles del servicio
+    */
     function openServiceModal(service) {
     const modalContent = serviceModal.querySelector('.modal-content');
     const user = getAuthUser();
     const isOwner = user && service.provider.name === user.name;
     
     modalContent.innerHTML = `
-        <div style="padding: 2rem;">
+        <div class="modal-body">
         <div class="flex-between mb-3">
             <span class="badge badge-info">${getCategoryName(service.category)}</span>
             <button class="btn btn-sm btn-secondary" onclick="closeModal()">✕</button>
         </div>
         
-        <h2 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1rem;">
+        <h2 class="text-3xl font-bold mb-3">
             ${service.title}
         </h2>
         
         <div class="flex gap-2 mb-3">
-            <div style="display: flex; align-items: center; gap: 0.25rem;">
+            <div class="flex items-center gap-1">
             <span style="color: var(--warning);">⭐</span>
-            <span style="font-weight: 600;">${service.rating}</span>
-            <span style="color: var(--gray-500);">(${service.reviews} reseñas)</span>
+            <span class="font-semibold">${service.rating}</span>
+            <span class="text-muted">(${service.reviews} reseñas)</span>
             </div>
-            <span style="color: var(--gray-300);">•</span>
-            <span style="color: var(--gray-600);">📦 ${service.deliveryTime}</span>
+            <span class="text-muted">•</span>
+            <span class="text-secondary">📦 ${service.deliveryTime}</span>
         </div>
         
         <img 
             src="${service.image}" 
             alt="${service.title}"
-            style="width: 100%; height: 300px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+            class="w-full rounded-lg mb-4"
+            style="height: 300px; object-fit: cover;">
         
-        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">
+        <h3 class="text-xl font-semibold mb-2">
             Descripción
         </h3>
-        <p style="color: var(--gray-600); line-height: 1.6; margin-bottom: 1.5rem;">
+        <p class="text-secondary mb-4" style="line-height: 1.6;">
             ${service.description}
         </p>
         
-        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--gray-200);">
+        <hr class="my-4 border-top">
         
-        <div class="flex-between" style="align-items: center;">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div class="flex-between items-center">
+            <div class="flex items-center gap-3">
             <img src="${service.provider.avatar}" alt="${service.provider.name}" class="avatar avatar-lg">
             <div>
-                <div style="font-weight: 600;">${service.provider.name}</div>
-                <div style="font-size: 0.875rem; color: var(--gray-600);">Proveedor</div>
+                <div class="font-semibold">${service.provider.name}</div>
+                <div class="text-sm text-secondary">Proveedor</div>
             </div>
             </div>
             
-            <div style="text-align: right;">
-            <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.25rem;">Precio</div>
-            <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">
+            <div class="text-right">
+            <div class="text-sm text-secondary mb-1">Precio</div>
+            <div class="text-4xl font-bold" style="color: var(--primary-color);">
                 ${formatQuetzales(service.price)}
             </div>
-            <div style="font-size: 0.875rem; color: var(--gray-500);">
+            <div class="text-sm text-muted">
                 ≈ ${formatCOP(quetzalesToCOP(service.price))}
             </div>
             </div>
@@ -359,7 +382,7 @@
         </div>
     `;
     
-    serviceModal.style.display = 'flex';
+    serviceModal.classList.add('active');
     
     // Cerrar al hacer click en el overlay
     const overlay = serviceModal.querySelector('.modal-overlay');
@@ -367,23 +390,23 @@
     }
 
     /**
-     * Cierra el modal
-     */
+    * Cierra el modal
+    */
     function closeModal() {
-    serviceModal.style.display = 'none';
+    serviceModal.classList.remove('active');
     }
 
     /**
-     * Contactar proveedor
-     */
+    * Contactar proveedor
+    */
     function contactProvider(serviceId) {
     showAlert('Función de mensajería en desarrollo', 'info');
     closeModal();
     }
 
     /**
-     * Maneja la búsqueda
-     */
+    * Maneja la búsqueda
+    */
     function handleSearch(e) {
     currentFilters.search = e.target.value.toLowerCase();
     currentPage = 1;
@@ -391,8 +414,8 @@
     }
 
     /**
-     * Maneja el cambio de categoría
-     */
+    * Maneja el cambio de categoría
+    */
     function handleCategoryChange(e) {
     currentFilters.category = e.target.value;
     currentPage = 1;
@@ -400,16 +423,16 @@
     }
 
     /**
-     * Maneja el cambio de ordenamiento
-     */
+    * Maneja el cambio de ordenamiento
+    */
     function handleSortChange(e) {
     currentFilters.sort = e.target.value;
     applyFilters();
     }
 
     /**
-     * Aplica todos los filtros
-     */
+    * Aplica todos los filtros
+    */
     function applyFilters() {
     filteredServices = allServices.filter(service => {
         // Filtro de búsqueda
@@ -442,8 +465,8 @@
     }
 
     /**
-     * Ordena los servicios
-     */
+    * Ordena los servicios
+    */
     function sortServices() {
     switch (currentFilters.sort) {
         case 'price-low':
@@ -466,8 +489,8 @@
     }
 
     /**
-     * Limpia todos los filtros
-     */
+    * Limpia todos los filtros
+    */
     function clearFilters() {
     searchInput.value = '';
     categorySelect.value = '';
@@ -499,8 +522,8 @@
     }
 
     /**
-     * Actualiza la paginación
-     */
+    * Actualiza la paginación
+    */
     function updatePagination() {
     const totalPages = Math.ceil(filteredServices.length / servicesPerPage);
     

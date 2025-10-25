@@ -234,11 +234,8 @@
     
     // Crear badge de habilidad
     const skillBadge = document.createElement('span');
-    skillBadge.className = 'badge badge-info';
-    skillBadge.style.padding = '0.5rem 1rem';
-    skillBadge.style.fontSize = '0.875rem';
-    skillBadge.style.cursor = 'pointer';
-    skillBadge.innerHTML = `${skill} <span style="margin-left: 0.5rem; font-weight: bold;">×</span>`;
+    skillBadge.className = 'skill-badge';
+    skillBadge.innerHTML = `${skill} <span class="skill-remove">×</span>`;
     
     // Event listener para eliminar
     skillBadge.addEventListener('click', () => {

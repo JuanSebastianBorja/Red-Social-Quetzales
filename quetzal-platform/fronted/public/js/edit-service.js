@@ -116,7 +116,7 @@
     currentImagesContainer.innerHTML = '';
     
     if (!currentService.images || currentService.images.length === 0) {
-        currentImagesContainer.innerHTML = '<p style="color: var(--gray-500);">No hay imágenes</p>';
+        currentImagesContainer.innerHTML = '<p class="text-muted">No hay imágenes</p>';
         return;
     }
     
@@ -125,16 +125,15 @@
         if (imagesToDelete.includes(imageUrl)) return;
         
         const imageDiv = document.createElement('div');
-        imageDiv.style.position = 'relative';
+        imageDiv.className = 'image-preview-item';
         imageDiv.innerHTML = `
         <img 
             src="${imageUrl}" 
             alt="Imagen ${index + 1}"
-            style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius-md);">
+            class="image-preview-img">
         <button 
             type="button"
-            class="btn btn-sm"
-            style="position: absolute; top: 0.5rem; right: 0.5rem; background-color: var(--error); color: white; padding: 0.25rem 0.5rem;"
+            class="image-preview-remove"
             data-url="${imageUrl}">
             ✕
         </button>
@@ -221,17 +220,16 @@
         
         reader.onload = (e) => {
         const preview = document.createElement('div');
-        preview.style.position = 'relative';
+        preview.className = 'image-preview-item';
         preview.innerHTML = `
             <img 
             src="${e.target.result}" 
             alt="Nueva ${index + 1}"
-            style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius-md);">
-            <span class="badge badge-success" style="position: absolute; top: 0.5rem; left: 0.5rem;">Nueva</span>
+            class="image-preview-img">
+            <span class="image-preview-badge badge badge-success">Nueva</span>
             <button 
             type="button"
-            class="btn btn-sm"
-            style="position: absolute; top: 0.5rem; right: 0.5rem; background-color: var(--error); color: white; padding: 0.25rem 0.5rem;"
+            class="image-preview-remove"
             data-index="${index}">
             ✕
             </button>

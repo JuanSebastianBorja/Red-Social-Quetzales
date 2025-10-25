@@ -1,0 +1,154 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    </head>
+    <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+        <a href="dashboard.html" class="navbar-brand">
+            <span class="navbar-brand-icon">🦜</span>
+            <span>Quetzal</span>
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
+            <li><a href="services.html" class="navbar-link active">Servicios</a></li>
+            <li><a href="wallet.html" class="navbar-link">Cartera</a></li>
+            <li><a href="profile.html" class="navbar-link">Perfil</a></li>
+            <li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
+        </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="container">
+        <div class="flex-between">
+            <div>
+            <h1 class="page-title">Explorar Servicios</h1>
+            <p class="page-subtitle">Descubre profesionales y servicios de calidad</p>
+            </div>
+            <a href="create-service.html" class="btn btn-primary">
+            + Publicar Servicio
+            </a>
+        </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="service-filters">
+        <div class="container">
+        <div class="grid grid-cols-3 gap-3 items-end">
+            <!-- Búsqueda -->
+            <div class="form-group mb-0">
+            <label for="search" class="form-label">Buscar servicios</label>
+            <input 
+                type="text" 
+                id="search" 
+                class="form-input" 
+                placeholder="Ej: diseño web, desarrollo móvil...">
+            </div>
+
+            <!-- Categoría -->
+            <div class="form-group mb-0">
+            <label for="category" class="form-label">Categoría</label>
+            <select id="category" class="form-select">
+                <option value="">Todas las categorías</option>
+                <option value="desarrollo">Desarrollo y Programación</option>
+                <option value="diseno">Diseño Gráfico</option>
+                <option value="marketing">Marketing Digital</option>
+                <option value="escritura">Escritura y Traducción</option>
+                <option value="video">Video y Animación</option>
+                <option value="musica">Música y Audio</option>
+                <option value="negocios">Negocios y Consultoría</option>
+                <option value="educacion">Educación y Tutorías</option>
+                <option value="lifestyle">Estilo de Vida</option>
+                <option value="otros">Otros</option>
+            </select>
+            </div>
+
+            <!-- Ordenar -->
+            <div class="form-group mb-0">
+            <label for="sort" class="form-label">Ordenar por</label>
+            <select id="sort" class="form-select">
+                <option value="recent">Más recientes</option>
+                <option value="price-low">Precio: Menor a Mayor</option>
+                <option value="price-high">Precio: Mayor a Menor</option>
+                <option value="rating">Mejor valorados</option>
+                <option value="popular">Más populares</option>
+            </select>
+            </div>
+        </div>
+
+        <!-- Filtros Adicionales -->
+        <div class="flex gap-2 mt-3 flex-wrap">
+            <button class="filter-button active" data-filter="all">
+            Todos
+            </button>
+            <button class="filter-button" data-filter="price-low">
+            Precio Bajo (< 5Q)
+            </button>
+            <button class="filter-button" data-filter="price-medium">
+            Precio Medio (5-20Q)
+            </button>
+            <button class="filter-button" data-filter="price-high">
+            Precio Alto (> 20Q)
+            </button>
+            <button class="filter-button" data-filter="rating">
+            Top Rated (4.5+)
+            </button>
+        </div>
+        </div>
+    </div>
+
+    <!-- Grid de Servicios -->
+    <div class="container pb-6">
+        <!-- Loading State -->
+        <div id="loading-state" class="flex-center p-6">
+        <div class="spinner"></div>
+        </div>
+
+        <!-- Services Grid -->
+        <div id="services-grid" class="grid grid-cols-3 d-none"></div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="d-none text-center p-6">
+        <div class="text-4xl mb-3">🔍</div>
+        <h3 class="text-2xl font-semibold text-primary mb-2">
+            No se encontraron servicios
+        </h3>
+        <p class="text-secondary mb-4">
+            Intenta ajustar tus filtros de búsqueda
+        </p>
+        <button class="btn btn-primary" id="clear-filters-btn">
+            Limpiar Filtros
+        </button>
+        </div>
+
+        <!-- Paginación -->
+        <div id="pagination" class="flex-center gap-2 mt-6 d-none">
+        <button class="btn btn-secondary btn-sm" id="prev-page" disabled>
+            ← Anterior
+        </button>
+        <div id="page-numbers" class="flex gap-1"></div>
+        <button class="btn btn-secondary btn-sm" id="next-page">
+            Siguiente →
+        </button>
+        </div>
+    </div>
+
+    <!-- Modal de Vista Rápida -->
+    <div id="service-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content"></div>
+    </div>
+
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script src="../public/js/services.js"></script>
+    </body>
+    </html>
