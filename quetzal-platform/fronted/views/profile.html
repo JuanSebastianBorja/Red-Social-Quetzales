@@ -1,0 +1,315 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    </head>
+    <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+        <a href="dashboard.html" class="navbar-brand">
+            <span class="navbar-brand-icon">🦜</span>
+            <span>Quetzal</span>
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
+            <li><a href="services.html" class="navbar-link">Servicios</a></li>
+            <li><a href="wallet.html" class="navbar-link">Cartera</a></li>
+            <li><a href="profile.html" class="navbar-link active">Perfil</a></li>
+            <li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
+        </ul>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <div class="dashboard-header">
+        <div class="container">
+        <h1 class="page-title">Mi Perfil</h1>
+        <p class="page-subtitle">Gestiona tu información personal y preferencias</p>
+        </div>
+    </div>
+
+    <div class="container pb-6">
+        <div class="grid" style="grid-template-columns: 300px 1fr;">
+        
+        <!-- Sidebar -->
+        <aside class="profile-sidebar">
+            <div class="card">
+            <div class="profile-avatar-wrapper">
+                <img 
+                src="https://ui-avatars.com/api/?name=Usuario+Demo&size=120&background=6366f1&color=fff" 
+                alt="Avatar" 
+                class="avatar avatar-xl mb-3"
+                id="profile-avatar">
+                <button class="btn btn-sm btn-outline" onclick="document.getElementById('avatar-input').click()">
+                Cambiar Foto
+                </button>
+                <input type="file" id="avatar-input" accept="image/*" class="profile-avatar-upload">
+            </div>
+            
+            <hr class="my-4 border-top">
+            
+            <div class="profile-stats">
+                <div class="profile-stat">
+                <div class="profile-stat-value">4.8</div>
+                <div class="profile-stat-label">Rating</div>
+                </div>
+                <div class="profile-stat">
+                <div class="profile-stat-value">127</div>
+                <div class="profile-stat-label">Servicios</div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <div class="card mt-3 p-0">
+            <nav class="profile-nav">
+                <a href="#info-personal" class="profile-nav-link active" data-tab="info-personal">
+                📋 Información Personal
+                </a>
+                <a href="#seguridad" class="profile-nav-link" data-tab="seguridad">
+                🔒 Seguridad
+                </a>
+                <a href="#habilidades" class="profile-nav-link" data-tab="habilidades">
+                ⚡ Habilidades
+                </a>
+                <a href="#notificaciones" class="profile-nav-link" data-tab="notificaciones">
+                🔔 Notificaciones
+                </a>
+            </nav>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main>
+            <!-- Tab: Información Personal -->
+            <div class="tab-content active" id="info-personal">
+            <div class="card">
+                <div class="card-header">
+                <h2 class="card-title">Información Personal</h2>
+                <p class="card-subtitle">Actualiza tus datos de contacto y perfil</p>
+                </div>
+
+                <form id="profile-form">
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                    <label for="fullName" class="form-label form-label-required">Nombre Completo</label>
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        class="form-input" 
+                        value="Juan Pérez García"
+                        required>
+                    </div>
+
+                    <div class="form-group">
+                    <label for="phone" class="form-label form-label-required">Teléfono</label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        class="form-input" 
+                        value="+57 300 123 4567"
+                        required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                    <label for="city" class="form-label">Ciudad</label>
+                    <select id="city" class="form-select">
+                        <option value="bogota" selected>Bogotá</option>
+                        <option value="medellin">Medellín</option>
+                        <option value="cali">Cali</option>
+                    </select>
+                    </div>
+
+                    <div class="form-group">
+                    <label for="userType" class="form-label">Tipo de Cuenta</label>
+                    <select id="userType" class="form-select">
+                        <option value="provider">Proveedor</option>
+                        <option value="consumer">Consumidor</option>
+                        <option value="both" selected>Ambos</option>
+                    </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio" class="form-label">Biografía</label>
+                    <textarea 
+                    id="bio" 
+                    class="form-textarea" 
+                    placeholder="Cuéntanos sobre ti, tu experiencia y servicios...">Desarrollador Full Stack con 5 años de experiencia en Node.js, React y bases de datos SQL/NoSQL. Especializado en crear aplicaciones web escalables y eficientes.</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="website" class="form-label">Sitio Web</label>
+                    <input 
+                    type="url" 
+                    id="website" 
+                    class="form-input" 
+                    placeholder="https://tu-sitio.com">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </form>
+            </div>
+            </div>
+
+            <!-- Tab: Seguridad -->
+            <div class="tab-content" id="seguridad">
+            <div class="card">
+                <div class="card-header">
+                <h2 class="card-title">Seguridad de la Cuenta</h2>
+                <p class="card-subtitle">Actualiza tu contraseña y configura la seguridad</p>
+                </div>
+
+                <form id="security-form">
+                <div class="form-group">
+                    <label for="currentPassword" class="form-label form-label-required">Contraseña Actual</label> 
+                    type="password" 
+                    id="currentPassword" 
+                    class="form-input" 
+                    placeholder="Tu contraseña actual"
+                    required>
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword" class="form-label form-label-required">Nueva Contraseña</label>
+                    <input 
+                    type="password" 
+                    id="newPassword" 
+                    class="form-input" 
+                    placeholder="Mínimo 8 caracteres"
+                    required>
+                    <span class="form-help">Debe contener al menos 8 caracteres, una mayúscula y un número</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmNewPassword" class="form-label form-label-required">Confirmar Nueva Contraseña</label>
+                    <input 
+                    type="password" 
+                    id="confirmNewPassword" 
+                    class="form-input" 
+                    placeholder="Repite la nueva contraseña"
+                    required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Actualizar Contraseña</button>
+                </form>
+            </div>
+            </div>
+
+            <!-- Tab: Habilidades -->
+            <div class="tab-content" id="habilidades">
+            <div class="card">
+                <div class="card-header">
+                <h2 class="card-title">Habilidades y Experiencia</h2>
+                <p class="card-subtitle">Agrega tus habilidades para destacar tu perfil</p>
+                </div>
+
+                <div class="form-group">
+                <label class="form-label">Agregar Habilidad</label>
+                <div class="flex gap-2">
+                    <input 
+                    type="text" 
+                    id="skill-input" 
+                    class="form-input" 
+                    placeholder="Ej: JavaScript, Diseño Gráfico, Marketing">
+                    <button type="button" class="btn btn-primary" id="add-skill-btn">Agregar</button>
+                </div>
+                </div>
+
+                <div id="skills-container" class="skills-container">
+                <span class="skill-badge">
+                    Node.js <span class="skill-remove">×</span>
+                </span>
+                <span class="skill-badge">
+                    React <span class="skill-remove">×</span>
+                </span>
+                <span class="skill-badge">
+                    PostgreSQL <span class="skill-remove">×</span>
+                </span>
+                </div>
+            </div>
+            </div>
+
+            <!-- Tab: Notificaciones -->
+            <div class="tab-content" id="notificaciones">
+            <div class="card">
+                <div class="card-header">
+                <h2 class="card-title">Preferencias de Notificaciones</h2>
+                <p class="card-subtitle">Configura cómo quieres recibir notificaciones</p>
+                </div>
+
+                <form id="notifications-form">
+                <h3 class="section-subtitle">Notificaciones por Email</h3>
+
+                <div class="form-group">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="email-transactions" checked>
+                    <div>
+                        <div class="font-semibold text-primary">Transacciones</div>
+                        <div class="text-sm text-secondary">Recibe notificaciones de pagos y transferencias</div>
+                    </div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="email-messages" checked>
+                    <div>
+                        <div class="font-semibold text-primary">Mensajes</div>
+                        <div class="text-sm text-secondary">Recibe notificaciones de nuevos mensajes</div>
+                    </div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="email-services">
+                    <div>
+                        <div class="font-semibold text-primary">Actualizaciones de Servicios</div>
+                        <div class="text-sm text-secondary">Recibe notificaciones sobre tus servicios publicados</div>
+                    </div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="email-marketing">
+                    <div>
+                        <div class="font-semibold text-primary">Novedades y Promociones</div>
+                        <div class="text-sm text-secondary">Recibe información sobre nuevas funciones</div>
+                    </div>
+                    </label>
+                </div>
+
+                <hr class="my-5 border-top">
+
+                <h3 class="section-subtitle">Notificaciones Push</h3>
+
+                <div class="form-group">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="push-enabled" checked>
+                    <div>
+                        <div class="font-semibold text-primary">Habilitar Notificaciones Push</div>
+                        <div class="text-sm text-secondary">Recibe notificaciones en tiempo real en tu navegador</div>
+                    </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Guardar Preferencias</button>
+                </form>
+            </div>
+            </div>
+        </main>
+        </div>
+    </div>
+
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/profile.js"></script>
+    </body>
+    </html>
