@@ -2,7 +2,10 @@
     // SERVER.JS - Punto de Entrada del Servidor
     // ============================================
 
-    const app = require('./src/app');
+    // Cargar variables de entorno PRIMERO
+    require('dotenv').config();
+
+    const app = require('./src/app.js');
     const { sequelize } = require('./src/config/database');
 
     const PORT = process.env.PORT || 3000;
@@ -14,10 +17,10 @@
         await sequelize.authenticate();
         console.log('✅ Conexión a PostgreSQL establecida correctamente');
 
-        // Sincronizar modelos (solo en desarrollo)
+        // Verificar estructura de la base de datos
         if (process.env.NODE_ENV !== 'production') {
-        await sequelize.sync({ alter: true });
-        console.log('✅ Modelos sincronizados con la base de datos');
+            await sequelize.sync({ alter: false });
+            console.log('✅ Modelos verificados con la base de datos');
         }
 
         // Iniciar servidor HTTP
