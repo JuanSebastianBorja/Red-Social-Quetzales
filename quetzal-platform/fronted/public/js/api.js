@@ -2,7 +2,8 @@
     // API.JS - Cliente HTTP para comunicación con Backend
     // ============================================
 
-    const API_BASE_URL = 'http://localhost:3000/api'; // Cambiar en producción
+    import config from './config.js';
+    const API_BASE_URL = config.api.baseUrl;
 
     /**
      * Cliente HTTP configurado

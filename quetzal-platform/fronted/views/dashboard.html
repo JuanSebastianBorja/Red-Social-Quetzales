@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="dashboard.html" class="navbar-brand">
+                <span class="navbar-brand-icon">🦜</span>
+                <span>Quetzal</span>
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="dashboard.html" class="navbar-link active">Inicio</a></li>
+                <li><a href="services.html" class="navbar-link">Servicios</a></li>
+                <li><a href="wallet.html" class="navbar-link">Cartera</a></li>
+                <li><a href="profile.html" class="navbar-link">Perfil</a></li>
+                <li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Bienvenido(a) <span id="user-name">Cargando...</span></p>
+                </div>
+                <a href="create-service.html" class="btn btn-primary">
+                    <span class="icon">➕</span> Publicar Servicio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="container pb-6">
+        <!-- Grid de 2 columnas -->
+        <div class="grid grid-cols-3 gap-4">
+            <!-- Columna Principal (2/3) -->
+            <div class="col-span-2">
+                <!-- Resumen de Cartera -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Tu Cartera</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="stat-card">
+                                <div class="stat-card-value" id="balance-quetzales">Q0.00</div>
+                                <div class="stat-card-label">Balance en Quetzales</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-value" id="balance-cop">$0 COP</div>
+                                <div class="stat-card-label">Equivalente en COP</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-value" id="pending-escrow">Q0.00</div>
+                                <div class="stat-card-label">En Escrow</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-4">
+                            <a href="wallet.html" class="btn btn-secondary btn-sm">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Servicios Activos -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Tus Servicios Activos</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="active-services" class="grid grid-cols-2 gap-4">
+                            <!-- Los servicios se cargarán dinámicamente -->
+                            <div class="skeleton-card"></div>
+                            <div class="skeleton-card"></div>
+                        </div>
+                        <div class="flex justify-end mt-4">
+                            <a href="services.html" class="btn btn-secondary btn-sm">Ver Todos</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Últimas Transacciones -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Últimas Transacciones</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="recent-transactions" class="transactions-list">
+                            <!-- Las transacciones se cargarán dinámicamente -->
+                            <div class="skeleton-transaction"></div>
+                            <div class="skeleton-transaction"></div>
+                            <div class="skeleton-transaction"></div>
+                        </div>
+                        <div class="flex justify-end mt-4">
+                            <a href="wallet.html" class="btn btn-secondary btn-sm">Ver Historial</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Lateral (1/3) -->
+            <div>
+                <!-- Notificaciones -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Notificaciones</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="notifications-list" class="notifications-list">
+                            <!-- Las notificaciones se cargarán dinámicamente -->
+                            <div class="skeleton-notification"></div>
+                            <div class="skeleton-notification"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones Rápidas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Acciones Rápidas</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <a href="wallet.html" class="quick-action-btn">
+                                <span class="icon">💰</span>
+                                <span>Recargar Quetzales</span>
+                            </a>
+                            <a href="create-service.html" class="quick-action-btn">
+                                <span class="icon">✨</span>
+                                <span>Nuevo Servicio</span>
+                            </a>
+                            <a href="messages.html" class="quick-action-btn">
+                                <span class="icon">💬</span>
+                                <span>Mensajes</span>
+                            </a>
+                            <a href="profile.html" class="quick-action-btn">
+                                <span class="icon">⚙️</span>
+                                <span>Configuración</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script src="../public/js/config.js"></script>
+    <script src="../public/js/dashboard.js"></script>
+</body>
+</html>
