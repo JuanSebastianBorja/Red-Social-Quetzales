@@ -238,32 +238,32 @@
     return !!getAuthToken();
     }
 
-    /**
-     * Cierra sesión del usuario
-     */
-    function logout() {
-    localStorage.removeItem('quetzal_token');
-    localStorage.removeItem('quetzal_user');
+/**
+ * Cierra sesión del usuario
+ */
+function logout() {
+  localStorage.removeItem('quetzal_token');
+  localStorage.removeItem('quetzal_user');
+  window.location.href = '../public/index.html';
+}
+
+/**
+ * Protege una página para usuarios autenticados
+ */
+function requireAuth() {
+  if (!isAuthenticated()) {
     window.location.href = 'login.html';
-    }
+  }
+}
 
-    /**
-     * Protege una página para usuarios autenticados
-     */
-    function requireAuth() {
-    if (!isAuthenticated()) {
-        window.location.href = 'login.html';
-    }
-    }
-
-    /**
-     * Redirecciona si el usuario ya está autenticado (para páginas de login/registro)
-     */
-    function redirectIfAuthenticated() {
-    if (isAuthenticated()) {
-        window.location.href = 'dashboard.html';
-    }
-    }
+/**
+ * Redirecciona si el usuario ya está autenticado (para páginas de login/registro)
+ */
+function redirectIfAuthenticated() {
+  if (isAuthenticated()) {
+    window.location.href = 'dashboard.html';
+  }
+}
 
     /**
      * Trunca un texto a una longitud específica

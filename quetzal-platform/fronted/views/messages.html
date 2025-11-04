@@ -1,0 +1,52 @@
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Mensajes - Quetzal Platform</title>
+		<link rel="stylesheet" href="../public/css/main.css" />
+	</head>
+	<body>
+		<!-- Navbar -->
+		<nav class="navbar">
+			<div class="container navbar-content">
+				<a href="dashboard.html" class="navbar-brand">
+					<span class="navbar-brand-icon">🦜</span>
+					<span>Quetzal</span>
+				</a>
+				<ul class="navbar-menu">
+					<li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
+					<li><a href="services.html" class="navbar-link">Servicios</a></li>
+					<li><a href="messages.html" class="navbar-link active">Mensajes</a></li>
+					<li><a href="wallet.html" class="navbar-link">Cartera</a></li>
+					<li><a href="profile.html" class="navbar-link">Perfil</a></li>
+					<li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
+				</ul>
+			</div>
+		</nav>
+
+		<main class="container">
+			<h1>Mensajes</h1>
+
+			<div class="messages-layout">
+				<aside class="conversations">
+					<h3>Conversaciones</h3>
+					<ul id="conversations-list">Cargando...</ul>
+				</aside>
+
+				<section class="chat">
+					<div id="chat-header">Selecciona una conversación</div>
+					<div id="messages-container" class="messages-container"></div>
+					<form id="message-form" class="message-form" style="display:none;">
+						<input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off" required />
+						<button type="submit">Enviar</button>
+					</form>
+				</section>
+		</div>
+	</main>
+
+	<script src="../public/js/utils.js"></script>
+	<script type="module" src="../public/js/messages.js"></script>
+</body>
+</html>

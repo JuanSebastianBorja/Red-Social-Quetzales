@@ -1,0 +1,157 @@
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Wallet - Quetzal Platform</title>
+		<link rel="stylesheet" href="../public/css/main.css" />
+	</head>
+	<body>
+		<!-- Navbar -->
+		<nav class="navbar">
+			<div class="container navbar-content">
+				<a href="dashboard.html" class="navbar-brand">
+					<span class="navbar-brand-icon">🦜</span>
+					<span>Quetzal</span>
+				</a>
+				<ul class="navbar-menu">
+					<li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
+					<li><a href="services.html" class="navbar-link">Servicios</a></li>
+					<li><a href="wallet.html" class="navbar-link active">Cartera</a></li>
+					<li><a href="profile.html" class="navbar-link">Perfil</a></li>
+					<li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
+				</ul>
+			</div>
+		</nav>
+
+		<main class="container mt-4">
+		<div class="page-header mb-4">
+			<h1 class="page-title">💰 Mi Cartera</h1>
+			<p class="text-muted">Administra tus Quetzales y transacciones</p>
+		</div>
+
+		<!-- Balance Card -->
+		<div class="card card-gradient mb-4">
+			<div class="card-body">
+				<div class="d-flex justify-between align-center">
+					<div>
+						<p class="text-sm text-muted mb-1">Balance Disponible</p>
+						<h2 class="balance-amount" id="balance">
+							<span class="spinner"></span> Cargando...
+						</h2>
+						<p class="text-xs text-muted mt-1" id="balance-cop">≈ $0 COP</p>
+					</div>
+					<div class="balance-icon">
+						<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<circle cx="12" cy="12" r="10"></circle>
+							<path d="M12 6v12M9 9l3-3 3 3"></path>
+						</svg>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Actions Grid -->
+		<div class="grid grid-2 gap-4 mb-4">
+			<!-- Comprar Quetzales Card -->
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">💳 Comprar Quetzales</h3>
+					<p class="text-sm text-muted">Añade fondos a tu cartera</p>
+				</div>
+				<div class="card-body">
+					<form id="purchase-form">
+						<div class="form-group">
+							<label for="q-amount" class="form-label">Cantidad (Quetzales)</label>
+							<div class="input-with-icon">
+								<span class="input-icon">Q</span>
+								<input 
+									type="number" 
+									id="q-amount" 
+									name="amount" 
+									class="form-control" 
+									min="1" 
+									step="0.01" 
+									placeholder="0.00"
+									required 
+								/>
+							</div>
+							<small class="text-muted" id="purchase-cop-preview">1 Quetzal = 10,000 COP</small>
+						</div>
+						<button type="submit" class="btn btn-primary btn-block">
+							<span class="btn-icon">💳</span>
+							Comprar Ahora
+						</button>
+					</form>
+					<div id="purchase-result" class="mt-3"></div>
+				</div>
+			</div>
+
+			<!-- Retirar Fondos Card -->
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">🏦 Retirar Fondos</h3>
+					<p class="text-sm text-muted">Solicita un retiro a tu cuenta bancaria</p>
+				</div>
+				<div class="card-body">
+					<form id="withdraw-form">
+						<div class="form-group">
+							<label for="w-amount" class="form-label">Cantidad (Quetzales)</label>
+							<div class="input-with-icon">
+								<span class="input-icon">Q</span>
+								<input 
+									type="number" 
+									id="w-amount" 
+									name="amount" 
+									class="form-control" 
+									min="1" 
+									step="0.01" 
+									placeholder="0.00"
+									required 
+								/>
+							</div>
+							<small class="text-muted" id="withdraw-cop-preview">≈ $0 COP</small>
+						</div>
+						<div class="form-group">
+							<label for="bank-details" class="form-label">Datos Bancarios</label>
+							<input 
+								type="text" 
+								id="bank-details" 
+								name="bankDetails" 
+								class="form-control" 
+								placeholder="Ej: Bancolombia - 123456789 - Ahorros" 
+								required 
+							/>
+						</div>
+						<button type="submit" class="btn btn-secondary btn-block">
+							<span class="btn-icon">🏦</span>
+							Solicitar Retiro
+						</button>
+					</form>
+					<div id="withdraw-result" class="mt-3"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Transacciones Card -->
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">📊 Transacciones Recientes</h3>
+				<p class="text-sm text-muted">Historial de movimientos en tu cartera</p>
+			</div>
+			<div class="card-body">
+				<div id="transactions-list" class="transactions-container">
+					<div class="text-center py-4">
+						<span class="spinner"></span>
+						<p class="text-muted mt-2">Cargando transacciones...</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<script src="../public/js/utils.js"></script>
+	<script type="module" src="../public/js/wallet.js"></script>
+</body>
+</html>

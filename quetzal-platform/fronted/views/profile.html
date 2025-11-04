@@ -76,6 +76,9 @@
                 <a href="#habilidades" class="profile-nav-link" data-tab="habilidades">
                 ⚡ Habilidades
                 </a>
+                <a href="#actividad" class="profile-nav-link" data-tab="actividad">
+                🧾 Mi Actividad
+                </a>
                 <a href="#notificaciones" class="profile-nav-link" data-tab="notificaciones">
                 🔔 Notificaciones
                 </a>
@@ -305,11 +308,56 @@
                 </form>
             </div>
             </div>
+
+            <!-- Tab: Actividad (Wallet, Mis Servicios, Transacciones) -->
+            <div class="tab-content" id="actividad">
+            <div class="card">
+                <div class="card-header">
+                <h2 class="card-title">Mi Actividad</h2>
+                <p class="card-subtitle">Cartera, servicios publicados y transacciones</p>
+                </div>
+
+                <div class="card-body">
+                <section id="profile-wallet" class="mb-4">
+                    <h3>Tu Cartera</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="profile-balance-quetzales">Q0.00</div>
+                        <div class="stat-card-label">Balance en Quetzales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="profile-pending-escrow">Q0.00</div>
+                        <div class="stat-card-label">En Escrow</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="profile-balance-cop">$0 COP</div>
+                        <div class="stat-card-label">Equivalente en COP</div>
+                    </div>
+                    </div>
+                    <div class="flex justify-end mt-3"><a href="wallet.html" class="btn btn-secondary btn-sm">Ver Detalles</a></div>
+                </section>
+
+                <section id="profile-services" class="mb-4">
+                    <h3>Mis Servicios</h3>
+                    <div id="profile-my-services" class="grid grid-cols-2 gap-4">
+                        <!-- Servicios del usuario -->
+                    </div>
+                    <div class="flex justify-end mt-3"><a href="services.html" class="btn btn-secondary btn-sm">Administrar Servicios</a></div>
+                </section>
+
+                <section id="profile-transactions">
+                    <h3>Transacciones Recientes</h3>
+                    <div id="profile-transactions-list" class="transactions-list"></div>
+                </section>
+                </div>
+            </div>
+            </div>
         </main>
         </div>
     </div>
 
     <script src="../public/js/utils.js"></script>
+    <script src="../public/js/api.js"></script>
     <script src="../public/js/profile.js"></script>
     </body>
     </html>
