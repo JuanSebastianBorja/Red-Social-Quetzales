@@ -1,2 +1,2 @@
-// Re-export main API handler for /api/auth
-module.exports = require('./index');
+const { createEndpointWrapper } = require('./_wrapper');
+module.exports = createEndpointWrapper('/api/auth');
