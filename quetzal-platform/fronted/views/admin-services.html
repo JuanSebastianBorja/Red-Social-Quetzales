@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Servicios - Admin</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/components.css">
+    <link rel="stylesheet" href="../public/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <h2>🦜 Admin Panel</h2>
+            <nav class="admin-nav">
+                <a href="admin-dashboard.html">📊 Dashboard</a>
+                <a href="admin-users.html">👥 Usuarios</a>
+                <a href="admin-services.html" class="active">⚡ Servicios</a>
+                <a href="admin-reports.html">📈 Reportes</a>
+                <a href="admin-transactions.html">💰 Transacciones</a>
+                <hr style="margin: 1rem 0; border-color: #34495e;">
+                <a href="dashboard.html">🔙 Vista Usuario</a>
+                <a href="#" onclick="logout()">🚪 Cerrar Sesión</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <h1>Gestión de Servicios</h1>
+            
+            <div class="filters">
+                <input type="text" id="searchInput" placeholder="Buscar servicios..." 
+                       style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                <select id="categoryFilter" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="all">Todas las categorías</option>
+                    <option value="diseño">Diseño</option>
+                    <option value="programación">Programación</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="escritura">Escritura</option>
+                    <option value="traducción">Traducción</option>
+                    <option value="educación">Educación</option>
+                    <option value="hogar">Servicios del Hogar</option>
+                    <option value="otro">Otros</option>
+                </select>
+                <select id="statusFilter" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="all">Todos</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadServices()">🔍 Buscar</button>
+            </div>
+
+            <div id="servicesGrid" class="services-grid">
+                <div class="loading">Cargando servicios...</div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../public/js/config.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('quetzal_user') || '{}');
+        if (user.role !== 'admin') {
+            window.location.href = 'dashboard.html';
+        }
+
+        let allServices = [];
+
+        async function loadServices() {
+            try {
+                const response = await apiRequest('/api/services');
+                
+                if (response.success) {
+                    allServices = response.data;
+                    filterAndRenderServices();
+                } else {
+                    showError('No se pudieron cargar los servicios');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error al cargar servicios');
+            }
+        }
+
+        function filterAndRenderServices() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filtered = allServices;
+
+            if (searchTerm) {
+                filtered = filtered.filter(s => 
+                    s.title.toLowerCase().includes(searchTerm) ||
+                    s.description?.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (categoryFilter !== 'all') {
+                filtered = filtered.filter(s => s.category === categoryFilter);
+            }
+
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(s => 
+                    statusFilter === 'active' ? s.isActive : !s.isActive
+                );
+            }
+
+            renderServices(filtered);
+        }
+
+        function renderServices(services) {
+            const grid = document.getElementById('servicesGrid');
+            
+            if (services.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">No se encontraron servicios</p>';
+                return;
+            }
+
+            grid.innerHTML = services.map(s => `
+                <div class="service-card">
+                    <div class="service-header">
+                        <div>
+                            <span class="badge">${s.category || 'General'}</span>
+                            <span class="badge badge-${s.isActive ? 'active' : 'inactive'}">
+                                ${s.isActive ? 'Activo' : 'Inactivo'}
+                            </span>
+                        </div>
+                    </div>
+                    <h3>${s.title}</h3>
+                    <p style="color: #666; margin: 1rem 0;">${(s.description || '').substring(0, 100)}...</p>
+                    <div style="margin: 1rem 0;">
+                        <strong>Proveedor:</strong> ${s.User?.fullName || 'N/A'}<br>
+                        <strong>Precio:</strong> Q${s.price}<br>
+                        <strong>Rating:</strong> ⭐ ${s.averageRating || '5.0'} (${s.totalReviews || 0})
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <button class="btn btn-secondary" onclick="toggleServiceStatus('${s.id}', ${s.isActive})" 
+                                style="flex: 1; font-size: 0.9rem;">
+                            ${s.isActive ? '🔒 Desactivar' : '✅ Activar'}
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteService('${s.id}')" 
+                                style="flex: 1; font-size: 0.9rem; background: #ff6b6b;">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function toggleServiceStatus(serviceId, currentStatus) {
+            const action = currentStatus ? 'desactivar' : 'activar';
+            if (!confirm(`¿Seguro que deseas ${action} este servicio?`)) return;
+
+            try {
+                const response = await apiRequest(`/api/admin/services/${serviceId}/status`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ isActive: !currentStatus })
+                });
+
+                if (response.success) {
+                    alert(`Servicio ${action}do exitosamente`);
+                    loadServices();
+                } else {
+                    alert('Error al actualizar servicio');
+                }
+            } catch (error) {
+                alert('Error al actualizar servicio');
+            }
+        }
+
+        async function deleteService(serviceId) {
+            if (!confirm('¿ELIMINAR permanentemente este servicio? Esta acción no se puede deshacer.')) return;
+
+            try {
+                const response = await apiRequest(`/api/admin/services/${serviceId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.success) {
+                    alert('Servicio eliminado exitosamente');
+                    loadServices();
+                } else {
+                    alert('Error al eliminar servicio');
+                }
+            } catch (error) {
+                alert('Error al eliminar servicio');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('servicesGrid').innerHTML = `
+                <p style="grid-column: 1/-1; text-align: center; padding: 2rem; color: red;">
+                    ${message}
+                </p>
+            `;
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'landing-page.html';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterAndRenderServices);
+        document.getElementById('categoryFilter').addEventListener('change', filterAndRenderServices);
+        document.getElementById('statusFilter').addEventListener('change', filterAndRenderServices);
+
+        loadServices();
+    </script>
+</body>
+</html>

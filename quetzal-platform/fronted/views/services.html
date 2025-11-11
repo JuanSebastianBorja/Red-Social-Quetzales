@@ -1,145 +1,223 @@
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Servicios - Quetzal Platform</title>
     <link rel="stylesheet" href="../public/css/main.css">
-    </head>
-    <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="container navbar-content">
-        <a href="dashboard.html" class="navbar-brand">
-            <span class="navbar-brand-icon">🦜</span>
-            <span>Quetzal</span>
-        </a>
-        <ul class="navbar-menu">
-            <li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
-            <li><a href="services.html" class="navbar-link active">Servicios</a></li>
-            <li><a href="wallet.html" class="navbar-link">Cartera</a></li>
-            <li><a href="profile.html" class="navbar-link">Perfil</a></li>
-            <li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
-        </ul>
-        </div>
-    </nav>
-
-    <!-- Header -->
-    <div class="dashboard-header">
-        <div class="container">
-        <div class="flex-between">
-            <div>
-            <h1 class="page-title">Explorar Servicios</h1>
-            <p class="page-subtitle">Descubre profesionales y servicios de calidad</p>
+    <link rel="stylesheet" href="../public/css/user.css">
+</head>
+<body>
+    <div class="user-layout">
+        <!-- Sidebar -->
+        <aside class="user-sidebar" id="userSidebar">
+            <!-- Header -->
+            <div class="user-sidebar-header">
+                <div class="user-sidebar-brand">
+                    <span class="user-sidebar-brand-icon">🦜</span>
+                    <span>Quetzal</span>
+                </div>
             </div>
-            <a href="create-service.html" class="btn btn-primary">
-            + Publicar Servicio
-            </a>
-        </div>
-        </div>
+
+            <!-- User Profile -->
+            <div class="user-sidebar-profile">
+                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
+                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
+                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
+                <div class="user-sidebar-balance">
+                    <div class="user-sidebar-balance-label">Balance Disponible</div>
+                    <div class="user-sidebar-balance-amount">
+                        <span>💰</span>
+                        <span id="sidebar-balance">Q 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="user-sidebar-nav">
+                <div class="user-sidebar-nav-title">Menú Principal</div>
+                <a href="dashboard.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">📊</span>
+                    <span class="user-sidebar-nav-text">Dashboard</span>
+                </a>
+                <a href="services.html" class="user-sidebar-nav-item active">
+                    <span class="user-sidebar-nav-icon">⚡</span>
+                    <span class="user-sidebar-nav-text">Servicios</span>
+                </a>
+                <a href="messages.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💬</span>
+                    <span class="user-sidebar-nav-text">Mensajes</span>
+                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
+                </a>
+                <a href="wallet.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💰</span>
+                    <span class="user-sidebar-nav-text">Billetera</span>
+                </a>
+
+                <div class="user-sidebar-nav-title">Mi Cuenta</div>
+                <a href="profile.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">👤</span>
+                    <span class="user-sidebar-nav-text">Perfil</span>
+                </a>
+                <a href="create-service.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">➕</span>
+                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
+                </a>
+            </nav>
+
+            <!-- Footer -->
+            <div class="user-sidebar-footer">
+                <button class="user-sidebar-logout" id="logout-btn">
+                    <span>🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="user-main">
+            <!-- Top Bar -->
+            <div class="user-topbar">
+                <div class="user-topbar-left">
+                    <button class="user-toggle-btn" id="sidebarToggle">
+                        <span>☰</span>
+                    </button>
+                    <div>
+                        <div class="user-topbar-title">Explorar Servicios</div>
+                        <div class="user-topbar-breadcrumb">
+                            <a href="dashboard.html">Inicio</a>
+                            <span>›</span>
+                            <span>Servicios</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-topbar-right">
+                    <div class="user-topbar-search">
+                        <span class="user-topbar-search-icon">🔍</span>
+                        <input type="text" id="quick-search" placeholder="Buscar servicios...">
+                    </div>
+                    <a href="create-service.html" class="btn btn-primary btn-sm">
+                        ➕ Publicar
+                    </a>
+                    <button class="user-topbar-notifications">
+                        <span>🔔</span>
+                        <span class="user-topbar-notifications-badge">5</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="user-content">
+                <!-- Page Header -->
+                <div class="user-page-header">
+                    <h1 class="user-page-title">Descubre Servicios de Calidad</h1>
+                    <p class="user-page-subtitle">Encuentra profesionales y servicios que necesitas</p>
+                </div>
+
+                <!-- Filtros y Búsqueda -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="grid grid-cols-3 gap-3">
+                            <!-- Búsqueda -->
+                            <div class="form-group mb-0">
+                                <label for="search" class="form-label">Buscar servicios</label>
+                                <input 
+                                    type="text" 
+                                    id="search" 
+                                    class="form-input" 
+                                    placeholder="Ej: diseño web, desarrollo móvil...">
+                            </div>
+
+                            <!-- Categoría -->
+                            <div class="form-group mb-0">
+                                <label for="category" class="form-label">Categoría</label>
+                                <select id="category" class="form-select">
+                                    <option value="">Todas las categorías</option>
+                                    <option value="desarrollo">Desarrollo y Programación</option>
+                                    <option value="diseno">Diseño Gráfico</option>
+                                    <option value="marketing">Marketing Digital</option>
+                                    <option value="escritura">Escritura y Traducción</option>
+                                    <option value="video">Video y Animación</option>
+                                    <option value="musica">Música y Audio</option>
+                                    <option value="negocios">Negocios y Consultoría</option>
+                                    <option value="educacion">Educación y Tutorías</option>
+                                    <option value="lifestyle">Estilo de Vida</option>
+                                    <option value="otros">Otros</option>
+                                </select>
+                            </div>
+
+                            <!-- Ordenar -->
+                            <div class="form-group mb-0">
+                                <label for="sort" class="form-label">Ordenar por</label>
+                                <select id="sort" class="form-select">
+                                    <option value="recent">Más recientes</option>
+                                    <option value="price-low">Precio: Menor a Mayor</option>
+                                    <option value="price-high">Precio: Mayor a Menor</option>
+                                    <option value="rating">Mejor valorados</option>
+                                    <option value="popular">Más populares</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Filtros Adicionales -->
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            <button class="filter-button active" data-filter="all">
+                                Todos
+                            </button>
+                            <button class="filter-button" data-filter="price-low">
+                                Precio Bajo (< 5Q)
+                            </button>
+                            <button class="filter-button" data-filter="price-medium">
+                                Precio Medio (5-20Q)
+                            </button>
+                            <button class="filter-button" data-filter="price-high">
+                                Precio Alto (> 20Q)
+                            </button>
+                            <button class="filter-button" data-filter="rating">
+                                Top Rated (4.5+)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-state" class="flex-center p-6">
+                    <div class="spinner"></div>
+                </div>
+
+                <!-- Services Grid -->
+                <div id="services-grid" class="grid grid-cols-3 d-none"></div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="d-none text-center p-6">
+                    <div class="text-4xl mb-3">🔍</div>
+                    <h3 class="text-2xl font-semibold text-primary mb-2">
+                        No se encontraron servicios
+                    </h3>
+                    <p class="text-secondary mb-4">
+                        Intenta ajustar tus filtros de búsqueda
+                    </p>
+                    <button class="btn btn-primary" id="clear-filters-btn">
+                        Limpiar Filtros
+                    </button>
+                </div>
+
+                <!-- Paginación -->
+                <div id="pagination" class="flex-center gap-2 mt-6 d-none">
+                    <button class="btn btn-secondary btn-sm" id="prev-page" disabled>
+                        ← Anterior
+                    </button>
+                    <div id="page-numbers" class="flex gap-1"></div>
+                    <button class="btn btn-secondary btn-sm" id="next-page">
+                        Siguiente →
+                    </button>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Filtros y Búsqueda -->
-    <div class="service-filters">
-        <div class="container">
-        <div class="grid grid-cols-3 gap-3 items-end">
-            <!-- Búsqueda -->
-            <div class="form-group mb-0">
-            <label for="search" class="form-label">Buscar servicios</label>
-            <input 
-                type="text" 
-                id="search" 
-                class="form-input" 
-                placeholder="Ej: diseño web, desarrollo móvil...">
-            </div>
-
-            <!-- Categoría -->
-            <div class="form-group mb-0">
-            <label for="category" class="form-label">Categoría</label>
-            <select id="category" class="form-select">
-                <option value="">Todas las categorías</option>
-                <option value="desarrollo">Desarrollo y Programación</option>
-                <option value="diseno">Diseño Gráfico</option>
-                <option value="marketing">Marketing Digital</option>
-                <option value="escritura">Escritura y Traducción</option>
-                <option value="video">Video y Animación</option>
-                <option value="musica">Música y Audio</option>
-                <option value="negocios">Negocios y Consultoría</option>
-                <option value="educacion">Educación y Tutorías</option>
-                <option value="lifestyle">Estilo de Vida</option>
-                <option value="otros">Otros</option>
-            </select>
-            </div>
-
-            <!-- Ordenar -->
-            <div class="form-group mb-0">
-            <label for="sort" class="form-label">Ordenar por</label>
-            <select id="sort" class="form-select">
-                <option value="recent">Más recientes</option>
-                <option value="price-low">Precio: Menor a Mayor</option>
-                <option value="price-high">Precio: Mayor a Menor</option>
-                <option value="rating">Mejor valorados</option>
-                <option value="popular">Más populares</option>
-            </select>
-            </div>
-        </div>
-
-        <!-- Filtros Adicionales -->
-        <div class="flex gap-2 mt-3 flex-wrap">
-            <button class="filter-button active" data-filter="all">
-            Todos
-            </button>
-            <button class="filter-button" data-filter="price-low">
-            Precio Bajo (< 5Q)
-            </button>
-            <button class="filter-button" data-filter="price-medium">
-            Precio Medio (5-20Q)
-            </button>
-            <button class="filter-button" data-filter="price-high">
-            Precio Alto (> 20Q)
-            </button>
-            <button class="filter-button" data-filter="rating">
-            Top Rated (4.5+)
-            </button>
-        </div>
-        </div>
-    </div>
-
-    <!-- Grid de Servicios -->
-    <div class="container pb-6">
-        <!-- Loading State -->
-        <div id="loading-state" class="flex-center p-6">
-        <div class="spinner"></div>
-        </div>
-
-        <!-- Services Grid -->
-        <div id="services-grid" class="grid grid-cols-3 d-none"></div>
-
-        <!-- Empty State -->
-        <div id="empty-state" class="d-none text-center p-6">
-        <div class="text-4xl mb-3">🔍</div>
-        <h3 class="text-2xl font-semibold text-primary mb-2">
-            No se encontraron servicios
-        </h3>
-        <p class="text-secondary mb-4">
-            Intenta ajustar tus filtros de búsqueda
-        </p>
-        <button class="btn btn-primary" id="clear-filters-btn">
-            Limpiar Filtros
-        </button>
-        </div>
-
-        <!-- Paginación -->
-        <div id="pagination" class="flex-center gap-2 mt-6 d-none">
-        <button class="btn btn-secondary btn-sm" id="prev-page" disabled>
-            ← Anterior
-        </button>
-        <div id="page-numbers" class="flex gap-1"></div>
-        <button class="btn btn-secondary btn-sm" id="next-page">
-            Siguiente →
-        </button>
-        </div>
-    </div>
+    <!-- Overlay para móviles -->
+    <div class="user-sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- Modal de Vista Rápida -->
     <div id="service-modal" class="modal">
@@ -149,6 +227,7 @@
 
     <script src="../public/js/utils.js"></script>
     <script src="../public/js/api.js"></script>
+    <script src="../public/js/user-sidebar.js"></script>
     <script src="../public/js/services.js"></script>
-    </body>
-    </html>
+</body>
+</html>

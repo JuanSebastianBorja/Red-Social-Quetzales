@@ -2,30 +2,40 @@
 // CONFIG.JS - Configuración del Frontend
 // ============================================
 
+// Detectar si estamos en producción o desarrollo
+const isProduction = window.location.hostname !== 'localhost' && 
+                     window.location.hostname !== '127.0.0.1' &&
+                     !window.location.hostname.includes('192.168');
+
+// API Base URL - En producción usa el mismo dominio (Vercel Serverless)
+const API_BASE_URL = isProduction 
+    ? `${window.location.origin}/api`  // Mismo dominio en producción
+    : 'http://localhost:3000/api';      // Localhost en desarrollo
+
 const config = {
     // API Configuration
     api: {
-        baseUrl: process.env.API_BASE_URL || 'http://localhost:3000/api',
-        rateLimit: parseInt(process.env.API_RATE_LIMIT || '100'),
-        rateWindow: parseInt(process.env.API_RATE_WINDOW || '900000'),
+        baseUrl: API_BASE_URL,
+        rateLimit: 100,
+        rateWindow: 900000, // 15 minutos
     },
 
     // Environment
-    isDevelopment: process.env.NODE_ENV === 'development',
-    isProduction: process.env.NODE_ENV === 'production',
+    isDevelopment: !isProduction,
+    isProduction: isProduction,
 
     // Features
     features: {
-        notifications: process.env.ENABLE_NOTIFICATIONS === 'true',
-        chat: process.env.ENABLE_CHAT === 'true',
+        notifications: true,
+        chat: true,
     },
 
     // Cache
     cache: {
-        ttl: parseInt(process.env.CACHE_TTL || '3600'),
+        ttl: 3600, // 1 hora
     },
 
-    // Endpoints
+    // Endpoints (rutas relativas - se concatenan con baseUrl)
     endpoints: {
         auth: {
             login: '/auth/login',
@@ -51,7 +61,16 @@ const config = {
 
 // Validaciones básicas
 if (!config.api.baseUrl) {
-    console.error('API_BASE_URL no está configurada');
+    console.error('⚠️ API_BASE_URL no está configurada');
+}
+
+// Log de configuración (solo en desarrollo)
+if (config.isDevelopment) {
+    console.log('🔧 Configuración cargada:', {
+        environment: config.isProduction ? 'production' : 'development',
+        apiUrl: config.api.baseUrl,
+        features: config.features
+    });
 }
 
 // Exportar la configuración

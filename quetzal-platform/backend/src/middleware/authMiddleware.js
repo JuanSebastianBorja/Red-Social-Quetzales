@@ -65,20 +65,34 @@
     }
     };
 
-    // Verificar roles específicos
-    exports.authorize = (...roles) => {
+// Verificar roles específicos
+exports.authorize = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.userType)) {
-        return res.status(403).json({
-            success: false,
-            message: `El rol '${req.user.userType}' no tiene permiso para acceder a esta ruta`
-        });
+        // Verificar primero si hay un campo 'role' (admin, user)
+        const userRole = req.user.role || req.user.userType;
+        
+        if (!roles.includes(userRole)) {
+            return res.status(403).json({
+                success: false,
+                message: `No tienes permisos suficientes para acceder a esta ruta. Rol requerido: ${roles.join(', ')}`
+            });
         }
         next();
     };
-    };
+};
 
-    // Verificar si el usuario es el dueño del recurso
+// Verificar si es administrador
+exports.requireAdmin = (req, res, next) => {
+    if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'Se requieren permisos de administrador'
+        });
+    }
+    next();
+};
+
+// Verificar si el usuario es el dueño del recurso
     exports.checkOwnership = (resourceUserId) => {
     return (req, res, next) => {
         if (req.user.id !== resourceUserId) {

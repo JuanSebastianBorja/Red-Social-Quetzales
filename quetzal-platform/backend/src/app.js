@@ -19,6 +19,7 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const escrowRoutes = require('./routes/escrowRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -93,6 +94,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/escrow', escrowRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Ruta raíz
 app.get('/', (req, res) => {

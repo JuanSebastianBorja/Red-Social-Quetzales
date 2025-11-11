@@ -1,52 +1,135 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Mensajes - Quetzal Platform</title>
-		<link rel="stylesheet" href="../public/css/main.css" />
-	</head>
-	<body>
-		<!-- Navbar -->
-		<nav class="navbar">
-			<div class="container navbar-content">
-				<a href="dashboard.html" class="navbar-brand">
-					<span class="navbar-brand-icon">🦜</span>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mensajes - Quetzal Platform</title>
+	<link rel="stylesheet" href="../public/css/main.css">
+	<link rel="stylesheet" href="../public/css/user.css">
+</head>
+<body>
+	<div class="user-layout">
+		<!-- Sidebar -->
+		<aside class="user-sidebar" id="userSidebar">
+			<!-- Header -->
+			<div class="user-sidebar-header">
+				<div class="user-sidebar-brand">
+					<span class="user-sidebar-brand-icon">🦜</span>
 					<span>Quetzal</span>
-				</a>
-				<ul class="navbar-menu">
-					<li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
-					<li><a href="services.html" class="navbar-link">Servicios</a></li>
-					<li><a href="messages.html" class="navbar-link active">Mensajes</a></li>
-					<li><a href="wallet.html" class="navbar-link">Cartera</a></li>
-					<li><a href="profile.html" class="navbar-link">Perfil</a></li>
-					<li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
-				</ul>
+				</div>
 			</div>
-		</nav>
 
-		<main class="container">
-			<h1>Mensajes</h1>
+			<!-- User Profile -->
+			<div class="user-sidebar-profile">
+				<img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
+				<div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
+				<div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
+				<div class="user-sidebar-balance">
+					<div class="user-sidebar-balance-label">Balance Disponible</div>
+					<div class="user-sidebar-balance-amount">
+						<span>💰</span>
+						<span id="sidebar-balance">Q 0.00</span>
+					</div>
+				</div>
+			</div>
 
-			<div class="messages-layout">
-				<aside class="conversations">
-					<h3>Conversaciones</h3>
-					<ul id="conversations-list">Cargando...</ul>
-				</aside>
+			<!-- Navigation -->
+			<nav class="user-sidebar-nav">
+				<div class="user-sidebar-nav-title">Menú Principal</div>
+				<a href="dashboard.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">📊</span>
+					<span class="user-sidebar-nav-text">Dashboard</span>
+				</a>
+				<a href="services.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">⚡</span>
+					<span class="user-sidebar-nav-text">Servicios</span>
+				</a>
+				<a href="messages.html" class="user-sidebar-nav-item active">
+					<span class="user-sidebar-nav-icon">💬</span>
+					<span class="user-sidebar-nav-text">Mensajes</span>
+					<span class="user-sidebar-nav-badge" id="messages-badge">3</span>
+				</a>
+				<a href="wallet.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">💰</span>
+					<span class="user-sidebar-nav-text">Billetera</span>
+				</a>
 
-				<section class="chat">
-					<div id="chat-header">Selecciona una conversación</div>
-					<div id="messages-container" class="messages-container"></div>
-					<form id="message-form" class="message-form" style="display:none;">
-						<input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off" required />
-						<button type="submit">Enviar</button>
-					</form>
-				</section>
-		</div>
-	</main>
+				<div class="user-sidebar-nav-title">Mi Cuenta</div>
+				<a href="profile.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">👤</span>
+					<span class="user-sidebar-nav-text">Perfil</span>
+				</a>
+				<a href="create-service.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">➕</span>
+					<span class="user-sidebar-nav-text">Publicar Servicio</span>
+				</a>
+			</nav>
+
+			<!-- Footer -->
+			<div class="user-sidebar-footer">
+				<button class="user-sidebar-logout" id="logout-btn">
+					<span>🚪</span>
+					<span>Cerrar Sesión</span>
+				</button>
+			</div>
+		</aside>
+
+		<!-- Main Content -->
+		<main class="user-main">
+			<!-- Top Bar -->
+			<div class="user-topbar">
+				<div class="user-topbar-left">
+					<button class="user-toggle-btn" id="sidebarToggle">
+						<span>☰</span>
+					</button>
+					<div>
+						<div class="user-topbar-title">Mensajes</div>
+						<div class="user-topbar-breadcrumb">
+							<a href="dashboard.html">Inicio</a>
+							<span>›</span>
+							<span>Mensajes</span>
+						</div>
+					</div>
+				</div>
+				<div class="user-topbar-right">
+					<div class="user-topbar-search">
+						<span class="user-topbar-search-icon">🔍</span>
+						<input type="text" placeholder="Buscar conversaciones...">
+					</div>
+					<button class="user-topbar-notifications">
+						<span>🔔</span>
+						<span class="user-topbar-notifications-badge">5</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Content -->
+			<div class="user-content">
+				<div class="messages-layout">
+					<aside class="conversations">
+						<h3>Conversaciones</h3>
+						<ul id="conversations-list">Cargando...</ul>
+					</aside>
+
+					<section class="chat">
+						<div id="chat-header">Selecciona una conversación</div>
+						<div id="messages-container" class="messages-container"></div>
+						<form id="message-form" class="message-form" style="display:none;">
+							<input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off" required />
+							<button type="submit">Enviar</button>
+						</form>
+					</section>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<!-- Overlay para móviles -->
+	<div class="user-sidebar-overlay" id="sidebarOverlay"></div>
 
 	<script src="../public/js/utils.js"></script>
+	<script src="../public/js/user-sidebar.js"></script>
 	<script type="module" src="../public/js/messages.js"></script>
 </body>
 </html>

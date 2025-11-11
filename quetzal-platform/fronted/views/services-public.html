@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorar Servicios - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/components.css">
+    <link rel="stylesheet" href="../public/css/visitor.css">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="landing-page.html" class="navbar-brand">
+                <span class="navbar-brand-icon">🦜</span>
+                Quetzal Platform
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="landing-page.html" class="navbar-link">Inicio</a></li>
+                <li><a href="services-public.html" class="navbar-link active">Servicios</a></li>
+                <li><a href="login.html" class="btn btn-primary">Iniciar Sesión</a></li>
+                <li><a href="register.html" class="btn btn-secondary">Registrarse</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Prompt de Login -->
+    <div class="login-prompt">
+        ℹ️ <a href="register.html">Regístrate</a> para contratar servicios y comenzar a ganar como proveedor
+    </div>
+
+    <!-- Búsqueda y Filtros -->
+    <section class="search-section">
+        <h1>Explora Miles de Servicios</h1>
+        <p>Encuentra el servicio perfecto para tus necesidades</p>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="¿Qué servicio necesitas? (ej: diseño de logos, clases de inglés...)">
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-category="all">Todos</button>
+            <button class="filter-btn" data-category="diseño">Diseño</button>
+            <button class="filter-btn" data-category="programación">Programación</button>
+            <button class="filter-btn" data-category="marketing">Marketing</button>
+            <button class="filter-btn" data-category="escritura">Escritura</button>
+            <button class="filter-btn" data-category="traducción">Traducción</button>
+            <button class="filter-btn" data-category="educación">Educación</button>
+            <button class="filter-btn" data-category="hogar">Servicios del Hogar</button>
+            <button class="filter-btn" data-category="otro">Otros</button>
+        </div>
+    </section>
+
+    <!-- Resultados -->
+    <div class="container">
+        <h2 style="padding: 2rem 2rem 0;">Servicios Destacados</h2>
+        <div id="servicesGrid" class="services-grid">
+            <!-- Los servicios se cargarán dinámicamente -->
+            <div class="loading">Cargando servicios...</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Quetzal Platform. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="../public/js/config.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script>
+        let allServices = [];
+        let currentCategory = 'all';
+
+        // Cargar servicios
+        async function loadServices() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/services`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    allServices = data.data || [];
+                    renderServices(allServices);
+                } else {
+                    renderError();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                renderError();
+            }
+        }
+
+        // Renderizar servicios
+        function renderServices(services) {
+            const grid = document.getElementById('servicesGrid');
+            
+            if (!services || services.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; padding: 2rem; grid-column: 1/-1;">No se encontraron servicios</p>';
+                return;
+            }
+
+            grid.innerHTML = services.map(service => `
+                <div class="service-card" onclick="viewService('${service.id}')">
+                    <div class="service-image">${getCategoryIcon(service.category)}</div>
+                    <div class="service-content">
+                        <span class="service-category">${service.category || 'General'}</span>
+                        <h3 class="service-title">${service.title}</h3>
+                        <p>${(service.description || '').substring(0, 100)}...</p>
+                        <div class="service-provider">
+                            <span>👤</span>
+                            <span>${service.User?.fullName || 'Proveedor'}</span>
+                        </div>
+                        <div class="service-rating">
+                            <span>⭐</span>
+                            <span>${service.averageRating || '5.0'} (${service.totalReviews || 0} reviews)</span>
+                        </div>
+                        <div class="service-price">Q${service.price}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Renderizar error
+        function renderError() {
+            const grid = document.getElementById('servicesGrid');
+            grid.innerHTML = `
+                <div style="text-align: center; padding: 2rem; grid-column: 1/-1;">
+                    <p>⚠️ No se pudieron cargar los servicios</p>
+                    <button onclick="loadServices()" class="btn btn-primary">Reintentar</button>
+                </div>
+            `;
+        }
+
+        // Ver detalle de servicio
+        function viewService(serviceId) {
+            window.location.href = `service-detail-public.html?id=${serviceId}`;
+        }
+
+        // Iconos por categoría
+        function getCategoryIcon(category) {
+            const icons = {
+                'diseño': '🎨',
+                'programación': '💻',
+                'marketing': '📱',
+                'escritura': '✍️',
+                'traducción': '🌐',
+                'educación': '📚',
+                'hogar': '🏠',
+                'otro': '⚡'
+            };
+            return icons[category?.toLowerCase()] || '⚡';
+        }
+
+        // Filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                currentCategory = btn.dataset.category;
+                filterServices();
+            });
+        });
+
+        // Búsqueda
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            filterServices(e.target.value);
+        });
+
+        // Filtrar servicios
+        function filterServices(searchTerm = '') {
+            let filtered = allServices;
+
+            // Filtrar por categoría
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(s => 
+                    s.category?.toLowerCase() === currentCategory.toLowerCase()
+                );
+            }
+
+            // Filtrar por búsqueda
+            if (searchTerm) {
+                filtered = filtered.filter(s => 
+                    s.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    s.description?.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            renderServices(filtered);
+        }
+
+        // Cargar al iniciar
+        loadServices();
+    </script>
+</body>
+</html>

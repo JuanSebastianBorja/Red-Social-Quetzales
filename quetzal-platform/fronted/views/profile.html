@@ -1,93 +1,170 @@
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Quetzal Platform</title>
     <link rel="stylesheet" href="../public/css/main.css">
-    </head>
-    <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="container navbar-content">
-        <a href="dashboard.html" class="navbar-brand">
-            <span class="navbar-brand-icon">🦜</span>
-            <span>Quetzal</span>
-        </a>
-        <ul class="navbar-menu">
-            <li><a href="dashboard.html" class="navbar-link">Inicio</a></li>
-            <li><a href="services.html" class="navbar-link">Servicios</a></li>
-            <li><a href="wallet.html" class="navbar-link">Cartera</a></li>
-            <li><a href="profile.html" class="navbar-link active">Perfil</a></li>
-            <li><a href="#" class="navbar-link" id="logout-btn">Salir</a></li>
-        </ul>
-        </div>
-    </nav>
-
-    <!-- Contenido Principal -->
-    <div class="dashboard-header">
-        <div class="container">
-        <h1 class="page-title">Mi Perfil</h1>
-        <p class="page-subtitle">Gestiona tu información personal y preferencias</p>
-        </div>
-    </div>
-
-    <div class="container pb-6">
-        <div class="grid" style="grid-template-columns: 300px 1fr;">
-        
+    <link rel="stylesheet" href="../public/css/user.css">
+</head>
+<body>
+    <div class="user-layout">
         <!-- Sidebar -->
-        <aside class="profile-sidebar">
-            <div class="card">
-            <div class="profile-avatar-wrapper">
-                <img 
-                src="https://ui-avatars.com/api/?name=Usuario+Demo&size=120&background=6366f1&color=fff" 
-                alt="Avatar" 
-                class="avatar avatar-xl mb-3"
-                id="profile-avatar">
-                <button class="btn btn-sm btn-outline" onclick="document.getElementById('avatar-input').click()">
-                Cambiar Foto
-                </button>
-                <input type="file" id="avatar-input" accept="image/*" class="profile-avatar-upload">
-            </div>
-            
-            <hr class="my-4 border-top">
-            
-            <div class="profile-stats">
-                <div class="profile-stat">
-                <div class="profile-stat-value">4.8</div>
-                <div class="profile-stat-label">Rating</div>
+        <aside class="user-sidebar" id="userSidebar">
+            <!-- Header -->
+            <div class="user-sidebar-header">
+                <div class="user-sidebar-brand">
+                    <span class="user-sidebar-brand-icon">🦜</span>
+                    <span>Quetzal</span>
                 </div>
-                <div class="profile-stat">
-                <div class="profile-stat-value">127</div>
-                <div class="profile-stat-label">Servicios</div>
-                </div>
-            </div>
             </div>
 
-            <!-- Navigation Menu -->
-            <div class="card mt-3 p-0">
-            <nav class="profile-nav">
-                <a href="#info-personal" class="profile-nav-link active" data-tab="info-personal">
-                📋 Información Personal
+            <!-- User Profile -->
+            <div class="user-sidebar-profile">
+                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
+                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
+                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
+                <div class="user-sidebar-balance">
+                    <div class="user-sidebar-balance-label">Balance Disponible</div>
+                    <div class="user-sidebar-balance-amount">
+                        <span>💰</span>
+                        <span id="sidebar-balance">Q 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="user-sidebar-nav">
+                <div class="user-sidebar-nav-title">Menú Principal</div>
+                <a href="dashboard.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">📊</span>
+                    <span class="user-sidebar-nav-text">Dashboard</span>
                 </a>
-                <a href="#seguridad" class="profile-nav-link" data-tab="seguridad">
-                🔒 Seguridad
+                <a href="services.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">⚡</span>
+                    <span class="user-sidebar-nav-text">Servicios</span>
                 </a>
-                <a href="#habilidades" class="profile-nav-link" data-tab="habilidades">
-                ⚡ Habilidades
+                <a href="messages.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💬</span>
+                    <span class="user-sidebar-nav-text">Mensajes</span>
+                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
                 </a>
-                <a href="#actividad" class="profile-nav-link" data-tab="actividad">
-                🧾 Mi Actividad
+                <a href="wallet.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💰</span>
+                    <span class="user-sidebar-nav-text">Billetera</span>
                 </a>
-                <a href="#notificaciones" class="profile-nav-link" data-tab="notificaciones">
-                🔔 Notificaciones
+
+                <div class="user-sidebar-nav-title">Mi Cuenta</div>
+                <a href="profile.html" class="user-sidebar-nav-item active">
+                    <span class="user-sidebar-nav-icon">👤</span>
+                    <span class="user-sidebar-nav-text">Perfil</span>
+                </a>
+                <a href="create-service.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">➕</span>
+                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
                 </a>
             </nav>
+
+            <!-- Footer -->
+            <div class="user-sidebar-footer">
+                <button class="user-sidebar-logout" id="logout-btn">
+                    <span>🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
             </div>
         </aside>
 
-        <!-- Content Area -->
-        <main>
+        <!-- Main Content -->
+        <main class="user-main">
+            <!-- Top Bar -->
+            <div class="user-topbar">
+                <div class="user-topbar-left">
+                    <button class="user-toggle-btn" id="sidebarToggle">
+                        <span>☰</span>
+                    </button>
+                    <div>
+                        <div class="user-topbar-title">Mi Perfil</div>
+                        <div class="user-topbar-breadcrumb">
+                            <a href="dashboard.html">Inicio</a>
+                            <span>›</span>
+                            <span>Perfil</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-topbar-right">
+                    <button class="btn btn-primary btn-sm" id="save-profile-btn">
+                        💾 Guardar Cambios
+                    </button>
+                    <button class="user-topbar-notifications">
+                        <span>🔔</span>
+                        <span class="user-topbar-notifications-badge">5</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="user-content">
+                <!-- Page Header -->
+                <div class="user-page-header">
+                    <h1 class="user-page-title">Gestiona tu Perfil</h1>
+                    <p class="user-page-subtitle">Actualiza tu información personal y preferencias</p>
+                </div>
+
+                <!-- Profile Content -->
+                <div class="grid" style="grid-template-columns: 300px 1fr; gap: 2rem;">
+                    <!-- Sidebar -->
+                    <aside class="profile-sidebar">
+                        <div class="card">
+                            <div class="profile-avatar-wrapper">
+                                <img 
+                                    src="https://ui-avatars.com/api/?name=Usuario+Demo&size=120&background=8b5cf6&color=fff" 
+                                    alt="Avatar" 
+                                    class="avatar avatar-xl mb-3"
+                                    id="profile-avatar">
+                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('avatar-input').click()">
+                                    Cambiar Foto
+                                </button>
+                                <input type="file" id="avatar-input" accept="image/*" class="profile-avatar-upload">
+                            </div>
+                            
+                            <hr class="my-4 border-top">
+                            
+                            <div class="profile-stats">
+                                <div class="profile-stat">
+                                    <div class="profile-stat-value">4.8</div>
+                                    <div class="profile-stat-label">Rating</div>
+                                </div>
+                                <div class="profile-stat">
+                                    <div class="profile-stat-value">127</div>
+                                    <div class="profile-stat-label">Servicios</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Menu -->
+                        <div class="card mt-3 p-0">
+                            <nav class="profile-nav">
+                                <a href="#info-personal" class="profile-nav-link active" data-tab="info-personal">
+                                    📋 Información Personal
+                                </a>
+                                <a href="#seguridad" class="profile-nav-link" data-tab="seguridad">
+                                    🔒 Seguridad
+                                </a>
+                                <a href="#habilidades" class="profile-nav-link" data-tab="habilidades">
+                                    ⚡ Habilidades
+                                </a>
+                                <a href="#actividad" class="profile-nav-link" data-tab="actividad">
+                                    🧾 Mi Actividad
+                                </a>
+                                <a href="#notificaciones" class="profile-nav-link" data-tab="notificaciones">
+                                    🔔 Notificaciones
+                                </a>
+                            </nav>
+                        </div>
+                    </aside>
+
+                    <!-- Content Area -->
+                    <main>
             <!-- Tab: Información Personal -->
             <div class="tab-content active" id="info-personal">
             <div class="card">
@@ -349,15 +426,19 @@
                     <h3>Transacciones Recientes</h3>
                     <div id="profile-transactions-list" class="transactions-list"></div>
                 </section>
+                        </div>
+                    </main>
                 </div>
             </div>
-            </div>
         </main>
-        </div>
     </div>
+
+    <!-- Overlay para móviles -->
+    <div class="user-sidebar-overlay" id="sidebarOverlay"></div>
 
     <script src="../public/js/utils.js"></script>
     <script src="../public/js/api.js"></script>
+    <script src="../public/js/user-sidebar.js"></script>
     <script src="../public/js/profile.js"></script>
-    </body>
-    </html>
+</body>
+</html>

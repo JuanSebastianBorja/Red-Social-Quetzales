@@ -56,6 +56,12 @@
         defaultValue: 'consumer',
         field: 'user_type'
     },
+    role: {
+        type: DataTypes.ENUM('visitor', 'user', 'admin'),
+        allowNull: false,
+        defaultValue: 'user',
+        field: 'role'
+    },
     avatar: {
         type: DataTypes.TEXT,
         allowNull: true

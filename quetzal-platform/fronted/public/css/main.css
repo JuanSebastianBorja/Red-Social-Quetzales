@@ -965,7 +965,16 @@
     }
 
     .profile-avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    }
+
+    .profile-avatar-wrapper .avatar {
+    display: block;
+    margin: 0 auto var(--spacing-md);
     }
 
     .profile-avatar-upload {

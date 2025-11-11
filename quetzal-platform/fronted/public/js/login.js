@@ -50,6 +50,7 @@
         name: 'Usuario Demo',
         email: formData.email,
         userType: 'both',
+        role: formData.email.includes('admin') ? 'admin' : 'user', // Si el email contiene 'admin', será admin
         avatar: `https://ui-avatars.com/api/?name=Usuario+Demo&size=120&background=6366f1&color=fff`
         };
         
@@ -59,7 +60,12 @@
         showAlert('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
         
         setTimeout(() => {
-        window.location.href = 'dashboard.html';
+            // Redirigir según el rol
+            if (mockUser.role === 'admin') {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
         }, 1500);
         
     } catch (error) {

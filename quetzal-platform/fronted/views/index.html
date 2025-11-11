@@ -19,8 +19,18 @@
     <script>
         // Redirigir automáticamente si ya está logueado
         const token = localStorage.getItem('quetzal_token');
-        if (token) {
-            window.location.href = '../views/dashboard.html';
+        const user = JSON.parse(localStorage.getItem('quetzal_user') || '{}');
+        
+        if (token && user) {
+            // Redirigir según el rol
+            if (user.role === 'admin') {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        } else {
+            // Si no está logueado, redirigir a landing page
+            window.location.href = 'landing-page.html';
         }
     </script>
 </body>
