@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "trailingSlash": false,
   "functions": {
     "api/index.js": {
       "memory": 1024,
@@ -10,54 +8,8 @@
   },
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/views/landing-page.html"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/views/(.*)",
-      "dest": "/views/$1"
-    },
-    {
-      "src": "/public/(.*)",
-      "dest": "/public/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    },
-    {
-      "source": "/public/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
     }
   ]
 }
