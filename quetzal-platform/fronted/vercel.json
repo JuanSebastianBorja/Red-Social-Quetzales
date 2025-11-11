@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": true,
   "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
@@ -9,16 +8,6 @@
       "maxDuration": 10
     }
   },
-  "rewrites": [
-    {
-      "source": "/api/:path(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/:path((?!api).*)",
-      "destination": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
