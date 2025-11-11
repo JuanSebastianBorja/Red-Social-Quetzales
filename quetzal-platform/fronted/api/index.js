@@ -154,44 +154,5 @@ app.use((err, req, res, next) => {
     });
 });
 
-// ============================================
-// VERCEL SERVERLESS EXPORT
-// ============================================
-// Debug completo para entender qué recibe Vercel
-
-module.exports = (req, res) => {
-    // Log everything for debugging
-    console.log('=== VERCEL REQUEST DEBUG ===');
-    console.log('req.url:', req.url);
-    console.log('req.query:', JSON.stringify(req.query));
-    console.log('req.params:', JSON.stringify(req.params));
-    console.log('req.path:', req.path);
-    console.log('req.originalUrl:', req.originalUrl);
-    console.log('req.baseUrl:', req.baseUrl);
-    console.log('========================');
-    
-    // Intentar reconstruir desde diferentes fuentes
-    let reconstructedPath = req.url;
-    
-    // Opción 1: desde req.query.path (array de segmentos)
-    if (req.query && req.query.path) {
-        const pathArray = Array.isArray(req.query.path) ? req.query.path : [req.query.path];
-        reconstructedPath = '/' + pathArray.join('/');
-        
-        // Remover 'path' del query string
-        const queryString = Object.keys(req.query)
-            .filter(key => key !== 'path')
-            .map(key => `${key}=${encodeURIComponent(req.query[key])}`)
-            .join('&');
-        
-        if (queryString) {
-            reconstructedPath += '?' + queryString;
-        }
-        
-        req.url = reconstructedPath;
-        console.log('Reconstructed from query.path:', req.url);
-    }
-    
-    // Pasar a Express
-    return app(req, res);
-};
+// Exportar para Vercel
+module.exports = app;
