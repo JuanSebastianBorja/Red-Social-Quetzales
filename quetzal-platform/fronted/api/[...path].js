@@ -154,5 +154,37 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Exportar para Vercel
-module.exports = app;
+// ============================================
+// VERCEL SERVERLESS EXPORT
+// ============================================
+// En Vercel, necesitamos exportar un handler que maneje req/res
+// y reconstruya el path completo desde los parámetros
+
+module.exports = (req, res) => {
+    // Vercel captura el path en req.url, pero ya ha sido procesado
+    // Necesitamos reconstruir el path completo desde req.query
+    
+    // En Vercel con [...path].js:
+    // Request: /api/services/123?test=1
+    // req.url = /?test=1 (pierde el path!)
+    // req.query.path = ['services', '123']
+    
+    // Reconstruir el path original
+    if (req.query && req.query.path) {
+        const pathArray = Array.isArray(req.query.path) ? req.query.path : [req.query.path];
+        const reconstructedPath = '/' + pathArray.join('/');
+        
+        // Preservar query string
+        const queryString = Object.keys(req.query)
+            .filter(key => key !== 'path')
+            .map(key => `${key}=${req.query[key]}`)
+            .join('&');
+        
+        req.url = queryString ? `${reconstructedPath}?${queryString}` : reconstructedPath;
+        
+        console.log(`[VERCEL] Reconstructed path: ${req.url}`);
+    }
+    
+    // Pasar la request a Express
+    return app(req, res);
+};
