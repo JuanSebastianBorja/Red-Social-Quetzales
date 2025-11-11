@@ -154,5 +154,14 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Exportar para Vercel
-module.exports = app;
+// Exportar para Vercel como handler serverless
+module.exports = (req, res) => {
+    // Log para debugging
+    console.log('=== VERCEL HANDLER ===');
+    console.log('req.url:', req.url);
+    console.log('req.method:', req.method);
+    console.log('======================');
+    
+    // Pasar la petición a Express
+    return app(req, res);
+};

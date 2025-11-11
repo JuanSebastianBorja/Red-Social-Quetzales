@@ -34,12 +34,27 @@ app.use(helmet({
 }));
 
 // CORS
+// Permite configurar múltiples orígenes desde CORS_ORIGINS (separados por coma)
+const defaultOrigins = [
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    process.env.FRONTEND_URL || 'https://red-social-quetzales.vercel.app'
+];
+
+const allowedOrigins = (process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
+    : []
+).concat(defaultOrigins);
+
 app.use(cors({
-    origin: [
-        'http://localhost:5500',
-        'http://127.0.0.1:5500',
-        process.env.FRONTEND_URL || 'https://quetzal-platform.vercel.app'
-    ],
+    origin: function (origin, callback) {
+        // Permitir requests sin origin (ej: curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.some(allow => allow === origin || (allow.includes('*.') && origin.endsWith(allow.replace('*.', ''))))) {
+            return callback(null, true);
+        }
+        return callback(new Error('CORS no permitido para: ' + origin), false);
+    },
     credentials: true
 }));
 
@@ -80,6 +95,15 @@ app.use('/api/auth/register', authLimiter);
 
 // Health Check
 app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
+// Alias con prefijo para entornos donde esperan /api/health
+app.get('/api/health', (req, res) => {
     res.status(200).json({
         status: 'OK',
         timestamp: new Date().toISOString(),
