@@ -37,31 +37,28 @@
     submitBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></span> Ingresando...';
 
     try {
-        // Llamada a la API
-        // const response = await API.login(formData);
-        
-        // Simulación de login exitoso
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Llamada a Supabase Auth
+        const result = await SupabaseAuth.signIn(formData.email, formData.password);
         
         // Guardar datos de sesión
-        const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20ifQ.mock';
-        const mockUser = {
-        id: '1',
-        name: 'Usuario Demo',
-        email: formData.email,
-        userType: 'both',
-        role: formData.email.includes('admin') ? 'admin' : 'user', // Si el email contiene 'admin', será admin
-        avatar: `https://ui-avatars.com/api/?name=Usuario+Demo&size=120&background=6366f1&color=fff`
+        const user = result.user;
+        const userData = {
+            id: user.id,
+            name: user.user_metadata?.full_name || user.email,
+            email: user.email,
+            userType: user.user_metadata?.user_type || 'both',
+            role: 'user', // Puedes ajustar esto según tu lógica
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&size=120&background=6366f1&color=fff`
         };
         
-        localStorage.setItem('quetzal_token', mockToken);
-        localStorage.setItem('quetzal_user', JSON.stringify(mockUser));
+        localStorage.setItem('quetzal_token', result.session.access_token);
+        localStorage.setItem('quetzal_user', JSON.stringify(userData));
         
         showAlert('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
         
         setTimeout(() => {
             // Redirigir según el rol
-            if (mockUser.role === 'admin') {
+            if (userData.role === 'admin') {
                 window.location.href = 'admin-dashboard.html';
             } else {
                 window.location.href = 'dashboard.html';
@@ -69,7 +66,7 @@
         }, 1500);
         
     } catch (error) {
-        showAlert('Email o contraseña incorrectos', 'error');
+        showAlert(error.message || 'Email o contraseña incorrectos', 'error');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Iniciar Sesión';
     }

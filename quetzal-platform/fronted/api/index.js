@@ -76,7 +76,7 @@ const limiter = rateLimit({
     max: 100, // límite de 100 peticiones por IP
     message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde'
 });
-app.use('/', limiter);
+app.use('/api/', limiter);
 
 // Rate Limiting más estricto para autenticación
 const authLimiter = rateLimit({
@@ -84,15 +84,15 @@ const authLimiter = rateLimit({
     max: 5,
     message: 'Demasiados intentos de inicio de sesión, intenta de nuevo más tarde'
 });
-app.use('/auth/login', authLimiter);
-app.use('/auth/register', authLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // ============================================
 // RUTAS API
 // ============================================
 
 // Health Check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.status(200).json({
         status: 'OK',
         message: 'Quetzal Platform API is running',
@@ -102,17 +102,17 @@ app.get('/health', (req, res) => {
     });
 });
 
-// API Routes (sin prefijo /api porque Vercel ya lo remueve)
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-app.use('/services', serviceRoutes);
-app.use('/wallet', walletRoutes);
-app.use('/escrow', escrowRoutes);
-app.use('/ratings', ratingRoutes);
-app.use('/admin', adminRoutes);
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/escrow', escrowRoutes);
+app.use('/api/ratings', ratingRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Ruta raíz del API
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.json({
         message: '🦜 Bienvenido a Quetzal Platform API',
         version: '1.0.0',
@@ -154,14 +154,5 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Exportar para Vercel como handler serverless
-module.exports = (req, res) => {
-    // Log para debugging
-    console.log('=== VERCEL HANDLER ===');
-    console.log('req.url:', req.url);
-    console.log('req.method:', req.method);
-    console.log('======================');
-    
-    // Pasar la petición a Express
-    return app(req, res);
-};
+// Exportar para Vercel
+module.exports = app;
