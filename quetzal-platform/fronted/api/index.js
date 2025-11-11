@@ -56,6 +56,13 @@ app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Debug middleware - log all requests
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - URL: ${req.url}`);
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    next();
+});
+
 // Logging
 if (process.env.NODE_ENV !== 'production') {
     app.use(morgan('dev'));
