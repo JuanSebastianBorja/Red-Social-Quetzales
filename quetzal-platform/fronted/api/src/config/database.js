@@ -1,15 +1,15 @@
 // ============================================
-// DATABASE.JS - Configuración de Sequelize para Vercel Serverless
+// DATABASE.JS - Configuración de Sequelize para Netlify Serverless
 // ============================================
 const { Sequelize } = require('sequelize');
 
-// En Vercel, las variables de entorno se cargan automáticamente
+// En Netlify, las variables de entorno se cargan automáticamente
 // No necesitamos dotenv aquí
 
 // Configuración de Sequelize optimizada para serverless
 let sequelize;
 
-// Si la plataforma proporciona una única DATABASE_URL (Vercel, Railway, Render)
+// Si la plataforma proporciona una única DATABASE_URL (Netlify, Railway, Render)
 if (process.env.DATABASE_URL) {
     sequelize = new Sequelize(process.env.DATABASE_URL, {
         dialect: 'postgres',

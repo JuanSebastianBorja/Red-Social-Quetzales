@@ -12,7 +12,7 @@ SUPABASE_URL: [Copiar después desde Supabase Settings → API]
 SUPABASE_ANON_KEY: [Copiar después desde Supabase Settings → API]
 
 
-🔐 VARIABLES DE ENTORNO PARA VERCEL
+🔐 VARIABLES DE ENTORNO PARA NETLIFY
 ------------------------------------
 NODE_ENV=production
 DATABASE_URL=postgresql://postgres.sgttyuuvuakaybzrzwdx:gnLnouburQFx48p0@aws-1-sa-east-1.pooler.supabase.com:5432/postgres
@@ -21,14 +21,14 @@ DB_SSL=true
 JWT_SECRET=fedc1a554900ac24fcb6fec49bf698873bf335b3a0002ce29694bb3702a8a7d6fa61683d1ac7a890a9949b117cc7620971de61a9343d38d1bacaf8c3347abf89
 JWT_EXPIRY=7d
 
-FRONTEND_URL=https://red-social-quetzales.vercel.app
-CORS_ORIGINS=https://red-social-quetzales.vercel.app,https://*.vercel.app
+FRONTEND_URL=https://quetzal-platform.netlify.app
+CORS_ORIGINS=https://quetzal-platform.netlify.app,https://*.netlify.app
 
 
 🔗 URLs FINALES
 ------------------------------------
-Frontend (Vercel): https://red-social-quetzales.vercel.app
-Backend API: https://red-social-quetzales.vercel.app/api
+Frontend (Netlify): https://quetzal-platform.netlify.app
+Backend API: https://quetzal-platform.netlify.app/api
 Supabase Dashboard: https://app.supabase.com/project/sgttyuuvuakaybzrzwdx
 
 

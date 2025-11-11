@@ -38,7 +38,7 @@ app.use(cors({
     origin: [
         'http://localhost:5500',
         'http://127.0.0.1:5500',
-        process.env.FRONTEND_URL || 'https://quetzal-platform.vercel.app'
+        process.env.FRONTEND_URL || 'https://quetzal-platform.netlify.app'
     ],
     credentials: true
 }));

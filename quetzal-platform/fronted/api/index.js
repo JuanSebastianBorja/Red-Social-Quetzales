@@ -1,5 +1,5 @@
 // ============================================
-// VERCEL SERVERLESS HANDLER
+// NETLIFY SERVERLESS HANDLER
 // ============================================
 // Configurar entorno de producción
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
@@ -41,7 +41,7 @@ const corsOrigins = process.env.CORS_ORIGINS
     : [
         'http://localhost:5500',
         'http://127.0.0.1:5500',
-        process.env.FRONTEND_URL || 'https://red-social-quetzales.vercel.app'
+        process.env.FRONTEND_URL || 'https://quetzal-platform.netlify.app'
     ];
 
 app.use(cors({
@@ -154,5 +154,5 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Exportar para Vercel
+// Exportar para Netlify
 module.exports = app;
