@@ -1,8 +1,6 @@
 // ============================================
-// VERCEL SERVERLESS HANDLER
+// APP.JS - Configuración de Express
 // ============================================
-// Configurar entorno de producción
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
 const express = require('express');
 const cors = require('cors');
@@ -12,16 +10,16 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 
 // Importar modelos (esto establece las relaciones)
-require('./src/models/index');
+require('./models/index');
 
 // Importar rutas
-const authRoutes = require('./src/routes/authRoutes');
-const userRoutes = require('./src/routes/userRoutes');
-const serviceRoutes = require('./src/routes/serviceRoutes');
-const walletRoutes = require('./src/routes/walletRoutes');
-const escrowRoutes = require('./src/routes/escrowRoutes');
-const ratingRoutes = require('./src/routes/ratingRoutes');
-const adminRoutes = require('./src/routes/adminRoutes');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
+const walletRoutes = require('./routes/walletRoutes');
+const escrowRoutes = require('./routes/escrowRoutes');
+const ratingRoutes = require('./routes/ratingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -36,16 +34,12 @@ app.use(helmet({
 }));
 
 // CORS
-const corsOrigins = process.env.CORS_ORIGINS 
-    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : [
+app.use(cors({
+    origin: [
         'http://localhost:5500',
         'http://127.0.0.1:5500',
-        process.env.FRONTEND_URL || 'https://red-social-quetzales.vercel.app'
-    ];
-
-app.use(cors({
-    origin: corsOrigins,
+        process.env.FRONTEND_URL || 'https://quetzal-platform.vercel.app'
+    ],
     credentials: true
 }));
 
@@ -85,13 +79,11 @@ app.use('/api/auth/register', authLimiter);
 // ============================================
 
 // Health Check
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'OK',
-        message: 'Quetzal Platform API is running',
         timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        environment: process.env.NODE_ENV
+        uptime: process.uptime()
     });
 });
 
@@ -105,22 +97,11 @@ app.use('/api/ratings', ratingRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Ruta raíz
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
     res.json({
         message: '🦜 Bienvenido a Quetzal Platform API',
         version: '1.0.0',
-        status: 'active',
-        documentation: '/api-docs',
-        endpoints: {
-            health: '/api/health',
-            auth: '/api/auth/*',
-            users: '/api/users/*',
-            services: '/api/services/*',
-            wallet: '/api/wallet/*',
-            escrow: '/api/escrow/*',
-            ratings: '/api/ratings/*',
-            admin: '/api/admin/*'
-        }
+        documentation: '/api-docs'
     });
 });
 
@@ -132,20 +113,17 @@ app.get('/api', (req, res) => {
 app.use('*', (req, res) => {
     res.status(404).json({
         success: false,
-        message: 'Ruta no encontrada',
-        path: req.path
+        message: 'Ruta no encontrada'
     });
 });
 
 // Manejo de errores global
 app.use((err, req, res, next) => {
-    console.error('Error:', err.stack);
-    res.status(err.status || 500).json({
+    console.error(err.stack);
+    res.status(500).json({
         success: false,
-        message: err.message || 'Error interno del servidor',
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+        message: err.message || 'Error interno del servidor'
     });
 });
 
-// Exportar para Vercel
 module.exports = app;
