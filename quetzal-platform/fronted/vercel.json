@@ -10,8 +10,22 @@
   },
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/views/landing-page.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/views/(.*)",
+      "dest": "/views/$1"
+    },
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
     }
   ],
   "headers": [
