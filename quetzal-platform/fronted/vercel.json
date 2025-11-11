@@ -4,20 +4,18 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
-    "api/**/*.js": {
+    "api/index.js": {
       "memory": 1024,
       "maxDuration": 10
     }
   },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    }
-  ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/:path(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/:path((?!api).*)",
       "destination": "/index.html"
     }
   ],
