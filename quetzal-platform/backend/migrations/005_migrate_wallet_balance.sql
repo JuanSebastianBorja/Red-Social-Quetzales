@@ -11,15 +11,7 @@ BEGIN;
 -- 1. Crear wallets para usuarios que no tengan
 INSERT INTO wallets (user_id, balance, currency, created_at, updated_at)
 SELECT u.id,
-       COALESCE(
-         CASE 
-           WHEN EXISTS (
-             SELECT 1 FROM information_schema.columns 
-             WHERE table_name='users' AND column_name='qz_balance'
-           ) THEN u.qz_balance 
-           ELSE 0 
-         END, 0
-       ) AS balance,
+       0 AS balance,
        'QUETZALES',
        NOW(),
        NOW()
@@ -28,17 +20,7 @@ LEFT JOIN wallets w ON w.user_id = u.id
 WHERE w.user_id IS NULL;
 
 -- 2. Si existía columna qz_balance, opcionalmente dejarla en cero (para histórica) 
-DO $$
-DECLARE col_exists BOOLEAN;
-BEGIN
-  SELECT EXISTS (
-    SELECT 1 FROM information_schema.columns 
-    WHERE table_name='users' AND column_name='qz_balance'
-  ) INTO col_exists;
-  IF col_exists THEN
-    UPDATE users SET qz_balance = 0;
-  END IF;
-END $$;
+-- (Legacy column qz_balance no existe en entorno actual; bloque omitido)
 
 -- 3. (Opcional) Eliminar columna qz_balance si ya migrada
 -- Comentado por seguridad; descomentar cuando se confirme que no se usa en código.

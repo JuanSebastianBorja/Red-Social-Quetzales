@@ -47,7 +47,8 @@ async function run() {
     const files = [
       '002_create_transactions_table.sql',
       '003_create_contracts_table.sql',
-      '004_create_messaging_tables.sql'
+      '004_create_messaging_tables.sql',
+      '005_migrate_wallet_balance.sql'
     ];
 
     for (const file of files) {

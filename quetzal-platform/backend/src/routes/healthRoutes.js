@@ -59,8 +59,28 @@ router.get('/stats', async (req, res) => {
   try {
     const [users] = await sequelize.query('SELECT COUNT(*) as count FROM users WHERE is_active = true');
     const [services] = await sequelize.query('SELECT COUNT(*) as count FROM services WHERE status = \'active\'');
-    const [transactions] = await sequelize.query('SELECT COUNT(*) as count FROM "Transactions"');
-    const [contracts] = await sequelize.query('SELECT COUNT(*) as count FROM "Contracts"');
+    // Intentar primero tablas PascalCase, luego snake_case si falla
+    let transactionsCount = 0;
+    try {
+      const [txPascal] = await sequelize.query('SELECT COUNT(*) as count FROM "Transactions"');
+      transactionsCount = parseInt(txPascal[0].count);
+    } catch (errTx) {
+      try {
+        const [txSnake] = await sequelize.query('SELECT COUNT(*) as count FROM transactions');
+        transactionsCount = parseInt(txSnake[0].count);
+      } catch (errTx2) { /* ignore */ }
+    }
+
+    let contractsCount = 0;
+    try {
+      const [contractPascal] = await sequelize.query('SELECT COUNT(*) as count FROM "Contracts"');
+      contractsCount = parseInt(contractPascal[0].count);
+    } catch (errCt) {
+      try {
+        const [contractSnake] = await sequelize.query('SELECT COUNT(*) as count FROM contracts');
+        contractsCount = parseInt(contractSnake[0].count);
+      } catch (errCt2) { /* ignore */ }
+    }
     
     // Try Conversations (PascalCase), fallback to conversations (snake_case)
     let conversationsCount = 0;
@@ -81,8 +101,8 @@ router.get('/stats', async (req, res) => {
       stats: {
         activeUsers: parseInt(users[0].count),
         activeServices: parseInt(services[0].count),
-        totalTransactions: parseInt(transactions[0].count),
-        totalContracts: parseInt(contracts[0].count),
+  totalTransactions: transactionsCount,
+  totalContracts: contractsCount,
         totalConversations: conversationsCount
       },
       timestamp: new Date().toISOString()
