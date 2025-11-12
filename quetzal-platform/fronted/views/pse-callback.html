@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Pago PSE - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/styles.css">
+    <link rel="stylesheet" href="../public/css/components.css">
+    <link rel="stylesheet" href="../public/css/wallet.css">
+    <style>
+        .callback-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .callback-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .status-icon.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-icon.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-icon.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-icon.loading {
+            background: #e7f3ff;
+            color: #004085;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .transaction-details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .message-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .message-subtitle {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #cfe2ff;
+            color: #084298;
+            border: 1px solid #b6d4fe;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #664d03;
+            border: 1px solid #ffecb5;
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <div class="callback-card">
+            <!-- Estado de carga inicial -->
+            <div id="loading-state">
+                <div class="status-icon loading">
+                    <div class="spinner"></div>
+                </div>
+                <h2 class="message-title">Verificando pago...</h2>
+                <p class="message-subtitle">Por favor espera mientras confirmamos tu transacción</p>
+            </div>
+
+            <!-- Estado de éxito -->
+            <div id="success-state" style="display: none;">
+                <div class="status-icon success">✓</div>
+                <h2 class="message-title">¡Pago Exitoso!</h2>
+                <p class="message-subtitle">Tu transacción ha sido aprobada</p>
+                
+                <div class="transaction-details" id="success-details">
+                    <!-- Detalles se llenarán dinámicamente -->
+                </div>
+
+                <div class="alert alert-info">
+                    ✨ Tus Quetzales han sido acreditados a tu cuenta
+                </div>
+
+                <a href="wallet.html" class="btn-primary">Ir a Mi Billetera</a>
+                <br>
+                <a href="dashboard.html" class="btn-secondary">Ir al Dashboard</a>
+            </div>
+
+            <!-- Estado de error/rechazo -->
+            <div id="error-state" style="display: none;">
+                <div class="status-icon error">✕</div>
+                <h2 class="message-title">Pago Rechazado</h2>
+                <p class="message-subtitle" id="error-message">La transacción no pudo ser completada</p>
+                
+                <div class="transaction-details" id="error-details">
+                    <!-- Detalles se llenarán dinámicamente -->
+                </div>
+
+                <div class="alert alert-warning">
+                    No se realizó ningún cargo a tu cuenta bancaria
+                </div>
+
+                <a href="wallet.html" class="btn-primary">Intentar de Nuevo</a>
+                <br>
+                <a href="dashboard.html" class="btn-secondary">Ir al Dashboard</a>
+            </div>
+
+            <!-- Estado pendiente -->
+            <div id="pending-state" style="display: none;">
+                <div class="status-icon pending">⏱</div>
+                <h2 class="message-title">Pago en Proceso</h2>
+                <p class="message-subtitle">Tu pago está siendo procesado por el banco</p>
+                
+                <div class="transaction-details" id="pending-details">
+                    <!-- Detalles se llenarán dinámicamente -->
+                </div>
+
+                <div class="alert alert-info">
+                    ℹ️Recibirás una notificación cuando se confirme el pago
+                </div>
+
+                <a href="wallet.html" class="btn-primary">Ir a Mi Billetera</a>
+                <br>
+                <a href="dashboard.html" class="btn-secondary">Ir al Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../public/js/app.js"></script>
+    <script type="module">
+        import API from '../public/js/api.js';
+
+        // Obtener parámetros de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const reference = urlParams.get('reference');
+        const status = urlParams.get('status');
+        const authCode = urlParams.get('authorizationCode');
+
+        async function verifyTransaction() {
+            if (!reference) {
+                showError('No se encontró la referencia de la transacción');
+                return;
+            }
+
+            try {
+                // Si viene el status en la URL, procesar callback primero
+                if (status) {
+                    await API.processPseCallback({
+                        reference,
+                        status,
+                        authorizationCode: authCode
+                    });
+                }
+
+                // Verificar el estado de la transacción
+                const response = await API.getPseStatus(reference);
+
+                if (response.success && response.transaction) {
+                    const transaction = response.transaction;
+                    displayTransactionStatus(transaction);
+                } else {
+                    showError(response.message || 'Error al verificar la transacción');
+                }
+
+            } catch (error) {
+                console.error('Error verificando transacción:', error);
+                showError(error.message || 'Error al procesar la transacción');
+            }
+        }
+
+        function displayTransactionStatus(transaction) {
+            const loadingState = document.getElementById('loading-state');
+            const successState = document.getElementById('success-state');
+            const errorState = document.getElementById('error-state');
+            const pendingState = document.getElementById('pending-state');
+
+            loadingState.style.display = 'none';
+
+            const details = `
+                <div class="detail-row">
+                    <span class="detail-label">Referencia:</span>
+                    <span class="detail-value">${transaction.reference}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Monto COP:</span>
+                    <span class="detail-value">$${formatNumber(transaction.amountCOP)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Quetzales:</span>
+                    <span class="detail-value">Q${formatNumber(transaction.amountQZ)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Banco:</span>
+                    <span class="detail-value">${transaction.bankName || 'N/A'}</span>
+                </div>
+                ${transaction.authorizationCode ? `
+                <div class="detail-row">
+                    <span class="detail-label">Código de Autorización:</span>
+                    <span class="detail-value">${transaction.authorizationCode}</span>
+                </div>
+                ` : ''}
+                <div class="detail-row">
+                    <span class="detail-label">Fecha:</span>
+                    <span class="detail-value">${formatDate(transaction.createdAt)}</span>
+                </div>
+            `;
+
+            if (transaction.status === 'approved') {
+                document.getElementById('success-details').innerHTML = details;
+                successState.style.display = 'block';
+                
+                // Limpiar referencia pendiente del localStorage
+                localStorage.removeItem('pse_pending_reference');
+                
+            } else if (transaction.status === 'rejected' || transaction.status === 'failed') {
+                document.getElementById('error-details').innerHTML = details;
+                if (transaction.errorMessage) {
+                    document.getElementById('error-message').textContent = transaction.errorMessage;
+                }
+                errorState.style.display = 'block';
+                
+                // Limpiar referencia pendiente del localStorage
+                localStorage.removeItem('pse_pending_reference');
+                
+            } else {
+                // pending, processing
+                document.getElementById('pending-details').innerHTML = details;
+                pendingState.style.display = 'block';
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('error-state').style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+        }
+
+        function formatNumber(num) {
+            return parseFloat(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('es-CO', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Iniciar verificación al cargar la página
+        verifyTransaction();
+    </script>
+</body>
+</html>

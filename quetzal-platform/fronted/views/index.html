@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quetzal Platform - Red Social de Servicios</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+</head>
+<body>
+    <div class="container" style="text-align: center; padding: 4rem 1rem;">
+        <h1>🦜 Bienvenido a Quetzal Platform</h1>
+        <p>Red social de servicios con pagos seguros</p>
+        <div style="margin-top: 2rem;">
+            <a href="../views/login.html" class="btn btn-primary" style="margin: 0.5rem;">Iniciar Sesión</a>
+            <a href="../views/register.html" class="btn btn-secondary" style="margin: 0.5rem;">Registrarse</a>
+        </div>
+    </div>
+
+    <script>
+        // Redirigir automáticamente si ya está logueado
+        const token = localStorage.getItem('quetzal_token');
+        const user = JSON.parse(localStorage.getItem('quetzal_user') || '{}');
+        
+        if (token && user) {
+            // Redirigir según el rol
+            if (user.role === 'admin') {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        } else {
+            // Si no está logueado, redirigir a landing page
+            window.location.href = 'landing-page.html';
+        }
+    </script>
+</body>
+</html>

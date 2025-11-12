@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/user.css">
+</head>
+<body>
+    <div class="user-layout">
+        <!-- Sidebar -->
+        <aside class="user-sidebar" id="userSidebar">
+            <!-- Header -->
+            <div class="user-sidebar-header">
+                <div class="user-sidebar-brand">
+                    <span class="user-sidebar-brand-icon">🦜</span>
+                    <span>Quetzal</span>
+                </div>
+            </div>
+
+            <!-- User Profile -->
+            <div class="user-sidebar-profile">
+                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
+                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
+                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
+                <div class="user-sidebar-balance">
+                    <div class="user-sidebar-balance-label">Balance Disponible</div>
+                    <div class="user-sidebar-balance-amount">
+                        <span>💰</span>
+                        <span id="sidebar-balance">Q 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="user-sidebar-nav">
+                <div class="user-sidebar-nav-title">Menú Principal</div>
+                <a href="dashboard.html" class="user-sidebar-nav-item active">
+                    <span class="user-sidebar-nav-icon">📊</span>
+                    <span class="user-sidebar-nav-text">Dashboard</span>
+                </a>
+                <a href="services.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">⚡</span>
+                    <span class="user-sidebar-nav-text">Servicios</span>
+                </a>
+                <a href="messages.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💬</span>
+                    <span class="user-sidebar-nav-text">Mensajes</span>
+                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
+                </a>
+                <a href="wallet.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💰</span>
+                    <span class="user-sidebar-nav-text">Billetera</span>
+                </a>
+                <a href="contracts.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">📄</span>
+                    <span class="user-sidebar-nav-text">Mis Contratos</span>
+                </a>
+
+                <div class="user-sidebar-nav-title">Mi Cuenta</div>
+                <a href="profile.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">👤</span>
+                    <span class="user-sidebar-nav-text">Perfil</span>
+                </a>
+                <a href="create-service.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">➕</span>
+                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
+                </a>
+            </nav>
+
+            <!-- Footer -->
+            <div class="user-sidebar-footer">
+                <button class="user-sidebar-logout" id="logout-btn">
+                    <span>🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="user-main">
+            <!-- Top Bar -->
+            <div class="user-topbar">
+                <div class="user-topbar-left">
+                    <button class="user-toggle-btn" id="sidebarToggle">
+                        <span>☰</span>
+                    </button>
+                    <div>
+                        <div class="user-topbar-title">Dashboard</div>
+                        <div class="user-topbar-breadcrumb">
+                            <span>Inicio</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-topbar-right">
+                    <div class="user-topbar-search">
+                        <span class="user-topbar-search-icon">🔍</span>
+                        <input type="text" placeholder="Buscar servicios...">
+                    </div>
+                    <button class="user-topbar-notifications">
+                        <span>🔔</span>
+                        <span class="user-topbar-notifications-badge">5</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="user-content">
+
+            <!-- Content -->
+            <div class="user-content">
+                <!-- Page Header -->
+                <div class="user-page-header">
+                    <h1 class="user-page-title">Bienvenido(a), <span id="user-name">Cargando...</span></h1>
+                    <p class="user-page-subtitle">Aquí puedes ver un resumen de tu actividad en la plataforma</p>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="user-quick-stats">
+                    <div class="user-quick-stat">
+                        <div class="user-quick-stat-icon">⚡</div>
+                        <div class="user-quick-stat-label">Servicios Activos</div>
+                        <div class="user-quick-stat-value" id="active-services">-</div>
+                        <div class="user-quick-stat-change positive">↑ 2 este mes</div>
+                    </div>
+                    <div class="user-quick-stat">
+                        <div class="user-quick-stat-icon">💬</div>
+                        <div class="user-quick-stat-label">Mensajes Nuevos</div>
+                        <div class="user-quick-stat-value" id="new-messages">-</div>
+                        <div class="user-quick-stat-change">Sin cambios</div>
+                    </div>
+                    <div class="user-quick-stat">
+                        <div class="user-quick-stat-icon">⭐</div>
+                        <div class="user-quick-stat-label">Calificación</div>
+                        <div class="user-quick-stat-value" id="rating">-</div>
+                        <div class="user-quick-stat-change positive">↑ 0.2 este mes</div>
+                    </div>
+                    <div class="user-quick-stat">
+                        <div class="user-quick-stat-icon">💰</div>
+                        <div class="user-quick-stat-label">Ingresos del Mes</div>
+                        <div class="user-quick-stat-value" id="monthly-income">Q 0.00</div>
+                        <div class="user-quick-stat-change positive">↑ 15%</div>
+                    </div>
+                </div>
+
+                <!-- Contenido Principal estilo Feed -->
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- Feed Principal (2/3) -->
+                    <div class="col-span-2">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="card-title">Actividad Reciente</h3>
+                                <p class="card-subtitle">Publicaciones recientes de la comunidad</p>
+                            </div>
+                            <div class="card-body">
+                                <!-- Composer rápido -->
+                                <div class="composer mb-4">
+                                    <textarea id="composer-text" class="form-textarea" placeholder="¿Qué ofreces hoy? Comparte un servicio o una novedad..."></textarea>
+                                    <div class="flex justify-between mt-2">
+                                        <div class="muted">Comparte ahora: título, descripción breve y precio en Quetzales</div>
+                                        <button id="composer-post" class="btn btn-primary">Publicar</button>
+                                    </div>
+                                </div>
+
+                                <!-- Feed -->
+                                <div id="feed-list">
+                                    <!-- Post cards serán cargadas aquí -->
+                                    <div class="skeleton-card"></div>
+                                    <div class="skeleton-card"></div>
+                                </div>
+
+                                <div class="flex justify-center mt-4">
+                                    <button id="load-more" class="btn btn-outline">Cargar más</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Lateral (1/3) -->
+                    <div>
+                        <!-- Notificaciones -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3 class="card-title">Notificaciones</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="notifications-list" class="notifications-list">
+                                    <div class="skeleton-notification"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones Rápidas -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Acciones Rápidas</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="quick-actions">
+                                    <a href="wallet.html" class="quick-action-btn">
+                                        <span class="icon">💰</span>
+                                        <span>Recargar Quetzales</span>
+                                    </a>
+                                    <a href="messages.html" class="quick-action-btn">
+                                        <span class="icon">💬</span>
+                                        <span>Mensajes</span>
+                                    </a>
+                                    <a href="services.html" class="quick-action-btn">
+                                        <span class="icon">🔎</span>
+                                        <span>Explorar Servicios</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Overlay para móviles -->
+    <div class="user-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script src="../public/js/config.js"></script>
+    <script src="../public/js/dashboard.js"></script>
+        <script src="../public/js/app.js"></script>
+    <script>
+        // Toggle Sidebar
+        const sidebar = document.getElementById('userSidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.add('collapsed');
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // Responsive: Cerrar sidebar en móviles por defecto
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+        }
+    </script>
+</body>
+</html>
