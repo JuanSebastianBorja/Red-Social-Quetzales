@@ -19,6 +19,7 @@ const ServiceReport = require('./ServiceReport');
 const ServiceRequest = require('./ServiceRequest');
 const Wallet = require('./Wallet');
 const Transaction = require('./Transaction');
+const Contract = require('./Contract');
 const UserReport = require('./UserReport');
 const UserSkill = require('./UserSkill');
 
@@ -107,6 +108,19 @@ Rating.belongsTo(User, { foreignKey: 'userId', as: 'user', onDelete: 'CASCADE' }
 ServiceReport.belongsTo(User, { foreignKey: 'reporterId', as: 'reporter', onDelete: 'CASCADE' });
 ServiceReport.belongsTo(Service, { foreignKey: 'serviceId', as: 'reportedService', onDelete: 'CASCADE' });
 ServiceReport.belongsTo(AdminUser, { foreignKey: 'reviewedBy', as: 'reviewer', onDelete: 'SET NULL' });
+
+// Contract (Contratación de servicios)
+Contract.belongsTo(Service, { foreignKey: 'serviceId', as: 'service', onDelete: 'RESTRICT' });
+Contract.belongsTo(User, { foreignKey: 'buyerId', as: 'buyer', onDelete: 'RESTRICT' });
+Contract.belongsTo(User, { foreignKey: 'sellerId', as: 'seller', onDelete: 'RESTRICT' });
+Contract.belongsTo(EscrowAccount, { foreignKey: 'escrowId', as: 'escrow', onDelete: 'SET NULL' });
+Contract.belongsTo(Conversation, { foreignKey: 'conversationId', as: 'conversation', onDelete: 'SET NULL' });
+Contract.belongsTo(Rating, { foreignKey: 'ratingId', as: 'rating', onDelete: 'SET NULL' });
+
+User.hasMany(Contract, { foreignKey: 'buyerId', as: 'purchases', onDelete: 'CASCADE' });
+User.hasMany(Contract, { foreignKey: 'sellerId', as: 'sales', onDelete: 'CASCADE' });
+Service.hasMany(Contract, { foreignKey: 'serviceId', as: 'contracts', onDelete: 'CASCADE' });
+EscrowAccount.hasOne(Contract, { foreignKey: 'escrowId', as: 'contract' });
 
 // ============================================
 // EXPLICACIÓN DE LAS RELACIONES:
@@ -211,6 +225,7 @@ module.exports = {
     ServiceRequest,
     Wallet,
     Transaction,
+    Contract,
     UserReport,
     UserSkill
 };

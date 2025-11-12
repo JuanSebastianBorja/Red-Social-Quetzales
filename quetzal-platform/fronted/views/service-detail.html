@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Servicio - Quetzal Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/user.css">
+</head>
+<body>
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="fas fa-feather-alt"></i> Quetzal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">
+                            <i class="fas fa-briefcase"></i> Servicios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="my-contracts.html">
+                            <i class="fas fa-file-contract"></i> Mis Contrataciones
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="wallet.html">
+                            <i class="fas fa-wallet"></i> Billetera
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> <span id="userNameNav">Usuario</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user"></i> Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Contenido Principal -->
+            <div class="col-lg-8">
+                <!-- Loading -->
+                <div id="loadingState" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando detalles del servicio...</p>
+                </div>
+
+                <!-- Service Content -->
+                <div id="serviceContent" style="display: none;">
+                    <!-- Se cargará dinámicamente -->
+                </div>
+
+                <!-- Error State -->
+                <div id="errorState" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-exclamation-circle fa-4x text-danger mb-3"></i>
+                    <h4>No se pudo cargar el servicio</h4>
+                    <p class="text-muted">El servicio no existe o no está disponible</p>
+                    <a href="services.html" class="btn btn-primary">Ver todos los servicios</a>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div id="serviceSidebar" style="position: sticky; top: 20px;">
+                    <!-- Se cargará dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Contratación -->
+    <div class="modal fade" id="contractModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-file-contract"></i> Confirmar Contratación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Al confirmar, se creará el contrato y deberás proceder al pago para activarlo.
+                    </div>
+
+                    <h6>Resumen del Servicio</h6>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 id="modalServiceTitle">-</h5>
+                            <p class="text-muted mb-2" id="modalServiceProvider">-</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Precio</small>
+                                    <div><strong id="modalServicePrice">-</strong></div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Entrega</small>
+                                    <div><strong id="modalServiceDelivery">-</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6>Detalles Adicionales</h6>
+                    <div class="mb-3">
+                        <label for="contractRequirements" class="form-label">
+                            Requisitos o Instrucciones Especiales (Opcional)
+                        </label>
+                        <textarea 
+                            class="form-control" 
+                            id="contractRequirements" 
+                            rows="4"
+                            placeholder="Describe cualquier detalle específico que el proveedor deba conocer..."
+                        ></textarea>
+                    </div>
+
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6>Cálculo del Total</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Precio del servicio:</span>
+                                <strong id="modalPriceBreakdown">-</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Comisión de plataforma (5%):</span>
+                                <strong id="modalFeeBreakdown">-</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <strong>Total a pagar:</strong>
+                                <strong class="text-primary" id="modalTotalBreakdown">-</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-wallet"></i>
+                        <strong>Balance actual:</strong> <span id="modalCurrentBalance">-</span>
+                        <span id="insufficientFundsWarning" style="display: none;">
+                            <br><small class="text-danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                No tienes fondos suficientes. 
+                                <a href="wallet.html" target="_blank">Recarga tu billetera</a>
+                            </small>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="confirmContractBtn">
+                        <i class="fas fa-check"></i> Confirmar y Continuar al Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Quetzal Platform</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import API from '../public/js/api.js';
+        import { requireAuth, getCurrentUser } from '../public/js/auth.js';
+        import { showToast } from '../public/js/utils.js';
+        import { createContract } from '../public/js/contracts.js';
+
+        // Verificar autenticación
+        requireAuth();
+
+        // Variables globales
+        let currentService = null;
+        let currentUser = null;
+        let userWallet = null;
+        const contractModal = new bootstrap.Modal(document.getElementById('contractModal'));
+
+        // Elementos del DOM
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const serviceContent = document.getElementById('serviceContent');
+        const serviceSidebar = document.getElementById('serviceSidebar');
+        const userNameNav = document.getElementById('userNameNav');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const confirmContractBtn = document.getElementById('confirmContractBtn');
+        const contractRequirements = document.getElementById('contractRequirements');
+
+        // Cargar datos del usuario
+        currentUser = getCurrentUser();
+        if (currentUser && userNameNav) {
+            userNameNav.textContent = currentUser.fullName || currentUser.email;
+        }
+
+        // Obtener ID del servicio de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const serviceId = urlParams.get('id');
+
+        if (!serviceId) {
+            window.location.href = 'services.html';
+        }
+
+        // Cargar servicio
+        async function loadService() {
+            try {
+                loadingState.style.display = 'block';
+                errorState.style.display = 'none';
+                serviceContent.style.display = 'none';
+
+                const result = await API.getService(serviceId);
+                const walletResult = await API.getWalletSummary();
+
+                currentService = result.service || result.data;
+                userWallet = walletResult.wallet || walletResult.data;
+
+                renderService();
+                renderSidebar();
+
+                loadingState.style.display = 'none';
+                serviceContent.style.display = 'block';
+
+            } catch (error) {
+                loadingState.style.display = 'none';
+                errorState.style.display = 'block';
+                console.error('Error:', error);
+            }
+        }
+
+        // Renderizar servicio
+        function renderService() {
+            const categoryIcons = {
+                'diseño': '🎨',
+                'programación': '💻',
+                'marketing': '📱',
+                'escritura': '✍️',
+                'traducción': '🌐',
+                'educación': '📚',
+                'hogar': '🏠',
+                'otro': '⚡'
+            };
+
+            serviceContent.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="fs-1 me-3">${categoryIcons[currentService.category?.toLowerCase()] || '⚡'}</div>
+                            <div>
+                                <span class="badge bg-secondary">${currentService.category || 'General'}</span>
+                                <h1 class="h3 mb-0 mt-2">${currentService.title}</h1>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            ${currentService.averageRating ? `
+                                <span class="text-warning">
+                                    ${'★'.repeat(Math.round(currentService.averageRating))}${'☆'.repeat(5 - Math.round(currentService.averageRating))}
+                                </span>
+                                <span class="ms-2">${currentService.averageRating.toFixed(1)}</span>
+                                <span class="text-muted ms-2">(${currentService.totalReviews || 0} reseñas)</span>
+                            ` : '<span class="text-muted">Sin calificaciones aún</span>'}
+                        </div>
+
+                        <div class="border-top border-bottom py-3 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 1.5rem;">
+                                    ${(currentService.provider?.fullName || currentService.User?.fullName || 'P')[0].toUpperCase()}
+                                </div>
+                                <div>
+                                    <strong>${currentService.provider?.fullName || currentService.User?.fullName || 'Proveedor'}</strong>
+                                    <div class="text-muted small">
+                                        ${currentService.provider?.city || currentService.User?.city ? `<i class="fas fa-map-marker-alt"></i> ${currentService.provider?.city || currentService.User?.city}` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5>Descripción del Servicio</h5>
+                        <p class="text-muted">${currentService.description || 'Sin descripción disponible'}</p>
+
+                        <h5 class="mt-4">Detalles</h5>
+                        <ul>
+                            <li><strong>Categoría:</strong> ${currentService.category || 'General'}</li>
+                            <li><strong>Tiempo de entrega:</strong> ${currentService.deliveryTime || 'A convenir'} días</li>
+                            <li><strong>Disponibilidad:</strong> ${currentService.isActive ? '<span class="badge bg-success">Disponible</span>' : '<span class="badge bg-danger">No disponible</span>'}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                ${currentService.ratings && currentService.ratings.length > 0 ? `
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Reseñas (${currentService.ratings.length})</h5>
+                        </div>
+                        <div class="card-body">
+                            ${currentService.ratings.map(rating => `
+                                <div class="border-bottom pb-3 mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>${rating.user?.fullName || 'Usuario'}</strong>
+                                        <span class="text-warning">${'★'.repeat(rating.rating)}${'☆'.repeat(5 - rating.rating)}</span>
+                                    </div>
+                                    <p class="mb-1">${rating.comment || ''}</p>
+                                    <small class="text-muted">${new Date(rating.createdAt).toLocaleDateString()}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // Renderizar sidebar
+        function renderSidebar() {
+            const isOwnService = currentService.userId === currentUser.id;
+            const platformFee = parseFloat(currentService.price) * 0.05;
+            const totalAmount = parseFloat(currentService.price) + platformFee;
+
+            serviceSidebar.innerHTML = `
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-2">Precio</h6>
+                        <h2 class="text-primary mb-0">${currentService.price} QZ</h2>
+                        <small class="text-muted">+ ${platformFee.toFixed(2)} QZ comisión</small>
+                    </div>
+                </div>
+
+                ${isOwnService ? `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Este es tu servicio
+                    </div>
+                    <a href="edit-service.html?id=${currentService.id}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-edit"></i> Editar Servicio
+                    </a>
+                ` : currentService.isActive ? `
+                    <button class="btn btn-success w-100 btn-lg mb-3" id="hireServiceBtn">
+                        <i class="fas fa-shopping-cart"></i> Contratar Servicio
+                    </button>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6><i class="fas fa-shield-alt text-success"></i> Pago Seguro</h6>
+                            <ul class="small mb-0">
+                                <li>Fondos en garantía (escrow)</li>
+                                <li>Pago solo si estás satisfecho</li>
+                                <li>Soporte 24/7</li>
+                            </ul>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Este servicio no está disponible actualmente
+                    </div>
+                `}
+
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6><i class="fas fa-clock"></i> Tiempo de entrega</h6>
+                        <p class="mb-0">${currentService.deliveryTime || 'A convenir'} días</p>
+                    </div>
+                </div>
+            `;
+
+            // Event listener para contratar
+            const hireBtn = document.getElementById('hireServiceBtn');
+            if (hireBtn) {
+                hireBtn.addEventListener('click', openContractModal);
+            }
+        }
+
+        // Abrir modal de contratación
+        function openContractModal() {
+            const platformFee = parseFloat(currentService.price) * 0.05;
+            const totalAmount = parseFloat(currentService.price) + platformFee;
+            const currentBalance = parseFloat(userWallet?.balance || 0);
+            const hasEnoughFunds = currentBalance >= totalAmount;
+
+            document.getElementById('modalServiceTitle').textContent = currentService.title;
+            document.getElementById('modalServiceProvider').textContent = `Por: ${currentService.provider?.fullName || currentService.User?.fullName || 'Proveedor'}`;
+            document.getElementById('modalServicePrice').textContent = `${currentService.price} QZ`;
+            document.getElementById('modalServiceDelivery').textContent = `${currentService.deliveryTime || 'A convenir'} días`;
+            document.getElementById('modalPriceBreakdown').textContent = `${currentService.price} QZ`;
+            document.getElementById('modalFeeBreakdown').textContent = `${platformFee.toFixed(2)} QZ`;
+            document.getElementById('modalTotalBreakdown').textContent = `${totalAmount.toFixed(2)} QZ`;
+            document.getElementById('modalCurrentBalance').textContent = `${currentBalance.toFixed(2)} QZ`;
+
+            const insufficientWarning = document.getElementById('insufficientFundsWarning');
+            if (!hasEnoughFunds) {
+                insufficientWarning.style.display = 'block';
+                confirmContractBtn.disabled = true;
+            } else {
+                insufficientWarning.style.display = 'none';
+                confirmContractBtn.disabled = false;
+            }
+
+            contractModal.show();
+        }
+
+        // Confirmar contratación
+        confirmContractBtn.addEventListener('click', async () => {
+            try {
+                confirmContractBtn.disabled = true;
+                confirmContractBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+
+                const requirements = contractRequirements.value.trim();
+
+                const contract = await createContract(serviceId, requirements);
+
+                contractModal.hide();
+                
+                // Redirigir a la página de pago del contrato
+                showToast('Contrato creado. Redirigiendo al pago...', 'success');
+                setTimeout(() => {
+                    window.location.href = `my-contracts.html?highlight=${contract.id}`;
+                }, 1500);
+
+            } catch (error) {
+                confirmContractBtn.disabled = false;
+                confirmContractBtn.innerHTML = '<i class="fas fa-check"></i> Confirmar y Continuar al Pago';
+                console.error('Error:', error);
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await API.logout();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+            }
+        });
+
+        // Cargar servicio al iniciar
+        loadService();
+    </script>
+</body>
+</html>
