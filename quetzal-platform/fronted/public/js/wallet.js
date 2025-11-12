@@ -3,6 +3,9 @@ import API from './api.js';
 const $ = (id) => document.getElementById(id);
 const QUETZAL_TO_COP = 10000;
 
+// Variables globales para PSE
+let pseBanks = [];
+
 // Formatear moneda
 function formatCurrency(amount, currency = 'Q') {
 	const formatted = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -123,6 +126,203 @@ function formatDate(date) {
 
 async function handlePurchase(ev) {
 	ev.preventDefault();
+	
+	// Verificar si se está usando PSE
+	const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'pse';
+	
+	if (paymentMethod === 'pse') {
+		await handlePsePurchase(ev);
+	} else {
+		await handleDirectPurchase(ev);
+	}
+}
+
+// Compra directa (método antiguo - solo para desarrollo/testing)
+async function handleDirectPurchase(ev) {
+	const amount = parseFloat($('q-amount').value);
+	if (!amount || amount <= 0) {
+		showAlert('Por favor ingresa una cantidad válida', 'warning', 'purchase-result');
+		return;
+	}
+	
+	const btn = ev.target.querySelector('button[type="submit"]');
+	const originalText = btn.innerHTML;
+	btn.disabled = true;
+	btn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px;"></span> Procesando...';
+	
+	try {
+		const res = await API.purchaseQuetzales({ amount });
+		showAlert(res.message || '✅ Compra exitosa! Tus Quetzales están disponibles.', 'success', 'purchase-result');
+		$('q-amount').value = '';
+		document.getElementById('purchase-cop-preview').textContent = '1 Quetzal = 10,000 COP';
+		await loadBalance();
+		await loadTransactions();
+	} catch (err) {
+		console.error(err);
+		showAlert(err.message || '❌ Error al procesar la compra', 'error', 'purchase-result');
+	} finally {
+		btn.disabled = false;
+		btn.innerHTML = originalText;
+	}
+}
+
+// Compra con PSE
+async function handlePsePurchase(ev) {
+	const amountQZ = parseFloat($('q-amount').value);
+	if (!amountQZ || amountQZ <= 0) {
+		showAlert('Por favor ingresa una cantidad válida', 'warning', 'purchase-result');
+		return;
+	}
+	
+	const amountCOP = amountQZ * QUETZAL_TO_COP;
+	
+	// Mostrar modal PSE con formulario
+	await showPseModal(amountQZ, amountCOP);
+}
+
+// Mostrar modal de PSE
+async function showPseModal(amountQZ, amountCOP) {
+	// Cargar bancos si no están cargados
+	if (pseBanks.length === 0) {
+		try {
+			const response = await API.getPseBanks();
+			pseBanks = response.banks || [];
+		} catch (error) {
+			showAlert('Error cargando lista de bancos', 'error', 'purchase-result');
+			return;
+		}
+	}
+	
+	// Crear modal
+	const modal = document.createElement('div');
+	modal.className = 'modal';
+	modal.style.display = 'flex';
+	modal.innerHTML = `
+		<div class="modal-content" style="max-width: 500px;">
+			<div class="modal-header">
+				<h3>💳 Pagar con PSE</h3>
+				<button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="pse-summary mb-3">
+					<div class="d-flex justify-content-between mb-2">
+						<span>Quetzales:</span>
+						<strong>${formatCurrency(amountQZ)}</strong>
+					</div>
+					<div class="d-flex justify-content-between mb-3">
+						<span>Total a pagar:</span>
+						<strong class="text-primary">${formatCurrency(amountCOP, '$')} COP</strong>
+					</div>
+				</div>
+				
+				<form id="pse-form">
+					<div class="form-group">
+						<label for="pse-bank">Banco *</label>
+						<select id="pse-bank" name="bank" required class="form-control">
+							<option value="">Seleccione su banco</option>
+							${pseBanks.map(bank => `<option value="${bank.code}">${bank.name}</option>`).join('')}
+						</select>
+					</div>
+					
+					<div class="form-group">
+						<label for="pse-person-type">Tipo de persona *</label>
+						<select id="pse-person-type" name="personType" required class="form-control">
+							<option value="natural">Natural</option>
+							<option value="juridica">Jurídica</option>
+						</select>
+					</div>
+					
+					<div class="form-group">
+						<label for="pse-doc-type">Tipo de documento *</label>
+						<select id="pse-doc-type" name="documentType" required class="form-control">
+							<option value="CC">Cédula de Ciudadanía</option>
+							<option value="CE">Cédula de Extranjería</option>
+							<option value="NIT">NIT</option>
+							<option value="TI">Tarjeta de Identidad</option>
+							<option value="PP">Pasaporte</option>
+						</select>
+					</div>
+					
+					<div class="form-group">
+						<label for="pse-doc-number">Número de documento *</label>
+						<input type="text" id="pse-doc-number" name="documentNumber" required 
+							   class="form-control" placeholder="Ej: 1234567890">
+					</div>
+					
+					<div class="form-group">
+						<label for="pse-email">Email *</label>
+						<input type="email" id="pse-email" name="email" required 
+							   class="form-control" placeholder="correo@ejemplo.com">
+					</div>
+					
+					<div class="alert alert-info mt-3">
+						<small>
+							ℹ️ Serás redirigido al sitio seguro de tu banco para completar el pago.
+						</small>
+					</div>
+					
+					<div id="pse-error-container"></div>
+					
+					<div class="modal-actions mt-4">
+						<button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+							Cancelar
+						</button>
+						<button type="submit" class="btn btn-primary">
+							Continuar a PSE
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	`;
+	
+	document.body.appendChild(modal);
+	
+	// Handler del formulario PSE
+	document.getElementById('pse-form').addEventListener('submit', async (e) => {
+		e.preventDefault();
+		
+		const formData = {
+			amountCOP: amountCOP,
+			bankCode: document.getElementById('pse-bank').value,
+			personType: document.getElementById('pse-person-type').value,
+			documentType: document.getElementById('pse-doc-type').value,
+			documentNumber: document.getElementById('pse-doc-number').value,
+			email: document.getElementById('pse-email').value
+		};
+		
+		const btn = e.target.querySelector('button[type="submit"]');
+		const originalText = btn.innerHTML;
+		btn.disabled = true;
+		btn.innerHTML = '<span class="spinner"></span> Procesando...';
+		
+		try {
+			const response = await API.initPsePayment(formData);
+			
+			if (response.success && response.transaction) {
+				// Guardar referencia en localStorage para verificar después
+				localStorage.setItem('pse_pending_reference', response.transaction.reference);
+				
+				// Mostrar mensaje y redirigir al banco
+				showAlert('Redirigiendo al banco...', 'info', 'pse-error-container');
+				
+				setTimeout(() => {
+					window.location.href = response.transaction.bankUrl;
+				}, 1500);
+			} else {
+				throw new Error(response.message || 'Error iniciando pago PSE');
+			}
+		} catch (error) {
+			console.error('Error PSE:', error);
+			showAlert(error.message || 'Error al procesar el pago', 'error', 'pse-error-container');
+			btn.disabled = false;
+			btn.innerHTML = originalText;
+		}
+	});
+}
+
+async function handlePurchase_old(ev) {
+	ev.preventDefault();
 	const amount = parseFloat($('q-amount').value);
 	if (!amount || amount <= 0) {
 		showAlert('Por favor ingresa una cantidad válida', 'warning', 'purchase-result');
@@ -226,6 +426,39 @@ function init() {
 	// Load data
 	loadBalance();
 	loadTransactions();
+	
+	// Verificar si hay una transacción PSE pendiente
+	checkPendingPseTransaction();
+}
+
+// Verificar transacción PSE pendiente al cargar la página
+async function checkPendingPseTransaction() {
+	const reference = localStorage.getItem('pse_pending_reference');
+	if (!reference) return;
+	
+	try {
+		const response = await API.getPseStatus(reference);
+		
+		if (response.success && response.transaction) {
+			const { status } = response.transaction;
+			
+			if (status === 'approved') {
+				showAlert('✅ Pago aprobado! Tus Quetzales han sido acreditados.', 'success', 'purchase-result');
+				localStorage.removeItem('pse_pending_reference');
+				await loadBalance();
+				await loadTransactions();
+			} else if (status === 'rejected' || status === 'failed') {
+				showAlert('❌ El pago fue rechazado. Intenta nuevamente.', 'error', 'purchase-result');
+				localStorage.removeItem('pse_pending_reference');
+			} else if (status === 'expired') {
+				showAlert('⏱️ La transacción ha expirado.', 'warning', 'purchase-result');
+				localStorage.removeItem('pse_pending_reference');
+			}
+			// Si está 'pending' o 'processing', no hacer nada aún
+		}
+	} catch (error) {
+		console.error('Error verificando transacción PSE:', error);
+	}
 }
 
 document.addEventListener('DOMContentLoaded', init);
