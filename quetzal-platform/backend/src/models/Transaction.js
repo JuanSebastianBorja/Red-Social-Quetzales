@@ -1,158 +1,101 @@
 // ============================================
-// TRANSACTION MODEL - Transacciones PSE
+// TRANSACTION.JS - Modelo de Transacciones
 // ============================================
-// Modelo para manejar transacciones de recarga PSE
-// Estados: pending, processing, approved, rejected, failed, expired
 
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
 const Transaction = sequelize.define('Transaction', {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
+  },
+  walletId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    field: 'wallet_id',
+    references: {
+      model: 'wallets',
+      key: 'id'
     },
-    userId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id'
-      }
-    },
-    // Tipo de transacción: topup, withdraw, transfer, etc.
-    type: {
-      type: DataTypes.ENUM('topup', 'withdraw', 'transfer', 'escrow_fund', 'escrow_release', 'escrow_refund'),
-      allowNull: false,
-      defaultValue: 'topup'
-    },
-    // Método de pago: PSE, credit_card, bank_transfer, etc.
-    paymentMethod: {
-      type: DataTypes.ENUM('pse', 'credit_card', 'bank_transfer', 'wallet'),
-      allowNull: false,
-      defaultValue: 'pse'
-    },
-    // Estado de la transacción
-    status: {
-      type: DataTypes.ENUM('pending', 'processing', 'approved', 'rejected', 'failed', 'expired'),
-      allowNull: false,
-      defaultValue: 'pending'
-    },
-    // Monto en pesos colombianos (COP)
-    amountCOP: {
-      type: DataTypes.DECIMAL(12, 2),
-      allowNull: false,
-      validate: {
-        min: 0
-      }
-    },
-    // Monto en Quetzales
-    amountQZ: {
-      type: DataTypes.DECIMAL(12, 2),
-      allowNull: false,
-      validate: {
-        min: 0
-      }
-    },
-    // Tasa de conversión al momento de la transacción
-    exchangeRate: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      comment: 'COP por cada 1 QZ (ej: 10000)'
-    },
-    // === Datos específicos de PSE ===
-    // ID de transacción en PSE
-    pseTransactionId: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true
-    },
-    // Banco seleccionado
-    bankCode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    bankName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    // Tipo de persona: natural o juridica
-    personType: {
-      type: DataTypes.ENUM('natural', 'juridica'),
-      allowNull: true
-    },
-    // Documento del usuario
-    documentType: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    documentNumber: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    // URL de redirección del banco
-    bankUrl: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    // Código de autorización del banco
-    authorizationCode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    // Referencia de pago
-    paymentReference: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    // Descripción de la transacción
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    // Mensaje de error si falla
-    errorMessage: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    // IP del usuario
-    ipAddress: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    // User agent
-    userAgent: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    // Fecha de expiración
-    expiresAt: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    // Fecha de aprobación
-    approvedAt: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    // Metadata adicional (JSON)
-    metadata: {
-      type: DataTypes.JSONB,
-      allowNull: true,
-      defaultValue: {}
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+    validate: {
+      notEmpty: { msg: 'El ID de la wallet es obligatorio' },
+      isUUID: { args: 4, msg: 'El ID de la wallet debe ser un UUID válido' }
     }
-  }, {
-    tableName: 'Transactions',
-    timestamps: true,
-    indexes: [
-      { fields: ['userId'] },
-      { fields: ['status'] },
-      { fields: ['pseTransactionId'] },
-      { fields: ['createdAt'] },
-      { fields: ['type', 'status'] }
-    ]
+  },
+  type: {
+    type: DataTypes.ENUM(
+      'purchase',
+      'transfer_in',
+      'transfer_out',
+      'withdrawal',
+      'payment',
+      'refund',
+      'deposit'
+    ),
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'El tipo de transacción es obligatorio' }
+    }
+  },
+  amount: {
+    type: DataTypes.DECIMAL(12, 2),
+    allowNull: false,
+    validate: {
+      isDecimal: { msg: 'El monto debe ser un número decimal' },
+      min: { args: [0.01], msg: 'El monto debe ser mayor que cero' }
+    }
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  referenceId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    field: 'reference_id'
+  },
+  status: {
+    type: DataTypes.ENUM('pending', 'completed', 'failed', 'cancelled'),
+    allowNull: false,
+    defaultValue: 'completed'
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'created_at'
+  }
+}, {
+  tableName: 'transactions',
+  timestamps: false,
+  indexes: [
+    { fields: ['wallet_id'] },
+    { fields: ['type'] },
+    { fields: ['status'] },
+    { fields: ['created_at'] },
+    { fields: ['reference_id'] }
+  ]
+});
+
+// MÉTODOS PERSONALIZADOS
+
+Transaction.createTransaction = async function (data, options = {}) {
+  return await this.create(data, options);
+};
+
+Transaction.findByWallet = async function (walletId, limit = 20) {
+  return await this.findAll({
+    where: { walletId },
+    order: [['created_at', 'DESC']],
+    limit
   });
+};
+
+Transaction.findByReference = async function (referenceId) {
+  return await this.findOne({ where: { referenceId } });
+};
 
 module.exports = Transaction;
-

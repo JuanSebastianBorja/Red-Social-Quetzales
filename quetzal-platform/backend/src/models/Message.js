@@ -1,120 +1,91 @@
 // ============================================
-// MESSAGE MODEL - Mensajes de Chat
+// MESSAGE.JS - Modelo de Mensajes de Conversación
 // ============================================
 
-const { DataTypes } = require('sequelize');
+const { DataTypes, Op } = require('sequelize');
 const { sequelize } = require('../config/database');
 
 const Message = sequelize.define('Message', {
   id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
   },
-
   conversationId: {
     type: DataTypes.UUID,
     allowNull: false,
     field: 'conversation_id',
-    references: {
-      model: 'Conversations',
-      key: 'id'
-    }
+    references: { model: 'conversations', key: 'id' },
+    onDelete: 'CASCADE'
   },
-
   senderId: {
     type: DataTypes.UUID,
     allowNull: false,
     field: 'sender_id',
-    references: {
-      model: 'users',
-      key: 'id'
-    }
+    references: { model: 'users', key: 'id' },
+    onDelete: 'CASCADE'
   },
-
-  content: {
+  message: {
     type: DataTypes.TEXT,
     allowNull: false,
-    validate: {
-      notEmpty: { msg: 'El mensaje no puede estar vacío' },
-      len: {
-        args: [1, 5000],
-        msg: 'El mensaje debe tener entre 1 y 5000 caracteres'
-      }
-    }
+    validate: { notEmpty: { msg: 'El mensaje no puede estar vacío.' } }
   },
-
   messageType: {
-    type: DataTypes.ENUM('text', 'image', 'file', 'system'),
+    type: DataTypes.STRING(20),
     allowNull: false,
     defaultValue: 'text',
-    field: 'message_type'
+    field: 'message_type',
+    validate: {
+      isIn: { args: [['text', 'offer', 'file', 'system']], msg: 'Tipo de mensaje inválido.' }
+    }
   },
-
-  attachments: {
-    type: DataTypes.JSONB,
-    allowNull: true,
-    defaultValue: []
-  },
-
   isRead: {
     type: DataTypes.BOOLEAN,
-    allowNull: false,
     defaultValue: false,
     field: 'is_read'
   },
-
   readAt: {
     type: DataTypes.DATE,
     allowNull: true,
     field: 'read_at'
-  },
-
-  isEdited: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false,
-    field: 'is_edited'
-  },
-
-  editedAt: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    field: 'edited_at'
-  },
-
-  isDeleted: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false,
-    field: 'is_deleted'
-  },
-
-  metadata: {
-    type: DataTypes.JSONB,
-    allowNull: true,
-    defaultValue: {}
   }
 }, {
-  tableName: 'Messages',
+  tableName: 'messages',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at',
+  updatedAt: false,
+  underscored: true,
   indexes: [
     { fields: ['conversation_id'] },
     { fields: ['sender_id'] },
-    { fields: ['created_at'] },
-    { fields: ['is_read'] }
+    { fields: ['created_at'] }
   ]
 });
 
-// Método para marcar como leído
-Message.prototype.markAsRead = async function() {
-  if (!this.isRead) {
-    this.isRead = true;
-    this.readAt = new Date();
-    await this.save();
-  }
+// Métodos estáticos
+Message.getMessagesByConversation = async function (conversationId, limit = 50, offset = 0) {
+  return this.findAll({
+    where: { conversationId },
+    order: [['created_at', 'DESC']],
+    limit,
+    offset
+  });
+};
+
+Message.markAsReadByUser = async function (conversationId, userId) {
+  return this.update(
+    { isRead: true, readAt: new Date() },
+    { where: { conversationId, senderId: { [Op.ne]: userId }, isRead: false } }
+  );
+};
+
+Message.createMessage = async function (data) {
+  return this.create(data);
+};
+
+// Método de instancia
+Message.prototype.isOwnedBy = function (userId) {
+  return this.senderId === userId;
 };
 
 module.exports = Message;

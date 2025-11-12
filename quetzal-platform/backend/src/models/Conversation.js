@@ -84,7 +84,7 @@ const Conversation = sequelize.define(
     },
   },
   {
-    tableName: 'Conversations',
+    tableName: 'conversations',
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
