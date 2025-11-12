@@ -1,4 +1,6 @@
-const { sequelize, QZ_TO_FIAT, User, WalletTx } = require('../models');
+const { sequelize, User, Wallet, Transaction } = require('../models');
+// Tasa fija temporal (mover a config/constants luego)
+const QZ_TO_FIAT = 10000; // 1 QZ = 10,000 COP (ejemplo)
 const { body, validationResult } = require('express-validator');
 const paymentService = require('../services/paymentService');
 
@@ -16,10 +18,18 @@ const pseInitValidators = [
   body('email').isEmail().normalizeEmail().withMessage('Email inválido')
 ];
 
+async function ensureWallet(userId, transaction) {
+  let wallet = await Wallet.findOne({ where: { userId }, transaction });
+  if (!wallet) {
+    wallet = await Wallet.create({ userId, balance: 0 }, { transaction });
+  }
+  return wallet;
+}
+
 async function summary(req,res){
-  const user = await User.findByPk(req.userId);
-  const txs = await WalletTx.findAll({ where: { userId: req.userId }, order:[['createdAt','DESC']], limit: 50 });
-  res.json({ success:true, balanceQz: Number(user.qzBalance), txs, rate: { QZ_TO_FIAT } });
+  const wallet = await ensureWallet(req.userId);
+  const txs = await Transaction.findAll({ where: { userId: req.userId }, order:[['createdAt','DESC']], limit: 50 });
+  res.json({ success:true, balanceQz: Number(wallet.balance), txs, rate: { QZ_TO_FIAT } });
 }
 
 async function topup(req,res){
@@ -27,10 +37,10 @@ async function topup(req,res){
   const { fiatAmount } = req.body;
   const qz = Number(fiatAmount) / QZ_TO_FIAT;
   await sequelize.transaction(async (t) => {
-    const user = await User.findByPk(req.userId, { transaction: t, lock: t.LOCK.UPDATE });
-    const balance = Number(user.qzBalance);
-    await user.update({ qzBalance: (balance + qz).toFixed(2) }, { transaction: t });
-    await WalletTx.create({ userId: user.id, amountQz: qz, kind: 'credit', category: 'topup', description: `Recarga $${fiatAmount} => +${qz} Qz` }, { transaction: t });
+    const wallet = await ensureWallet(req.userId, t);
+    const newBalance = (Number(wallet.balance) + qz).toFixed(2);
+    await wallet.update({ balance: newBalance }, { transaction: t });
+    await Transaction.create({ userId: req.userId, amountQZ: qz, type: 'topup', paymentMethod: 'wallet', status: 'approved', description: `Recarga $${fiatAmount} => +${qz} QZ` }, { transaction: t });
   });
   res.json({ success:true, creditedQz: qz });
 }
@@ -40,15 +50,14 @@ async function transfer(req,res){
   const { toUserId, qzAmount } = req.body;
   if (toUserId === req.userId) return res.status(400).json({ success:false, message:'No puedes transferirte a ti mismo' });
   await sequelize.transaction(async (t) => {
-    const from = await User.findByPk(req.userId, { transaction: t, lock: t.LOCK.UPDATE });
-    const to = await User.findByPk(toUserId, { transaction: t, lock: t.LOCK.UPDATE });
-    if (!to) throw new Error('Destino no encontrado');
+    const fromWallet = await ensureWallet(req.userId, t);
+    const toWallet = await ensureWallet(toUserId, t);
     const qz = Number(qzAmount);
-    if (Number(from.qzBalance) < qz) throw new Error('Fondos insuficientes');
-    await from.update({ qzBalance: (Number(from.qzBalance) - qz).toFixed(2) }, { transaction: t });
-    await to.update({ qzBalance: (Number(to.qzBalance) + qz).toFixed(2) }, { transaction: t });
-    await WalletTx.create({ userId: from.id, amountQz: qz, kind: 'debit', category: 'transfer', description: `Transferencia a ${to.fullName}` }, { transaction: t });
-    await WalletTx.create({ userId: to.id, amountQz: qz, kind: 'credit', category: 'transfer', description: `Transferencia de ${from.fullName}` }, { transaction: t });
+    if (Number(fromWallet.balance) < qz) throw new Error('Fondos insuficientes');
+    await fromWallet.update({ balance: (Number(fromWallet.balance) - qz).toFixed(2) }, { transaction: t });
+    await toWallet.update({ balance: (Number(toWallet.balance) + qz).toFixed(2) }, { transaction: t });
+    await Transaction.create({ userId: req.userId, amountQZ: qz, type: 'transfer', paymentMethod: 'wallet', status: 'approved', description: `Transferencia a usuario ${toUserId}` }, { transaction: t });
+    await Transaction.create({ userId: toUserId, amountQZ: qz, type: 'transfer', paymentMethod: 'wallet', status: 'approved', description: `Transferencia recibida de usuario ${req.userId}` }, { transaction: t });
   });
   res.json({ success:true });
 }
@@ -58,12 +67,12 @@ async function withdraw(req,res){
   const { fiatAmount } = req.body;
   const qz = Number(fiatAmount) / QZ_TO_FIAT;
   await sequelize.transaction(async (t) => {
-    const user = await User.findByPk(req.userId, { transaction: t, lock: t.LOCK.UPDATE });
-    if (Number(user.qzBalance) < qz) throw new Error('Fondos insuficientes');
-    await user.update({ qzBalance: (Number(user.qzBalance) - qz).toFixed(2) }, { transaction: t });
-    await WalletTx.create({ userId: user.id, amountQz: qz, kind: 'debit', category: 'withdraw', description: `Retiro $${fiatAmount} (-${qz} Qz)` }, { transaction: t });
+    const wallet = await ensureWallet(req.userId, t);
+    if (Number(wallet.balance) < qz) throw new Error('Fondos insuficientes');
+    await wallet.update({ balance: (Number(wallet.balance) - qz).toFixed(2) }, { transaction: t });
+    await Transaction.create({ userId: req.userId, amountQZ: qz, type: 'withdraw', paymentMethod: 'wallet', status: 'approved', description: `Retiro $${fiatAmount} (-${qz} QZ)` }, { transaction: t });
   });
-  res.json({ success:true, debitedQz: Number(fiatAmount) / QZ_TO_FIAT });
+  res.json({ success:true, debitedQz: qz });
 }
 
 function quote(req,res){

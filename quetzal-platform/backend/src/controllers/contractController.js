@@ -2,7 +2,7 @@
 // CONTRACT CONTROLLER - Contratación de Servicios
 // ============================================
 
-const { sequelize, Contract, Service, User, EscrowAccount, Conversation, Transaction } = require('../models');
+const { sequelize, Contract, Service, User, Wallet, EscrowAccount, Conversation, Transaction } = require('../models');
 const { body, validationResult } = require('express-validator');
 const escrowService = require('../services/escrowService');
 
@@ -63,18 +63,20 @@ async function createContract(req, res) {
       });
     }
 
-    // 3. Verificar que el comprador tenga fondos suficientes
-    const buyer = await User.findByPk(buyerId);
+  // 3. Verificar que el comprador tenga fondos suficientes (Wallet)
+  const buyer = await User.findByPk(buyerId);
+  let buyerWallet = await Wallet.findOne({ where: { userId: buyerId } });
+  if (!buyerWallet) buyerWallet = await Wallet.create({ userId: buyerId, balance: 0 });
     const servicePrice = parseFloat(service.price);
     const platformFee = parseFloat((servicePrice * 0.10).toFixed(2)); // 10% comisión
     const totalAmount = parseFloat((servicePrice + platformFee).toFixed(2));
 
-    if (parseFloat(buyer.qzBalance) < totalAmount) {
+    if (parseFloat(buyerWallet.balance) < totalAmount) {
       return res.status(400).json({
         success: false,
         message: `Fondos insuficientes. Necesitas ${totalAmount} Quetzales (Servicio: ${servicePrice} + Comisión: ${platformFee})`,
         required: totalAmount,
-        available: parseFloat(buyer.qzBalance)
+        available: parseFloat(buyerWallet.balance)
       });
     }
 
@@ -122,9 +124,10 @@ async function createContract(req, res) {
         }
       }, { transaction: t });
 
-      // Debitar del comprador
-      const newBuyerBalance = parseFloat(buyer.qzBalance) - totalAmount;
-      await buyer.update({ qzBalance: newBuyerBalance.toFixed(2) }, { transaction: t });
+  // Debitar del comprador (Wallet)
+  await buyerWallet.reload({ transaction: t, lock: t.LOCK.UPDATE });
+  const newBuyerBalance = parseFloat(buyerWallet.balance) - totalAmount;
+  await buyerWallet.update({ balance: newBuyerBalance.toFixed(2) }, { transaction: t });
 
       // Registrar transacción en wallet
       await Transaction.create({
@@ -309,9 +312,10 @@ async function updateContractStatus(req, res) {
           // Liberar fondos del escrow al vendedor
           const escrow = contract.escrow;
           const seller = contract.seller;
-
-          const newSellerBalance = parseFloat(seller.qzBalance) + parseFloat(escrow.amount);
-          await seller.update({ qzBalance: newSellerBalance.toFixed(2) }, { transaction: t });
+          let sellerWallet = await Wallet.findOne({ where: { userId: seller.id }, transaction: t, lock: t.LOCK.UPDATE });
+          if (!sellerWallet) sellerWallet = await Wallet.create({ userId: seller.id, balance: 0 }, { transaction: t });
+          const newSellerBalance = parseFloat(sellerWallet.balance) + parseFloat(escrow.amount);
+          await sellerWallet.update({ balance: newSellerBalance.toFixed(2) }, { transaction: t });
 
           // Registrar transacción
           await Transaction.create({
@@ -343,10 +347,11 @@ async function updateContractStatus(req, res) {
           // Si ya está pagado, reembolsar al comprador
           if (contract.status === 'paid') {
             const buyer = contract.buyer;
+            let buyerWalletCancel = await Wallet.findOne({ where: { userId: buyer.id }, transaction: t, lock: t.LOCK.UPDATE });
+            if (!buyerWalletCancel) buyerWalletCancel = await Wallet.create({ userId: buyer.id, balance: 0 }, { transaction: t });
             const refundAmount = parseFloat(contract.totalAmount);
-            const newBuyerBalance = parseFloat(buyer.qzBalance) + refundAmount;
-
-            await buyer.update({ qzBalance: newBuyerBalance.toFixed(2) }, { transaction: t });
+            const newBuyerBalanceRefund = parseFloat(buyerWalletCancel.balance) + refundAmount;
+            await buyerWalletCancel.update({ balance: newBuyerBalanceRefund.toFixed(2) }, { transaction: t });
 
             await Transaction.create({
               userId: buyer.id,
