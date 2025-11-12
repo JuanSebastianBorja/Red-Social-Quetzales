@@ -11,7 +11,7 @@ const escrowService = require('../services/escrowService');
 // ============================================
 
 const createContractValidators = [
-  body('serviceId').isInt().withMessage('ID de servicio inválido'),
+  body('serviceId').isUUID().withMessage('ID de servicio inválido'),
   body('requirements').optional().isString().withMessage('Requisitos deben ser texto'),
   body('customDeliveryDays').optional().isInt({ min: 1 }).withMessage('Días de entrega inválidos')
 ];

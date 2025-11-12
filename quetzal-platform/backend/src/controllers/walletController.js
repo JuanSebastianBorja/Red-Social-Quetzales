@@ -3,7 +3,7 @@ const { body, validationResult } = require('express-validator');
 const paymentService = require('../services/paymentService');
 
 const topupValidators = [ body('fiatAmount').isFloat({ gt: 0 }) ];
-const transferValidators = [ body('toUserId').isInt().toInt(), body('qzAmount').isFloat({ gt: 0 }) ];
+const transferValidators = [ body('toUserId').isUUID(), body('qzAmount').isFloat({ gt: 0 }) ];
 const withdrawValidators = [ body('fiatAmount').isFloat({ gt: 0 }) ];
 
 // Validadores PSE

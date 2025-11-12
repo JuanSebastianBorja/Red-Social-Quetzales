@@ -18,7 +18,7 @@ const sendMessageValidators = [
 
 const createConversationValidators = [
   body('otherUserId').isUUID().withMessage('ID de usuario inválido'),
-  body('serviceId').optional().isInt().withMessage('ID de servicio inválido')
+  body('serviceId').optional().isUUID().withMessage('ID de servicio inválido')
 ];
 
 // ============================================
