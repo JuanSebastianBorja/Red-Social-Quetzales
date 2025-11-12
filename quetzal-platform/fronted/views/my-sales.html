@@ -7,202 +7,195 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/components.css">
     <link rel="stylesheet" href="../public/css/user.css">
-</head>
+    </head>
 <body>
-    <!-- Topbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html">
-                <i class="fas fa-feather-alt"></i> Quetzal
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="services.html">
-                            <i class="fas fa-briefcase"></i> Servicios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="my-contracts.html">
-                            <i class="fas fa-file-contract"></i> Mis Contrataciones
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="my-sales.html">
-                            <i class="fas fa-dollar-sign"></i> Mis Ventas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="messages.html">
-                            <i class="fas fa-envelope"></i> Mensajes
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="wallet.html">
-                            <i class="fas fa-wallet"></i> Billetera
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle"></i> <span id="userNameNav">Usuario</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user"></i> Mi Perfil</a></li>
-                            <li><a class="dropdown-item" href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                                <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        </ul>
-                                        <a class="navbar-brand fw-bold" href="dashboard.html">
-                </ul>
-            </div>
-        </div>
-    </nav>
-                                        <nav class="col-md-3 col-lg-2 d-md-block sidebar" style="background: #f8f9fa; border-right: 1px solid #e0e0e0; min-height: calc(100vh - 56px);">
-                                            <div class="position-sticky pt-4">
-                                                <h6 class="sidebar-heading px-3 mb-3 text-uppercase fw-bold" style="color: #667eea; font-size: 0.75rem; letter-spacing: 0.5px;">
-                                                    <i class="fas fa-briefcase me-1"></i> MIS VENTAS
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky pt-3">
-                                                        <a class="nav-link rounded mx-2 mb-1" href="my-contracts.html" style="color: #495057; transition: all 0.3s;">
-                                                            <i class="fas fa-shopping-cart me-2"></i>
-                    </h6>
-                    <ul class="nav flex-column mb-2">
-                        <li class="nav-item">
-                            <a class="nav-link" href="my-contracts.html">
-                                                        <a class="nav-link active rounded mx-2 mb-1" href="my-sales.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 500;">
-                                                            <i class="fas fa-dollar-sign me-2"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="my-sales.html">
-                                <i class="fas fa-dollar-sign"></i>
-                                        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="background: #f5f7fa;">
-                                            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-4 pb-3 mb-4">
-                                                <div>
-                                                    <h1 class="h2 fw-bold mb-1" style="color: #2d3748;">
-                                                        <i class="fas fa-dollar-sign me-2" style="color: #10b981;"></i> Mis Ventas
+    <div class="user-layout">
+        <!-- Sidebar unificada -->
+        <aside class="user-sidebar" id="userSidebar">
+            <div class="user-sidebar-header">
+                <div class="user-sidebar-brand">
+                    <span class="user-sidebar-brand-icon">🦜</span>
+                    <span>Quetzal</span>
                 </div>
-                                                    <p class="text-muted mb-0">Administra tus servicios vendidos y ganancias</p>
-                                                </div>
+            </div>
+            <div class="user-sidebar-profile">
+                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
+                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
+                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
+                <div class="user-sidebar-balance">
+                    <div class="user-sidebar-balance-label">Balance Disponible</div>
+                    <div class="user-sidebar-balance-amount">
+                        <span>💰</span>
+                        <span id="sidebar-balance">Q 0.00</span>
+                    </div>
+                </div>
+            </div>
+            <nav class="user-sidebar-nav">
+                <div class="user-sidebar-nav-title">Menú Principal</div>
+                <a href="dashboard.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">📊</span>
+                    <span class="user-sidebar-nav-text">Dashboard</span>
+                </a>
+                <a href="services.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">⚡</span>
+                    <span class="user-sidebar-nav-text">Servicios</span>
+                </a>
+                <a href="messages.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💬</span>
+                    <span class="user-sidebar-nav-text">Mensajes</span>
+                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
+                </a>
+                <a href="wallet.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💰</span>
+                    <span class="user-sidebar-nav-text">Billetera</span>
+                </a>
+                <a href="my-contracts.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">🛒</span>
+                    <span class="user-sidebar-nav-text">Mis Contrataciones</span>
+                </a>
+                <a href="my-sales.html" class="user-sidebar-nav-item active">
+                    <span class="user-sidebar-nav-icon">💵</span>
+                    <span class="user-sidebar-nav-text">Mis Ventas</span>
+                </a>
+                <div class="user-sidebar-nav-title">Mi Cuenta</div>
+                <a href="profile.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">👤</span>
+                    <span class="user-sidebar-nav-text">Perfil</span>
+                </a>
+                <a href="create-service.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">➕</span>
+                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
+                </a>
             </nav>
+            <div class="user-sidebar-footer">
+                <button class="user-sidebar-logout" id="logout-btn">
+                    <span>🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
 
-            <!-- Content Area -->
-                                            <div class="card mb-4 border-0 shadow-sm">
-                                                <div class="card-body p-4">
-                    <h1 class="h2">
-                        <i class="fas fa-dollar-sign text-success"></i> Mis Ventas
-                                                            <button class="btn w-100" id="applyFilters" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 500; border: none; padding: 0.6rem;">
-                                                                <i class="fas fa-filter me-2"></i> Aplicar Filtros
+        <!-- Main area -->
+        <main class="user-main">
+            <div class="user-topbar">
+                <div class="user-topbar-left">
+                    <button class="user-toggle-btn" id="sidebarToggle"><span>☰</span></button>
+                    <div>
+                        <div class="user-topbar-title">Mis Ventas</div>
+                        <div class="user-topbar-breadcrumb">
+                            <a href="dashboard.html">Inicio</a>
+                            <span>›</span>
+                            <span>Mis Ventas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-content animate-fadeIn">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4">
+                    <div>
+                        <h1 class="h2 fw-bold mb-1 page-title">
+                            <i class="fas fa-dollar-sign me-2 text-success"></i> Mis Ventas
+                        </h1>
+                        <p class="text-primary mb-0">Administra tus servicios vendidos y ganancias</p>
+                    </div>
+                </div>
 
                 <!-- Filtros -->
                 <div class="card mb-4">
                     <div class="card-body">
-                                            <div class="row mb-4 g-3">
+                        <div class="row g-3">
                             <div class="col-md-4">
-                                                    <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                                        <div class="card-body py-4">
-                                                            <i class="fas fa-chart-line fa-2x mb-2 text-white opacity-75"></i>
-                                                            <h3 class="mb-1 fw-bold text-white" id="totalSales">0</h3>
-                                                            <small class="text-white opacity-90">Total Ventas</small>
+                                <label for="filterStatus" class="form-label">Estado</label>
+                                <select class="form-select" id="filterStatus">
+                                    <option value="">Todos</option>
+                                    <option value="pending">Pendiente de pago</option>
                                     <option value="paid">Pagado - Listo para trabajar</option>
                                     <option value="in_progress">En progreso</option>
                                     <option value="delivered">Entregado - Esperando aprobación</option>
                                     <option value="completed">Completado</option>
-                                                    <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                                        <div class="card-body py-4">
-                                                            <i class="fas fa-tasks fa-2x mb-2 text-white opacity-75"></i>
-                                                            <h3 class="mb-1 fw-bold text-white" id="activeSales">0</h3>
-                                                            <small class="text-white opacity-90">En Progreso</small>
+                                    <option value="disputed">En disputa</option>
+                                    <option value="cancelled">Cancelado</option>
+                                </select>
+                            </div>
                             <div class="col-md-4">
                                 <label for="searchContract" class="form-label">Buscar</label>
                                 <input type="text" class="form-control" id="searchContract" placeholder="Número de contrato o cliente...">
                             </div>
-                                                    <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                                                        <div class="card-body py-4">
-                                                            <i class="fas fa-hourglass-half fa-2x mb-2 text-white opacity-75"></i>
-                                                            <h3 class="mb-1 fw-bold text-white" id="deliveredSales">0</h3>
-                                                            <small class="text-white opacity-90">Pendiente Aprobación</small>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button class="btn btn-primary w-100" id="applyFilters">
+                                    <i class="fas fa-filter me-2"></i> Aplicar Filtros
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                                                    <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                                                        <div class="card-body py-4">
-                                                            <i class="fas fa-money-bill-wave fa-2x mb-2 text-white opacity-75"></i>
-                                                            <h3 class="mb-1 fw-bold text-white" id="totalEarnings">0 QZ</h3>
-                                                            <small class="text-white opacity-90">Ingresos Totales</small>
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h3 class="text-primary mb-0" id="totalSales">0</h3>
-                                <small class="text-muted">Total Ventas</small>
-                            </div>
-                        </div>
-                                                <div class="spinner-border" role="status" style="color: #667eea; width: 3rem; height: 3rem;">
+
+                <!-- Stats Cards -->
+                <div class="row mb-4 g-3">
                     <div class="col-md-3">
-                        <div class="card text-center">
-                                                <p class="mt-3 text-muted fw-medium">Cargando tus ventas...</p>
-                                <h3 class="text-info mb-0" id="activeSales">0</h3>
-                                <small class="text-muted">En Progreso</small>
-                            </div>
-                        </div>
-                                                <div class="mb-4" style="font-size: 5rem; color: #e0e0e0;">
-                                                    <i class="fas fa-chart-line"></i>
-                                                </div>
-                                                <h4 class="fw-bold mb-2" style="color: #2d3748;">No tienes ventas aún</h4>
-                                                <p class="text-muted mb-4">Crea servicios para que los clientes puedan contratarte</p>
-                                                <a href="create-service.html" class="btn btn-lg shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; font-weight: 500; border: none; padding: 0.75rem 2rem;">
-                                                    <i class="fas fa-plus me-2"></i> Crear Servicio
-                                <small class="text-muted">Pendiente Aprobación</small>
-                            </div>
+                        <div class="stat-card h-100">
+                            <div class="user-quick-stat-icon"><i class="fas fa-chart-line"></i></div>
+                            <div class="stat-card-value" id="totalSales">0</div>
+                            <div class="stat-card-label">Total Ventas</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-center bg-success text-white">
-                            <div class="card-body">
-                                <h3 class="mb-0" id="totalEarnings">0 QZ</h3>
-                                <small>Ingresos Totales</small>
-                            </div>
+                        <div class="stat-card h-100">
+                            <div class="user-quick-stat-icon"><i class="fas fa-tasks"></i></div>
+                            <div class="stat-card-value" id="activeSales">0</div>
+                            <div class="stat-card-label">En Progreso</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card h-100">
+                            <div class="user-quick-stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                            <div class="stat-card-value" id="deliveredSales">0</div>
+                            <div class="stat-card-label">Pendiente Aprobación</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card h-100">
+                            <div class="user-quick-stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="stat-card-value" id="totalEarnings">0 QZ</div>
+                            <div class="stat-card-label">Ingresos Totales</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Loading State -->
                 <div id="loadingState" class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
+                    <div class="spinner spinner-lg mx-auto animate-pulse"></div>
                     <p class="mt-3 text-muted">Cargando tus ventas...</p>
                 </div>
 
                 <!-- Empty State -->
-                <div id="emptyState" class="text-center py-5" style="display: none;">
-                    <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
-                    <h4>No tienes ventas aún</h4>
-                    <p class="text-muted">Crea servicios para que los clientes puedan contratarte</p>
-                    <a href="create-service.html" class="btn btn-success">
-                        <i class="fas fa-plus"></i> Crear Servicio
+                <div id="emptyState" class="card text-center py-5 animate-slideInUp" style="display: none;">
+                    <div class="mb-4 text-center" style="font-size: 5rem; color: #e0e0e0;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">No tienes ventas aún</h4>
+                    <p class="text-muted mb-4">Crea servicios para que los clientes puedan contratarte</p>
+                    <a href="create-service.html" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i> Crear Servicio
                     </a>
                 </div>
 
                 <!-- Sales List -->
-                <div id="salesList" style="display: none;">
-                    <!-- Las tarjetas de ventas se cargarán aquí dinámicamente -->
-                </div>
+                <div id="salesList" class="animate-fadeIn" style="display: none;"></div>
 
                 <!-- Pagination -->
                 <nav id="paginationNav" aria-label="Navegación de ventas" style="display: none;">
-                    <ul class="pagination justify-content-center">
-                        <!-- Botones de paginación se generarán dinámicamente -->
-                    </ul>
+                    <ul class="pagination justify-content-center"></ul>
                 </nav>
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
+
+    <!-- Overlay para móviles -->
+    <div class="user-sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -217,10 +210,12 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/user-sidebar.js"></script>
+    <script src="../public/js/app.js"></script>
     <script type="module">
         import API from '../public/js/api.js';
         import { requireAuth, getCurrentUser } from '../public/js/auth.js';
-        import { showToast } from '../public/js/utils.js';
         import { getMySales, renderContractCard, initContractListeners } from '../public/js/contracts.js';
 
         // Verificar autenticación
@@ -238,14 +233,7 @@
         const filterStatus = document.getElementById('filterStatus');
         const searchContract = document.getElementById('searchContract');
         const applyFiltersBtn = document.getElementById('applyFilters');
-        const userNameNav = document.getElementById('userNameNav');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        // Cargar datos del usuario
-        const user = getCurrentUser();
-        if (user && userNameNav) {
-            userNameNav.textContent = user.fullName || user.email;
-        }
+        // Datos de usuario se manejan en el sidebar unificado (user-sidebar.js)
 
         // Cargar ventas
         async function loadSales(page = 1) {
@@ -291,7 +279,6 @@
 
             } catch (error) {
                 loadingState.style.display = 'none';
-                showToast('Error al cargar las ventas: ' + error.message, 'error');
                 console.error('Error:', error);
             }
         }
@@ -368,11 +355,11 @@
         // Aplicar filtros
         applyFiltersBtn.addEventListener('click', () => {
             currentFilters = {};
-            
+
             if (filterStatus.value) {
                 currentFilters.status = filterStatus.value;
             }
-            
+
             if (searchContract.value.trim()) {
                 currentFilters.search = searchContract.value.trim();
             }
@@ -388,16 +375,7 @@
             }
         });
 
-        // Logout
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                await API.logout();
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Error al cerrar sesión:', error);
-            }
-        });
+        // Logout se maneja desde el botón del sidebar (user-sidebar.js)
 
         // Cargar ventas al iniciar
         loadSales(currentPage);

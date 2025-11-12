@@ -1,10 +1,12 @@
 import API from './api.js';
 import { requireAuth, logout } from './auth.js';
 
+// Asegura protección básica; las vistas también pueden llamar a requireAuth()
 requireAuth();
 
 const $ = (id) => document.getElementById(id);
 
+// Controla el contexto (compras/ventas) para acciones y textos
 let currentTab = 'purchases';
 let currentStatus = 'all';
 
@@ -66,7 +68,7 @@ async function loadContracts() {
             return;
         }
 
-        container.innerHTML = contracts.map(contract => renderContractCard(contract)).join('');
+    container.innerHTML = contracts.map(contract => _renderContractCard(contract)).join('');
 
     } catch (error) {
         console.error('Error cargando contratos:', error);
@@ -79,7 +81,8 @@ async function loadContracts() {
 }
 
 // Renderizar tarjeta de contrato
-function renderContractCard(contract) {
+// Versión interna utilizada por esta vista y por las funciones exportadas
+function _renderContractCard(contract) {
     const isBuyer = currentTab === 'purchases';
     const otherParty = isBuyer ? contract.seller : contract.buyer;
     const statusClass = `status-${contract.status}`;
@@ -387,3 +390,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cargar contratos iniciales
     loadContracts();
 });
+
+// ==========================
+// Exports para vistas nuevas
+// ==========================
+
+// Obtiene contrataciones del comprador
+export async function getMyContracts(params = {}) {
+    return API.getMyPurchases(params);
+}
+
+// Obtiene ventas del vendedor
+export async function getMySales(params = {}) {
+    return API.getMySales(params);
+}
+
+// Renderiza tarjeta según rol explícito (buyer|seller)
+export function renderContractCard(contract, role = 'buyer') {
+    const previous = currentTab;
+    currentTab = role === 'buyer' ? 'purchases' : 'sales';
+    const html = _renderContractCard(contract);
+    currentTab = previous;
+    return html;
+}
+
+// Inicializa listeners en contenedor (no-op aquí porque usamos onclick en HTML)
+export function initContractListeners(containerSelector, role = 'buyer') {
+    // Mantener compatibilidad con vistas que esperan esta función
+    // Si en el futuro migramos a event delegation, podemos implementarlo aquí.
+    return;
+}
+
+// Crear contrato (wrapper sobre API)
+export async function createContract(serviceId, requirements = '') {
+    return API.createContract({ serviceId, requirements });
+}

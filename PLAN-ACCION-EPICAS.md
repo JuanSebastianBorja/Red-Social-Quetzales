@@ -1,7 +1,7 @@
 # 📋 Plan de Acción por Épicas - Quetzal Platform
 
-**Fecha:** 11 de noviembre de 2025  
-**Rama:** `feature/frontend-deploy`  
+**Fecha:** 12 de noviembre de 2025  
+**Rama:** `main`  
 **Priorización:** Según especificación del proyecto
 
 ---
@@ -13,8 +13,8 @@
 | Épica | Estado Backend | Estado Frontend | Completitud | Prioridad |
 |-------|---------------|-----------------|-------------|-----------|
 | **1. Gestión de Usuarios** | 🟢 85% | 🟢 80% | **82%** | ⭐⭐⭐⭐⭐ |
-| **2. Gestión de Servicios** | 🟢 90% | 🟢 85% | **87%** | ⭐⭐⭐⭐⭐ |
-| **3. Contratación de Servicios** | 🔴 30% | 🔴 20% | **25%** | ⭐⭐⭐ |
+| **2. Gestión de Servicios** | 🟢 90% | 🟢 86% | **88%** | ⭐⭐⭐⭐⭐ |
+| **3. Contratación de Servicios** | � 85% | � 70% | **78%** | ⭐⭐⭐⭐ |
 | **4. Sistema de Pagos (Quetzales/Escrow)** | 🟡 70% | 🟡 60% | **65%** | ⭐⭐⭐⭐⭐ |
 | **5. Cartera Virtual** | 🟡 75% | 🟡 65% | **70%** | ⭐⭐⭐⭐⭐ |
 | **6. Sistema de Reputación** | 🔴 40% | 🔴 30% | **35%** | ⭐⭐⭐ |
@@ -105,7 +105,7 @@ GET    /api/services/category/:c  // ✅ Por categoría
 - ✅ `create-service.html` - Crear servicio completo
 - ✅ `edit-service.html` - Editar servicio completo
 - ✅ `services-public.html` - Vista pública para visitantes
-- ✅ `service-detail-public.html` - Detalle sin login
+- ✅ `service-detail-public.html` - Detalle sin login (mejorado: badges, animaciones, alertas)
 - ✅ Búsqueda, filtros por categoría, ordenamiento, paginación
 
 #### ❌ Faltante
@@ -209,38 +209,39 @@ POST   /escrow/:id/dispute // 🟡 Crear disputa (stub)
 
 ---
 
-### 🔴 ÉPICA 3: Contratación de Servicios (Completitud: 25%)
+### ⭐ ÉPICA 3: Contratación de Servicios (Completitud: 78%)
 
-#### ❌ Backend Faltante
+Actualizado (12/11/2025): flujo principal de contratación implementado en backend y frontend. Falta pulir acciones, adjuntos y coherencia de comisiones.
+
+#### ✅ Backend Implementado
 ```javascript
-// Contratos/Órdenes
-POST   /contracts              // Crear contrato al contratar servicio
-GET    /contracts/:id          // Detalle del contrato
-PUT    /contracts/:id/status   // Actualizar estado (en progreso, completado, cancelado)
-GET    /contracts/my/buyer     // Mis contrataciones como comprador
-GET    /contracts/my/seller    // Mis contrataciones como vendedor
-
-// Estados sugeridos:
-// - pending (esperando pago)
-// - paid (pagado, escrow activo)
-// - in_progress (vendedor trabajando)
-// - delivered (vendedor entregó)
-// - completed (comprador confirmó y liberó fondos)
-// - disputed (en disputa)
-// - cancelled (cancelado antes de pago)
+POST   /contracts               // Crear contrato y fondear escrow (wallet debit + fee)
+GET    /contracts/:id           // Detalle del contrato
+PUT    /contracts/:id/status    // Transiciones: paid → in_progress → delivered → completed | cancel/dispute
+GET    /contracts/my/buyer      // Mis contrataciones (comprador)
+GET    /contracts/my/seller     // Mis ventas (vendedor)
 ```
 
-#### ❌ Frontend Faltante
-1. Vista de exploración de servicios con botón "Contratar"
-2. Modal/página de confirmación de contratación
-3. Resumen de orden (servicio + comisión + escrow)
-4. Vista "Mis Contrataciones" (como comprador)
-5. Vista "Mis Ventas" (como vendedor)
-6. Estados visuales del contrato
-7. Botones de acción (marcar como completado, disputar, cancelar)
-8. Chat/mensajería asociada al contrato
+Lógica y validaciones clave:
+- Transacciones atómicas con Wallet, Escrow y Transaction
+- Prevención de contratar tu propio servicio
+- Cálculo de comisión de plataforma (10%) y fecha límite de entrega
 
-**Estimación:** 4-5 días desarrollo
+#### ✅ Frontend Implementado
+- `service-detail.html`: modal de contratación con desglose y verificación de fondos
+- `my-contracts.html`: listado del comprador con filtros, paginación y acciones básicas
+- `my-sales.html`: listado del vendedor con filtros, paginación y acciones básicas
+- Unificación de layout con menú lateral y subtítulos de alto contraste
+
+#### 🟡 Faltante
+1. UI para transiciones de estado (in_progress, delivered con adjuntos, completed, cancel, dispute)
+2. Alinear comisión al 10% en toda la UI (algunas vistas muestran 5%)
+3. Highlight del contrato recién creado y deep link a su detalle
+4. Adjuntos en entregas y revisiones, y previsualización
+5. Skeleton loaders/estados vacíos consistentes en listados
+6. Botón “Ir al chat” ligado al contrato
+
+**Estimación restante:** 2-3 días (acciones + coherencia de comisiones + QA)
 
 ---
 
@@ -396,25 +397,24 @@ GET /analytics/my-performance       // Analytics para proveedores
 
 ## 🚀 Plan de Acción Priorizado
 
-### 🔴 CRÍTICO - Sprint 1 (5-7 días)
+### 🔴 CRÍTICO - Sprint 1 (4-6 días) — Actualizado
 
-**Objetivo:** Completar flujo básico de compra de servicio
+**Objetivo:** Consolidar flujo de contratación end-to-end con estados y coherencia de comisiones**
 
 1. **Integración pasarela de pagos** (2-3 días)
    - Integrar Mercado Pago o PSE
    - Webhooks de confirmación
    - Manejo de estados pending/success/failed
 
-2. **Sistema de Contratación** (2-3 días)
-   - Modelo Contract/Order en backend
-   - Endpoints CRUD de contratos
-   - Frontend: botón "Contratar" + modal confirmación
-   - Conectar con Escrow al confirmar pago
+2. **Sistema de Contratación (UI/UX y acciones)** (1-2 días)
+   - Unificar comisión al 10% en UI (service-detail + modal + resúmenes)
+   - Agregar acciones: Iniciar trabajo, Entregar (con archivos), Completar, Cancelar, Disputar
+   - Señalización visual por estado (badges/timeline ligero)
 
-3. **Mensajería básica** (1-2 días)
+3. **Mensajería ligada a contrato** (1 día)
    - Completar `messages.js` en frontend
    - Backend de mensajes (si no existe)
-   - Chat asociado a contrato
+   - Botón “Ir al chat” desde cada contrato
 
 ### 🟡 ALTA - Sprint 2 (5-7 días)
 
@@ -541,6 +541,27 @@ GET /analytics/my-performance       // Analytics para proveedores
 
 ---
 
+## ✨ Cambios recientes (12/11/2025)
+
+- Unificación de menú lateral y layout en: `service-detail.html`, `my-sales.html`, `my-contracts.html`
+- Mejora de visibilidad: subtítulos blancos (text-primary) y badges coherentes
+- Inclusión de `components.css` y animaciones (`animate-fadeIn`, `animate-slideInUp`, `animate-pulse`)
+- `service-detail-public.html`: badges de disponibilidad, alerta de error estilizada y spinner
+- `messages.html` y `wallet.html`: animaciones y consistencia visual
+
+---
+
+## 🔜 Recomendación inmediata — ¿Con qué seguimos?
+
+1. Alinear comisión al 10% en toda la UI (service-detail + modal + breakdowns) para coincidir con backend.
+2. Agregar acciones de contrato en UI (in_progress, delivered con adjuntos, completed, cancel, dispute) y sus validaciones.
+3. Menú lateral: resaltar activo automáticamente y, si aplica, extraer a partial reutilizable.
+4. Vínculo directo “Ir al chat” desde cada contrato y crear conversación si no existe.
+5. QA responsive y estados vacíos/skeletons en `my-sales` y `my-contracts`.
+6. Pasarela de pagos (sandbox) + webhooks y estados pending/success/failed.
+
+---
+
 ## 🔄 Próximos Pasos Inmediatos
 
 1. **Revisar este plan con el equipo**
@@ -551,6 +572,6 @@ GET /analytics/my-performance       // Analytics para proveedores
 
 ---
 
-**Última actualización:** 11 de noviembre de 2025  
+**Última actualización:** 12 de noviembre de 2025  
 **Revisado por:** GitHub Copilot  
 **Estado:** Listo para implementación
