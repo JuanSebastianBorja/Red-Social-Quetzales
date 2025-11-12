@@ -14,10 +14,10 @@ const Transaction = sequelize.define('Transaction', {
       autoIncrement: true
     },
     userId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Users',
+        model: 'users',
         key: 'id'
       }
     },

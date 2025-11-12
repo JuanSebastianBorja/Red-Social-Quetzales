@@ -24,10 +24,10 @@ const Contract = sequelize.define('Contract', {
   
   // Relaciones
   serviceId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
-      model: 'Services',
+      model: 'services',
       key: 'id'
     },
     comment: 'Servicio contratado'
@@ -37,7 +37,7 @@ const Contract = sequelize.define('Contract', {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
-      model: 'Users',
+      model: 'users',
       key: 'id'
     },
     comment: 'Cliente que contrata el servicio'
@@ -47,17 +47,17 @@ const Contract = sequelize.define('Contract', {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
-      model: 'Users',
+      model: 'users',
       key: 'id'
     },
     comment: 'Proveedor del servicio'
   },
   
   escrowId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: true,
     references: {
-      model: 'EscrowAccounts',
+      model: 'escrow_accounts',
       key: 'id'
     },
     comment: 'Cuenta escrow asociada al contrato'
@@ -180,7 +180,7 @@ const Contract = sequelize.define('Contract', {
   
   // Comunicación
   conversationId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: true,
     references: {
       model: 'Conversations',
@@ -191,10 +191,10 @@ const Contract = sequelize.define('Contract', {
   
   // Calificación
   ratingId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: true,
     references: {
-      model: 'Ratings',
+      model: 'ratings',
       key: 'id'
     },
     comment: 'Calificación del servicio'

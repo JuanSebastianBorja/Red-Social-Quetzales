@@ -2,7 +2,7 @@
 // CONTRACT CONTROLLER - Contratación de Servicios
 // ============================================
 
-const { sequelize, Contract, Service, User, EscrowAccount, Conversation, WalletTx, QZ_TO_FIAT } = require('../models');
+const { sequelize, Contract, Service, User, EscrowAccount, Conversation, Transaction } = require('../models');
 const { body, validationResult } = require('express-validator');
 const escrowService = require('../services/escrowService');
 
@@ -127,9 +127,9 @@ async function createContract(req, res) {
       await buyer.update({ qzBalance: newBuyerBalance.toFixed(2) }, { transaction: t });
 
       // Registrar transacción en wallet
-      await WalletTx.create({
+      await Transaction.create({
         userId: buyerId,
-        amountQz: totalAmount,
+        amountQZ: totalAmount,
         kind: 'debit',
         category: 'contract',
         description: `Contrato ${contractNumber} - ${service.title}`
@@ -314,7 +314,7 @@ async function updateContractStatus(req, res) {
           await seller.update({ qzBalance: newSellerBalance.toFixed(2) }, { transaction: t });
 
           // Registrar transacción
-          await WalletTx.create({
+          await Transaction.create({
             userId: seller.id,
             amountQz: parseFloat(escrow.amount),
             kind: 'credit',
@@ -348,7 +348,7 @@ async function updateContractStatus(req, res) {
 
             await buyer.update({ qzBalance: newBuyerBalance.toFixed(2) }, { transaction: t });
 
-            await WalletTx.create({
+            await Transaction.create({
               userId: buyer.id,
               amountQz: refundAmount,
               kind: 'credit',
