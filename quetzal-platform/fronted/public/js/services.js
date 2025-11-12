@@ -285,108 +285,15 @@
     card.addEventListener('click', () => openServiceModal(service));
     
     return card;
-    }gray-600);">
-            📦 ${service.deliveryTime}
-            </div>
-        </div>
-        <div class="service-card-price">
-            ${formatQuetzales(service.price)}
-        </div>
-        </div>
-        
-        <div class="service-card-footer">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <img src="${service.provider.avatar}" alt="${service.provider.name}" class="avatar" style="width: 32px; height: 32px;">
-            <span style="font-size: 0.875rem; color: var(--gray-600);">${service.provider.name}</span>
-        </div>
-        <button class="btn btn-sm btn-primary">Ver Más</button>
-        </div>
-    `;
-    
-    // Event listener para abrir modal
-    card.addEventListener('click', () => openServiceModal(service));
-    
-    return card;
     }
 
     /**
     * Abre el modal con los detalles del servicio
     */
     function openServiceModal(service) {
-    const modalContent = serviceModal.querySelector('.modal-content');
-    const user = getAuthUser();
-    const isOwner = user && service.provider.name === user.name;
-    
-    modalContent.innerHTML = `
-        <div class="modal-body">
-        <div class="flex-between mb-3">
-            <span class="badge badge-info">${getCategoryName(service.category)}</span>
-            <button class="btn btn-sm btn-secondary" onclick="closeModal()">✕</button>
-        </div>
-        
-        <h2 class="text-3xl font-bold mb-3">
-            ${service.title}
-        </h2>
-        
-        <div class="flex gap-2 mb-3">
-            <div class="flex items-center gap-1">
-            <span style="color: var(--warning);">⭐</span>
-            <span class="font-semibold">${service.rating}</span>
-            <span class="text-muted">(${service.reviews} reseñas)</span>
-            </div>
-            <span class="text-muted">•</span>
-            <span class="text-secondary">📦 ${service.deliveryTime}</span>
-        </div>
-        
-        <img 
-            src="${service.image}" 
-            alt="${service.title}"
-            class="w-full rounded-lg mb-4"
-            style="height: 300px; object-fit: cover;">
-        
-        <h3 class="text-xl font-semibold mb-2">
-            Descripción
-        </h3>
-        <p class="text-secondary mb-4" style="line-height: 1.6;">
-            ${service.description}
-        </p>
-        
-        <hr class="my-4 border-top">
-        
-        <div class="flex-between items-center">
-            <div class="flex items-center gap-3">
-            <img src="${service.provider.avatar}" alt="${service.provider.name}" class="avatar avatar-lg">
-            <div>
-                <div class="font-semibold">${service.provider.name}</div>
-                <div class="text-sm text-secondary">Proveedor</div>
-            </div>
-            </div>
-            
-            <div class="text-right">
-            <div class="text-sm text-secondary mb-1">Precio</div>
-            <div class="text-4xl font-bold" style="color: var(--primary-color);">
-                ${formatQuetzales(service.price)}
-            </div>
-            <div class="text-sm text-muted">
-                ≈ ${formatCOP(quetzalesToCOP(service.price))}
-            </div>
-            </div>
-        </div>
-        
-        <div class="flex gap-2 mt-3">
-            ${isOwner ? 
-            `<a href="edit-service.html?id=${service.id}" class="btn btn-primary btn-block">Editar Servicio</a>` :
-            `<button class="btn btn-primary btn-block" onclick="contactProvider('${service.id}')">Contactar Proveedor</button>`
-            }
-        </div>
-        </div>
-    `;
-    
-    serviceModal.classList.add('active');
-    
-    // Cerrar al hacer click en el overlay
-    const overlay = serviceModal.querySelector('.modal-overlay');
-    overlay.onclick = closeModal;
+    // Redirigir directamente a la página de detalle del servicio
+    // Para usuarios autenticados: service-detail.html
+    window.location.href = `service-detail.html?id=${service.id}`;
     }
 
     /**

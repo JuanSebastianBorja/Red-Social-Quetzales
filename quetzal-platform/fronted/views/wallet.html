@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Billetera - Quetzal Platform</title>
 	<link rel="stylesheet" href="../public/css/main.css">
+	<link rel="stylesheet" href="../public/css/components.css">
 	<link rel="stylesheet" href="../public/css/user.css">
 </head>
 <body>
@@ -105,7 +106,7 @@
 			</div>
 
 			<!-- Content -->
-			<div class="user-content">
+			<div class="user-content animate-fadeIn">
 				<!-- Page Header -->
 				<div class="user-page-header">
 					<h1 class="user-page-title">💰 Gestiona tus Quetzales</h1>
@@ -119,7 +120,7 @@
 							<div>
 								<p class="text-sm text-muted mb-1">Balance Disponible</p>
 								<h2 class="balance-amount" id="balance">
-									<span class="spinner"></span> Cargando...
+									<span class="spinner animate-pulse"></span> Cargando...
 								</h2>
 								<p class="text-xs text-muted mt-1" id="balance-cop">≈ $0 COP</p>
 							</div>
@@ -222,9 +223,9 @@
 						<p class="text-sm text-muted">Historial de movimientos en tu cartera</p>
 					</div>
 					<div class="card-body">
-						<div id="transactions-list" class="transactions-container">
+						<div id="transactions-list" class="transactions-container animate-fadeIn">
 							<div class="text-center py-4">
-								<span class="spinner"></span>
+								<span class="spinner animate-pulse"></span>
 								<p class="text-muted mt-2">Cargando transacciones...</p>
 							</div>
 						</div>
