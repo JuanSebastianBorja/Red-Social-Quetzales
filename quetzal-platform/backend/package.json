@@ -8,6 +8,8 @@
         "dev": "nodemon server.js",
         "build": "echo 'No build needed'",
         "test": "jest --coverage",
+        "test:watch": "jest --watch",
+        "test:health": "jest __tests__/health.test.js",
         "test:models": "node test-all-models.js",
         "db:migrate": "sequelize-cli db:migrate",
         "db:seed": "sequelize-cli db:seed:all",

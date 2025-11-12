@@ -1,9 +1,20 @@
 const { sequelize, QZ_TO_FIAT, User, WalletTx } = require('../models');
 const { body, validationResult } = require('express-validator');
+const paymentService = require('../services/paymentService');
 
 const topupValidators = [ body('fiatAmount').isFloat({ gt: 0 }) ];
 const transferValidators = [ body('toUserId').isInt().toInt(), body('qzAmount').isFloat({ gt: 0 }) ];
 const withdrawValidators = [ body('fiatAmount').isFloat({ gt: 0 }) ];
+
+// Validadores PSE
+const pseInitValidators = [
+  body('amountCOP').isFloat({ gt: 0 }).withMessage('El monto debe ser mayor a 0'),
+  body('bankCode').notEmpty().withMessage('Debe seleccionar un banco'),
+  body('personType').isIn(['natural', 'juridica']).withMessage('Tipo de persona inválido'),
+  body('documentType').notEmpty().withMessage('Tipo de documento requerido'),
+  body('documentNumber').notEmpty().withMessage('Número de documento requerido'),
+  body('email').isEmail().normalizeEmail().withMessage('Email inválido')
+];
 
 async function summary(req,res){
   const user = await User.findByPk(req.userId);
@@ -61,4 +72,136 @@ function quote(req,res){
   res.json({ success:true, rate: { QZ_TO_FIAT }, fiat, qz });
 }
 
-module.exports = { summary, topup, transfer, withdraw, quote, topupValidators, transferValidators, withdrawValidators };
+// ============================================
+// PSE ENDPOINTS
+// ============================================
+
+// Obtener lista de bancos PSE
+async function getPseBanks(req, res) {
+  try {
+    const banks = await paymentService.getBanks();
+    res.json({
+      success: true,
+      banks
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error obteniendo lista de bancos',
+      error: error.message
+    });
+  }
+}
+
+// Iniciar transacción PSE
+async function initPsePayment(req, res) {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    const { amountCOP, bankCode, personType, documentType, documentNumber, email } = req.body;
+
+    // Obtener IP y User-Agent
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.get('user-agent');
+
+    // Crear transacción PSE
+    const result = await paymentService.createPseTransaction({
+      userId: req.userId,
+      amountCOP,
+      bankCode,
+      personType,
+      documentType,
+      documentNumber,
+      email,
+      ipAddress,
+      userAgent
+    });
+
+    res.json(result);
+
+  } catch (error) {
+    console.error('Error iniciando pago PSE:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al iniciar el pago',
+      error: error.message
+    });
+  }
+}
+
+// Callback de PSE (webhook)
+async function pseCallback(req, res) {
+  try {
+    const { reference, status, authorizationCode } = req.body;
+
+    if (!reference || !status) {
+      return res.status(400).json({
+        success: false,
+        message: 'Datos incompletos'
+      });
+    }
+
+    const result = await paymentService.processPseCallback(
+      reference,
+      status,
+      authorizationCode
+    );
+
+    res.json(result);
+
+  } catch (error) {
+    console.error('Error procesando callback PSE:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error procesando callback',
+      error: error.message
+    });
+  }
+}
+
+// Verificar estado de transacción PSE
+async function getPseStatus(req, res) {
+  try {
+    const { reference } = req.params;
+
+    if (!reference) {
+      return res.status(400).json({
+        success: false,
+        message: 'Referencia requerida'
+      });
+    }
+
+    const result = await paymentService.getTransactionStatus(reference);
+    res.json(result);
+
+  } catch (error) {
+    console.error('Error verificando estado PSE:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error verificando estado',
+      error: error.message
+    });
+  }
+}
+
+module.exports = {
+  summary,
+  topup,
+  transfer,
+  withdraw,
+  quote,
+  getPseBanks,
+  initPsePayment,
+  pseCallback,
+  getPseStatus,
+  topupValidators,
+  transferValidators,
+  withdrawValidators,
+  pseInitValidators
+};

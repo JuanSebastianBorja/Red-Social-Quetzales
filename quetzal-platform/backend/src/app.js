@@ -20,6 +20,9 @@ const walletRoutes = require('./routes/walletRoutes');
 const escrowRoutes = require('./routes/escrowRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const contractRoutes = require('./routes/contractRoutes');
+const healthRoutes = require('./routes/healthRoutes');
 
 const app = express();
 
@@ -93,23 +96,9 @@ app.use('/api/auth/register', authLimiter);
 // RUTAS API
 // ============================================
 
-// Health Check
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime()
-    });
-});
-
-// Alias con prefijo para entornos donde esperan /api/health
-app.get('/api/health', (req, res) => {
-    res.status(200).json({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime()
-    });
-});
+// Health Check Routes
+app.use('/health', healthRoutes);
+app.use('/api/health', healthRoutes);
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -118,6 +107,8 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/escrow', escrowRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/contracts', require('./routes/contractRoutes'));
+app.use('/api/messages', messageRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Ruta raíz
