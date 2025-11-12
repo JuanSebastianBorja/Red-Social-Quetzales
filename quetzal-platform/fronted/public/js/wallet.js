@@ -46,8 +46,8 @@ function setupCurrencyPreviews() {
 
 async function loadBalance() {
 	try {
-		const data = await API.getWalletBalance();
-		const balance = data.balance || 0;
+		const data = await API.getWalletSummary();
+		const balance = data.balanceQz || data.balance || 0;
 		$('balance').innerHTML = formatCurrency(balance);
 		
 		// Actualizar conversión a COP
@@ -63,9 +63,9 @@ async function loadBalance() {
 
 async function loadTransactions() {
 	try {
-		const res = await API.getTransactions({ limit: 20 });
+		const res = await API.getWalletSummary();
 		const container = $('transactions-list');
-		const transactions = res.transactions || res || [];
+		const transactions = res.txs || res.transactions || [];
 		
 		if (transactions.length === 0) {
 			container.innerHTML = `

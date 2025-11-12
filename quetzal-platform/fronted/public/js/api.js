@@ -74,8 +74,8 @@ const API = {
   async getMyServices() { return request('/services/my-services'); },
 
   // Wallet & PSE
-  async getWalletBalance() { return request('/wallet/balance'); },
-  async getTransactions(params = {}) { const q = new URLSearchParams(params).toString(); return request(`/wallet/transactions?${q}`); },
+  async getWalletSummary() { return request('/wallet/summary'); },
+  async getTransactions(params = {}) { const q = new URLSearchParams(params).toString(); return request(`/wallet/summary?${q}`); },
   async getPseBanks() { return request('/wallet/pse/banks'); },
   async initPsePayment(data) { return request('/wallet/pse/init', { method: 'POST', body: data }); },
   async getPseStatus(reference) { return request(`/wallet/pse/status/${reference}`); },
