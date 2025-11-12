@@ -11,9 +11,9 @@
 </head>
 <body>
     <!-- Topbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html">
+            <a class="navbar-brand fw-bold" href="dashboard.html">
                 <i class="fas fa-feather-alt"></i> Quetzal
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -61,21 +61,21 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky pt-3">
-                    <h6 class="sidebar-heading px-3 mt-3 mb-1 text-muted">
-                        <span>MIS COMPRAS</span>
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar" style="background: #f8f9fa; border-right: 1px solid #e0e0e0; min-height: calc(100vh - 56px);">
+                <div class="position-sticky pt-4">
+                    <h6 class="sidebar-heading px-3 mb-3 text-uppercase fw-bold" style="color: #667eea; font-size: 0.75rem; letter-spacing: 0.5px;">
+                        <i class="fas fa-list me-1"></i> MIS COMPRAS
                     </h6>
                     <ul class="nav flex-column mb-2">
                         <li class="nav-item">
-                            <a class="nav-link active" href="my-contracts.html">
-                                <i class="fas fa-shopping-cart"></i>
+                            <a class="nav-link active rounded mx-2 mb-1" href="my-contracts.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 500;">
+                                <i class="fas fa-shopping-cart me-2"></i>
                                 Mis Contrataciones
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="my-sales.html">
-                                <i class="fas fa-dollar-sign"></i>
+                            <a class="nav-link rounded mx-2 mb-1" href="my-sales.html" style="color: #495057; transition: all 0.3s;">
+                                <i class="fas fa-dollar-sign me-2"></i>
                                 Mis Ventas
                             </a>
                         </li>
@@ -84,16 +84,19 @@
             </nav>
 
             <!-- Content Area -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">
-                        <i class="fas fa-shopping-cart text-primary"></i> Mis Contrataciones
-                    </h1>
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="background: #f5f7fa;">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-4 pb-3 mb-4">
+                    <div>
+                        <h1 class="h2 fw-bold mb-1" style="color: #2d3748;">
+                            <i class="fas fa-shopping-cart me-2" style="color: #667eea;"></i> Mis Contrataciones
+                        </h1>
+                        <p class="text-muted mb-0">Gestiona todos tus servicios contratados</p>
+                    </div>
                 </div>
 
                 <!-- Filtros -->
-                <div class="card mb-4">
-                    <div class="card-body">
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-body p-4">
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label for="filterStatus" class="form-label">Estado</label>
@@ -113,8 +116,8 @@
                                 <input type="text" class="form-control" id="searchContract" placeholder="Número de contrato o servicio...">
                             </div>
                             <div class="col-md-4 d-flex align-items-end">
-                                <button class="btn btn-primary w-100" id="applyFilters">
-                                    <i class="fas fa-filter"></i> Aplicar Filtros
+                                <button class="btn w-100" id="applyFilters" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 500; border: none; padding: 0.6rem;">
+                                    <i class="fas fa-filter me-2"></i> Aplicar Filtros
                                 </button>
                             </div>
                         </div>
@@ -122,36 +125,40 @@
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="row mb-4">
+                <div class="row mb-4 g-3">
                     <div class="col-md-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h3 class="text-primary mb-0" id="totalContracts">0</h3>
-                                <small class="text-muted">Total Contrataciones</small>
+                        <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="card-body py-4">
+                                <i class="fas fa-file-contract fa-2x mb-2 text-white opacity-75"></i>
+                                <h3 class="mb-1 fw-bold text-white" id="totalContracts">0</h3>
+                                <small class="text-white opacity-90">Total Contrataciones</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h3 class="text-warning mb-0" id="pendingContracts">0</h3>
-                                <small class="text-muted">Pendientes</small>
+                        <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <div class="card-body py-4">
+                                <i class="fas fa-clock fa-2x mb-2 text-white opacity-75"></i>
+                                <h3 class="mb-1 fw-bold text-white" id="pendingContracts">0</h3>
+                                <small class="text-white opacity-90">Pendientes</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h3 class="text-info mb-0" id="activeContracts">0</h3>
-                                <small class="text-muted">Activos</small>
+                        <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <div class="card-body py-4">
+                                <i class="fas fa-spinner fa-2x mb-2 text-white opacity-75"></i>
+                                <h3 class="mb-1 fw-bold text-white" id="activeContracts">0</h3>
+                                <small class="text-white opacity-90">Activos</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h3 class="text-success mb-0" id="completedContracts">0</h3>
-                                <small class="text-muted">Completados</small>
+                        <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <div class="card-body py-4">
+                                <i class="fas fa-check-circle fa-2x mb-2 text-white opacity-75"></i>
+                                <h3 class="mb-1 fw-bold text-white" id="completedContracts">0</h3>
+                                <small class="text-white opacity-90">Completados</small>
                             </div>
                         </div>
                     </div>
@@ -159,19 +166,21 @@
 
                 <!-- Loading State -->
                 <div id="loadingState" class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border" role="status" style="color: #667eea; width: 3rem; height: 3rem;">
                         <span class="visually-hidden">Cargando...</span>
                     </div>
-                    <p class="mt-3 text-muted">Cargando tus contrataciones...</p>
+                    <p class="mt-3 text-muted fw-medium">Cargando tus contrataciones...</p>
                 </div>
 
                 <!-- Empty State -->
                 <div id="emptyState" class="text-center py-5" style="display: none;">
-                    <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
-                    <h4>No tienes contrataciones</h4>
-                    <p class="text-muted">Explora los servicios disponibles y contrata el que necesites</p>
-                    <a href="services.html" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Explorar Servicios
+                    <div class="mb-4" style="font-size: 5rem; color: #e0e0e0;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2" style="color: #2d3748;">No tienes contrataciones</h4>
+                    <p class="text-muted mb-4">Explora los servicios disponibles y contrata el que necesites</p>
+                    <a href="services.html" class="btn btn-lg shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 500; border: none; padding: 0.75rem 2rem;">
+                        <i class="fas fa-search me-2"></i> Explorar Servicios
                     </a>
                 </div>
 
