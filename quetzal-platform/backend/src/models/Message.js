@@ -17,7 +17,7 @@ const Message = sequelize.define('Message', {
     allowNull: false,
     field: 'conversation_id',
     references: {
-      model: 'conversations',
+      model: 'Conversations',
       key: 'id'
     }
   },
@@ -27,7 +27,7 @@ const Message = sequelize.define('Message', {
     allowNull: false,
     field: 'sender_id',
     references: {
-      model: 'Users',
+      model: 'users',
       key: 'id'
     }
   },

@@ -316,7 +316,7 @@ async function updateContractStatus(req, res) {
           // Registrar transacción
           await Transaction.create({
             userId: seller.id,
-            amountQz: parseFloat(escrow.amount),
+            amountQZ: parseFloat(escrow.amount),
             kind: 'credit',
             category: 'contract_payment',
             description: `Pago recibido - Contrato ${contract.contractNumber}`
@@ -350,7 +350,7 @@ async function updateContractStatus(req, res) {
 
             await Transaction.create({
               userId: buyer.id,
-              amountQz: refundAmount,
+              amountQZ: refundAmount,
               kind: 'credit',
               category: 'refund',
               description: `Reembolso - Contrato ${contract.contractNumber} cancelado`
