@@ -965,7 +965,16 @@
     }
 
     .profile-avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    }
+
+    .profile-avatar-wrapper .avatar {
+    display: block;
+    margin: 0 auto var(--spacing-md);
     }
 
     .profile-avatar-upload {
@@ -1473,4 +1482,165 @@
     * {
     scrollbar-width: thin;
     scrollbar-color: var(--bg-tertiary) var(--bg-secondary);
+    }
+
+    /* ========================================
+    28. WALLET STYLES
+    ======================================== */
+    
+    /* Balance Card con gradiente */
+    .card-gradient {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+        color: white;
+        border: none;
+    }
+    
+    .card-gradient .text-muted {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    .balance-amount {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        letter-spacing: -1px;
+    }
+    
+    .balance-icon {
+        opacity: 0.3;
+    }
+    
+    .balance-icon svg {
+        color: white;
+    }
+    
+    /* Input con icono */
+    .input-with-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 1.1rem;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .input-with-icon .form-control {
+        padding-left: 2.5rem;
+    }
+    
+    /* Transaction items */
+    .transactions-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .transaction-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+    
+    .transaction-item:hover {
+        background: var(--bg-tertiary);
+        transform: translateX(4px);
+    }
+    
+    .transaction-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-full);
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    .transaction-details {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .transaction-type {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    
+    .transaction-date {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+    
+    .transaction-amount {
+        font-weight: 700;
+        font-size: 1.1rem;
+        white-space: nowrap;
+    }
+    
+    /* Empty state */
+    .empty-state svg {
+        margin: 0 auto;
+        display: block;
+    }
+    
+    /* Grid responsive */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @media (max-width: 768px) {
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+        
+        .balance-amount {
+            font-size: 2rem;
+        }
+        
+        .balance-icon {
+            display: none;
+        }
+    }
+    
+    /* Animación de entrada */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Botón con icono */
+    .btn-icon {
+        margin-right: 0.5rem;
+    }
+    
+    /* Page header */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
     }

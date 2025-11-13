@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Admin</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/components.css">
+    <link rel="stylesheet" href="../public/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <h2>🦜 Admin Panel</h2>
+            <nav class="admin-nav">
+                <a href="admin-dashboard.html">📊 Dashboard</a>
+                <a href="admin-users.html">👥 Usuarios</a>
+                <a href="admin-services.html">⚡ Servicios</a>
+                <a href="admin-reports.html" class="active">📈 Reportes</a>
+                <a href="admin-transactions.html">💰 Transacciones</a>
+                <hr style="margin: 1rem 0; border-color: #34495e;">
+                <a href="dashboard.html">🔙 Vista Usuario</a>
+                <a href="#" onclick="logout()">🚪 Cerrar Sesión</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <h1>Reportes y Analíticas</h1>
+            
+            <!-- Filtros de fecha -->
+            <div class="report-section">
+                <h2>Período de Análisis</h2>
+                <div style="display: flex; gap: 1rem; align-items: end;">
+                    <div style="flex: 1;">
+                        <label>Fecha Inicio</label>
+                        <input type="date" id="startDate" class="form-control">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Fecha Fin</label>
+                        <input type="date" id="endDate" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" onclick="generateReports()">📊 Generar Reportes</button>
+                </div>
+            </div>
+
+            <!-- Resumen General -->
+            <div class="report-section">
+                <h2>📊 Resumen General</h2>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div>Nuevos Usuarios</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalServices">0</div>
+                        <div>Servicios Creados</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalTransactions">0</div>
+                        <div>Transacciones</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalRevenue">Q 0</div>
+                        <div>Ingresos Totales</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuarios -->
+            <div class="report-section">
+                <h2>👥 Análisis de Usuarios</h2>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div>Usuarios Activos</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="providers">0</div>
+                        <div>Proveedores</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="consumers">0</div>
+                        <div>Consumidores</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="verifiedUsers">0</div>
+                        <div>Verificados</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="usersChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Servicios -->
+            <div class="report-section">
+                <h2>⚡ Análisis de Servicios</h2>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-number" id="activeServices">0</div>
+                        <div>Servicios Activos</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="avgServicePrice">Q 0</div>
+                        <div>Precio Promedio</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="avgRating">0.0</div>
+                        <div>Rating Promedio</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="topCategory">-</div>
+                        <div>Categoría Top</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="servicesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Transacciones -->
+            <div class="report-section">
+                <h2>💰 Análisis Financiero</h2>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-number" id="completedTransactions">0</div>
+                        <div>Completadas</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="pendingTransactions">0</div>
+                        <div>Pendientes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="avgTransaction">Q 0</div>
+                        <div>Transacción Promedio</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="platformFees">Q 0</div>
+                        <div>Comisiones Plataforma</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="transactionsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Exportar -->
+            <div class="report-section">
+                <h2>📥 Exportar Reportes</h2>
+                <div class="export-buttons">
+                    <button class="btn btn-primary" onclick="exportToPDF()">📄 Exportar PDF</button>
+                    <button class="btn btn-secondary" onclick="exportToExcel()">📊 Exportar Excel</button>
+                    <button class="btn btn-secondary" onclick="exportToCSV()">📋 Exportar CSV</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../public/js/config.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script src="../public/js/app.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('quetzal_user') || '{}');
+        if (user.role !== 'admin') {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Establecer fechas por defecto (últimos 30 días)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        
+        document.getElementById('endDate').valueAsDate = endDate;
+        document.getElementById('startDate').valueAsDate = startDate;
+
+        async function generateReports() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+
+            try {
+                // Cargar usuarios
+                const usersResponse = await apiRequest('/api/admin/users');
+                if (usersResponse.success) {
+                    const users = usersResponse.data;
+                    document.getElementById('totalUsers').textContent = users.length;
+                    document.getElementById('activeUsers').textContent = users.filter(u => u.isActive).length;
+                    document.getElementById('providers').textContent = users.filter(u => u.userType === 'provider' || u.userType === 'both').length;
+                    document.getElementById('consumers').textContent = users.filter(u => u.userType === 'consumer').length;
+                    document.getElementById('verifiedUsers').textContent = users.filter(u => u.isVerified).length;
+                }
+
+                // Cargar servicios
+                const servicesResponse = await apiRequest('/api/services');
+                if (servicesResponse.success) {
+                    const services = servicesResponse.data;
+                    document.getElementById('totalServices').textContent = services.length;
+                    document.getElementById('activeServices').textContent = services.filter(s => s.isActive).length;
+                    
+                    const avgPrice = services.reduce((sum, s) => sum + parseFloat(s.price), 0) / services.length;
+                    document.getElementById('avgServicePrice').textContent = `Q ${avgPrice.toFixed(2)}`;
+                    
+                    const avgRating = services.reduce((sum, s) => sum + (parseFloat(s.averageRating) || 5), 0) / services.length;
+                    document.getElementById('avgRating').textContent = avgRating.toFixed(1);
+
+                    // Categoría top
+                    const categories = {};
+                    services.forEach(s => {
+                        categories[s.category] = (categories[s.category] || 0) + 1;
+                    });
+                    const topCat = Object.keys(categories).sort((a, b) => categories[b] - categories[a])[0];
+                    document.getElementById('topCategory').textContent = topCat || '-';
+                }
+
+                // Cargar transacciones
+                const transResponse = await apiRequest('/api/admin/transactions');
+                if (transResponse.success) {
+                    const transactions = transResponse.data;
+                    document.getElementById('totalTransactions').textContent = transactions.length;
+                    document.getElementById('completedTransactions').textContent = transactions.filter(t => t.status === 'completed').length;
+                    document.getElementById('pendingTransactions').textContent = transactions.filter(t => t.status === 'pending').length;
+                    
+                    const totalRevenue = transactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                    document.getElementById('totalRevenue').textContent = `Q ${totalRevenue.toFixed(2)}`;
+                    
+                    const avgTrans = totalRevenue / transactions.length || 0;
+                    document.getElementById('avgTransaction').textContent = `Q ${avgTrans.toFixed(2)}`;
+                    
+                    // Comisión 10%
+                    const fees = totalRevenue * 0.10;
+                    document.getElementById('platformFees').textContent = `Q ${fees.toFixed(2)}`;
+                }
+
+            } catch (error) {
+                console.error('Error generando reportes:', error);
+                alert('Error al generar reportes');
+            }
+        }
+
+        function exportToPDF() {
+            alert('Funcionalidad de exportar a PDF en desarrollo');
+        }
+
+        function exportToExcel() {
+            alert('Funcionalidad de exportar a Excel en desarrollo');
+        }
+
+        function exportToCSV() {
+            alert('Funcionalidad de exportar a CSV en desarrollo');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'landing-page.html';
+        }
+
+        // Generar reportes al cargar
+        generateReports();
+    </script>
+</body>
+</html>

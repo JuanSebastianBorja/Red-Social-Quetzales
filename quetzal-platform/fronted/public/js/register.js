@@ -48,17 +48,14 @@
     submitBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></span> Creando cuenta...';
 
     try {
-        // Llamada a la API
-        // const response = await API.register(formData);
+        // Llamada a Supabase Auth
+        const result = await SupabaseAuth.signUp(formData);
         
-        // Simulación de respuesta exitosa
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        showAlert('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
+        showAlert('¡Cuenta creada exitosamente! Revisa tu email para confirmar.', 'success');
         
         // Redireccionar después de 2 segundos
         setTimeout(() => {
-        window.location.href = 'login.html';
+            window.location.href = 'login.html';
         }, 2000);
         
     } catch (error) {

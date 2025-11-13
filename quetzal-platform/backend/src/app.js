@@ -19,6 +19,10 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const escrowRoutes = require('./routes/escrowRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const contractRoutes = require('./routes/contractRoutes');
+const healthRoutes = require('./routes/healthRoutes');
 
 const app = express();
 
@@ -33,12 +37,27 @@ app.use(helmet({
 }));
 
 // CORS
+// Permite configurar múltiples orígenes desde CORS_ORIGINS (separados por coma)
+const defaultOrigins = [
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    process.env.FRONTEND_URL || 'https://red-social-quetzales.vercel.app'
+];
+
+const allowedOrigins = (process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
+    : []
+).concat(defaultOrigins);
+
 app.use(cors({
-    origin: [
-        'http://localhost:5500',
-        'http://127.0.0.1:5500',
-        process.env.FRONTEND_URL || 'https://quetzal-platform.vercel.app'
-    ],
+    origin: function (origin, callback) {
+        // Permitir requests sin origin (ej: curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.some(allow => allow === origin || (allow.includes('*.') && origin.endsWith(allow.replace('*.', ''))))) {
+            return callback(null, true);
+        }
+        return callback(new Error('CORS no permitido para: ' + origin), false);
+    },
     credentials: true
 }));
 
@@ -77,14 +96,9 @@ app.use('/api/auth/register', authLimiter);
 // RUTAS API
 // ============================================
 
-// Health Check
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime()
-    });
-});
+// Health Check Routes
+app.use('/health', healthRoutes);
+app.use('/api/health', healthRoutes);
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -93,6 +107,9 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/escrow', escrowRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/contracts', require('./routes/contractRoutes'));
+app.use('/api/messages', messageRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Ruta raíz
 app.get('/', (req, res) => {

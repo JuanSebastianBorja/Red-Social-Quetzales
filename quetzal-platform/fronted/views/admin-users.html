@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - Admin</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/components.css">
+    <link rel="stylesheet" href="../public/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <h2>🦜 Admin Panel</h2>
+            <nav class="admin-nav">
+                <a href="admin-dashboard.html">📊 Dashboard</a>
+                <a href="admin-users.html" class="active">👥 Usuarios</a>
+                <a href="admin-services.html">⚡ Servicios</a>
+                <a href="admin-reports.html">📈 Reportes</a>
+                <a href="admin-transactions.html">💰 Transacciones</a>
+                <hr style="margin: 1rem 0; border-color: #34495e;">
+                <a href="dashboard.html">🔙 Vista Usuario</a>
+                <a href="#" onclick="logout()">🚪 Cerrar Sesión</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <h1>Gestión de Usuarios</h1>
+            
+            <div class="filters">
+                <input type="text" id="searchInput" placeholder="Buscar por nombre o email..." 
+                       style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                <select id="roleFilter" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="all">Todos los roles</option>
+                    <option value="admin">Administradores</option>
+                    <option value="user">Usuarios</option>
+                </select>
+                <select id="statusFilter" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="all">Todos los estados</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadUsers()">🔍 Buscar</button>
+            </div>
+
+            <div class="users-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Tipo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem;">
+                                <div class="loading">Cargando usuarios...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="../public/js/config.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script src="../public/js/app.js"></script>
+    <script>
+        // Verificar admin
+        const user = JSON.parse(localStorage.getItem('quetzal_user') || '{}');
+        if (user.role !== 'admin') {
+            window.location.href = 'dashboard.html';
+        }
+
+        let allUsers = [];
+
+        async function loadUsers() {
+            try {
+                const response = await apiRequest('/api/admin/users');
+                
+                if (response.success) {
+                    allUsers = response.data;
+                    filterAndRenderUsers();
+                } else {
+                    showError('No se pudieron cargar los usuarios');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error al cargar usuarios');
+            }
+        }
+
+        function filterAndRenderUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filtered = allUsers;
+
+            // Filtrar por búsqueda
+            if (searchTerm) {
+                filtered = filtered.filter(u => 
+                    u.fullName.toLowerCase().includes(searchTerm) ||
+                    u.email.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Filtrar por rol
+            if (roleFilter !== 'all') {
+                filtered = filtered.filter(u => u.role === roleFilter);
+            }
+
+            // Filtrar por estado
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(u => 
+                    statusFilter === 'active' ? u.isActive : !u.isActive
+                );
+            }
+
+            renderUsers(filtered);
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No se encontraron usuarios</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>
+                        <strong>${u.fullName}</strong>
+                        ${u.city ? `<br><small style="color: #666;">📍 ${u.city}</small>` : ''}
+                    </td>
+                    <td>${u.email}</td>
+                    <td><span class="badge">${u.userType || 'consumer'}</span></td>
+                    <td><span class="badge badge-${u.role}">${u.role === 'admin' ? 'Admin' : 'Usuario'}</span></td>
+                    <td><span class="badge badge-${u.isActive ? 'active' : 'inactive'}">${u.isActive ? 'Activo' : 'Inactivo'}</span></td>
+                    <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="action-btn btn-toggle" onclick="toggleUserStatus('${u.id}', ${u.isActive})">
+                            ${u.isActive ? '🔒 Desactivar' : '✅ Activar'}
+                        </button>
+                        <button class="action-btn btn-edit" onclick="toggleUserRole('${u.id}', '${u.role}')">
+                            ${u.role === 'admin' ? '👤 Quitar Admin' : '👑 Hacer Admin'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function toggleUserStatus(userId, currentStatus) {
+            const action = currentStatus ? 'desactivar' : 'activar';
+            if (!confirm(`¿Seguro que deseas ${action} este usuario?`)) return;
+
+            try {
+                const response = await apiRequest(`/api/admin/users/${userId}/status`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ isActive: !currentStatus })
+                });
+
+                if (response.success) {
+                    alert(`Usuario ${action}do exitosamente`);
+                    loadUsers();
+                } else {
+                    alert('Error al actualizar usuario');
+                }
+            } catch (error) {
+                alert('Error al actualizar usuario');
+            }
+        }
+
+        async function toggleUserRole(userId, currentRole) {
+            const newRole = currentRole === 'admin' ? 'user' : 'admin';
+            if (!confirm(`¿Cambiar rol a ${newRole}?`)) return;
+
+            try {
+                const response = await apiRequest(`/api/admin/users/${userId}/role`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                if (response.success) {
+                    alert('Rol actualizado exitosamente');
+                    loadUsers();
+                } else {
+                    alert('Error al actualizar rol');
+                }
+            } catch (error) {
+                alert('Error al actualizar rol');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('usersTableBody').innerHTML = `
+                <tr><td colspan="7" style="text-align: center; padding: 2rem; color: red;">
+                    ${message}
+                </td></tr>
+            `;
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'landing-page.html';
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', filterAndRenderUsers);
+        document.getElementById('roleFilter').addEventListener('change', filterAndRenderUsers);
+        document.getElementById('statusFilter').addEventListener('change', filterAndRenderUsers);
+
+        // Cargar al iniciar
+        loadUsers();
+    </script>
+</body>
+</html>

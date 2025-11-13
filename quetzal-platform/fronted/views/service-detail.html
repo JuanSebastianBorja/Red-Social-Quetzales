@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Servicio - Quetzal Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/components.css">
+    <link rel="stylesheet" href="../public/css/user.css">
+    </head>
+<body>
+    <div class="user-layout">
+        <!-- Sidebar unificada -->
+        <aside class="user-sidebar" id="userSidebar">
+            <div class="user-sidebar-header">
+                <div class="user-sidebar-brand">
+                    <span class="user-sidebar-brand-icon">🦜</span>
+                    <span>Quetzal</span>
+                </div>
+            </div>
+            <div class="user-sidebar-profile">
+                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
+                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
+                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
+                <div class="user-sidebar-balance">
+                    <div class="user-sidebar-balance-label">Balance Disponible</div>
+                    <div class="user-sidebar-balance-amount">
+                        <span>💰</span>
+                        <span id="sidebar-balance">Q 0.00</span>
+                    </div>
+                </div>
+            </div>
+            <nav class="user-sidebar-nav">
+                <div class="user-sidebar-nav-title">Menú Principal</div>
+                <a href="dashboard.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">📊</span>
+                    <span class="user-sidebar-nav-text">Dashboard</span>
+                </a>
+                <a href="services.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">⚡</span>
+                    <span class="user-sidebar-nav-text">Servicios</span>
+                </a>
+                <a href="messages.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💬</span>
+                    <span class="user-sidebar-nav-text">Mensajes</span>
+                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
+                </a>
+                <a href="wallet.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💰</span>
+                    <span class="user-sidebar-nav-text">Billetera</span>
+                </a>
+                <a href="my-contracts.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">🛒</span>
+                    <span class="user-sidebar-nav-text">Mis Contrataciones</span>
+                </a>
+                <a href="my-sales.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💵</span>
+                    <span class="user-sidebar-nav-text">Mis Ventas</span>
+                </a>
+                <div class="user-sidebar-nav-title">Mi Cuenta</div>
+                <a href="profile.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">👤</span>
+                    <span class="user-sidebar-nav-text">Perfil</span>
+                </a>
+                <a href="create-service.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">➕</span>
+                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
+                </a>
+            </nav>
+            <div class="user-sidebar-footer">
+                <button class="user-sidebar-logout" id="logout-btn">
+                    <span>🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="user-main">
+            <div class="user-topbar">
+                <div class="user-topbar-left">
+                    <button class="user-toggle-btn" id="sidebarToggle"><span>☰</span></button>
+                    <div>
+                        <div class="user-topbar-title">Detalle del Servicio</div>
+                        <div class="user-topbar-breadcrumb">
+                            <a href="dashboard.html">Inicio</a>
+                            <span>›</span>
+                            <a href="services.html">Servicios</a>
+                            <span>›</span>
+                            <span>Detalle</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-content animate-fadeIn">
+                <div class="container mt-2">
+        <div class="row">
+            <!-- Contenido Principal -->
+            <div class="col-lg-8">
+                <div id="loadingState" class="text-center py-5">
+                    <div class="spinner spinner-lg mx-auto animate-pulse"></div>
+                    <p class="mt-3 text-muted">Cargando detalles del servicio...</p>
+                </div>
+
+                <div id="errorState" class="alert alert-error text-center animate-fadeIn" style="display: none;">
+                    <div class="w-100">
+                        <div class="mb-3" style="font-size: 3rem;">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">No se pudo cargar el servicio</h4>
+                        <p class="text-muted mb-4">El servicio no existe o no está disponible</p>
+                        <a href="services.html" class="btn btn-primary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i> Ver todos los servicios
+                        </a>
+                    </div>
+                </div>
+
+                <div id="serviceContent" class="mb-4" style="display: none;"></div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div id="serviceSidebar" class="position-sticky" style="top: 20px;"></div>
+            </div>
+        </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Overlay para móviles -->
+    <div class="user-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Modal: Confirmar Contratación -->
+    <div class="modal fade" id="contractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-file-contract me-2"></i> Confirmar Contratación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 id="modalServiceTitle">-</h5>
+                            <p class="text-muted mb-2" id="modalServiceProvider">-</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Precio</small>
+                                    <div><strong id="modalServicePrice">-</strong></div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Entrega</small>
+                                    <div><strong id="modalServiceDelivery">-</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6>Cálculo del Total</h6>
+                            <div class="d-flex justify-content-between"><span>Precio del servicio:</span><strong id="modalPriceBreakdown">-</strong></div>
+                            <div class="d-flex justify-content-between"><span>Comisión (5%):</span><strong id="modalFeeBreakdown">-</strong></div>
+                            <hr>
+                            <div class="d-flex justify-content-between"><strong>Total a pagar:</strong><strong id="modalTotalBreakdown">-</strong></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contractRequirements" class="form-label">Requisitos o Instrucciones Especiales (Opcional)</label>
+                        <textarea class="form-control" id="contractRequirements" rows="4" placeholder="Escribe detalles o requisitos específicos para el proveedor..."></textarea>
+                    </div>
+                    <div id="insufficientFundsWarning" class="alert alert-warning" style="display: none;">
+                        <strong>Balance actual:</strong> <span id="modalCurrentBalance">-</span>
+                        <br><small class="text-danger"><i class="fas fa-exclamation-triangle"></i> No tienes fondos suficientes. <a href="wallet.html" target="_blank">Recarga tu billetera</a></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmContractBtn">
+                        <i class="fas fa-check"></i> Confirmar y Continuar al Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/user-sidebar.js"></script>
+    <script src="../public/js/app.js"></script>
+    <script type="module">
+        import API from '../public/js/api.js';
+        import { requireAuth, getCurrentUser } from '../public/js/auth.js';
+        import { createContract } from '../public/js/contracts.js';
+
+        // Verificar autenticación
+        requireAuth();
+
+        // Variables globales
+        let currentService = null;
+        let currentUser = null;
+        let userWallet = null;
+        const contractModal = new bootstrap.Modal(document.getElementById('contractModal'));
+
+        // Elementos del DOM
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const serviceContent = document.getElementById('serviceContent');
+        const serviceSidebar = document.getElementById('serviceSidebar');
+    // Sidebar maneja usuario y logout
+        const confirmContractBtn = document.getElementById('confirmContractBtn');
+        const contractRequirements = document.getElementById('contractRequirements');
+
+        // Cargar datos del usuario
+        currentUser = getCurrentUser();
+
+        // Obtener ID del servicio de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const serviceId = urlParams.get('id');
+
+        if (!serviceId) {
+            window.location.href = 'services.html';
+        }
+
+        // Cargar servicio
+        async function loadService() {
+            try {
+                loadingState.style.display = 'block';
+                errorState.style.display = 'none';
+                serviceContent.style.display = 'none';
+
+                const result = await API.getService(serviceId);
+                const walletResult = await API.getWalletSummary();
+
+                currentService = result.service || result.data;
+                userWallet = walletResult.wallet || walletResult.data;
+
+                renderService();
+                renderSidebar();
+
+                loadingState.style.display = 'none';
+                serviceContent.style.display = 'block';
+
+            } catch (error) {
+                loadingState.style.display = 'none';
+                errorState.style.display = 'block';
+                console.error('Error:', error);
+            }
+        }
+
+        // Renderizar servicio
+        function renderService() {
+            const categoryIcons = {
+                'diseño': '🎨',
+                'programación': '💻',
+                'marketing': '📱',
+                'escritura': '✍️',
+                'traducción': '🌐',
+                'educación': '📚',
+                'hogar': '🏠',
+                'otro': '⚡'
+            };
+
+            serviceContent.innerHTML = `
+                <div class="card animate-slideInUp">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="fs-1 me-3">${categoryIcons[currentService.category?.toLowerCase()] || '⚡'}</div>
+                            <div>
+                                <span class="badge badge-info">${currentService.category || 'General'}</span>
+                                <h1 class="h3 mb-0 mt-2">${currentService.title}</h1>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            ${currentService.averageRating ? `
+                                <span class="text-warning">
+                                    ${'★'.repeat(Math.round(currentService.averageRating))}${'☆'.repeat(5 - Math.round(currentService.averageRating))}
+                                </span>
+                                <span class="ms-2">${currentService.averageRating.toFixed(1)}</span>
+                                <span class="text-muted ms-2">(${currentService.totalReviews || 0} reseñas)</span>
+                            ` : '<span class="text-muted">Sin calificaciones aún</span>'}
+                        </div>
+
+                        <div class="border-top border-bottom py-3 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-lg avatar-placeholder me-3">
+                                    ${(currentService.provider?.fullName || currentService.User?.fullName || 'P')[0].toUpperCase()}
+                                </div>
+                                <div>
+                                    <strong>${currentService.provider?.fullName || currentService.User?.fullName || 'Proveedor'}</strong>
+                                    <div class="text-muted small">
+                                        ${currentService.provider?.city || currentService.User?.city ? `<i class="fas fa-map-marker-alt"></i> ${currentService.provider?.city || currentService.User?.city}` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5>Descripción del Servicio</h5>
+                        <p class="text-muted">${currentService.description || 'Sin descripción disponible'}</p>
+
+                        <h5 class="mt-4">Detalles</h5>
+                        <ul>
+                            <li><strong>Categoría:</strong> ${currentService.category || 'General'}</li>
+                            <li><strong>Tiempo de entrega:</strong> ${currentService.deliveryTime || 'A convenir'} días</li>
+                            <li><strong>Disponibilidad:</strong> ${currentService.isActive ? '<span class="badge badge-success">Disponible</span>' : '<span class="badge badge-error">No disponible</span>'}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                ${currentService.ratings && currentService.ratings.length > 0 ? `
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Reseñas (${currentService.ratings.length})</h5>
+                        </div>
+                        <div class="card-body">
+                            ${currentService.ratings.map(rating => `
+                                <div class="border-bottom pb-3 mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>${rating.user?.fullName || 'Usuario'}</strong>
+                                        <span class="text-warning">${'★'.repeat(rating.rating)}${'☆'.repeat(5 - rating.rating)}</span>
+                                    </div>
+                                    <p class="mb-1">${rating.comment || ''}</p>
+                                    <small class="text-muted">${new Date(rating.createdAt).toLocaleDateString()}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // Renderizar sidebar
+        function renderSidebar() {
+            const isOwnService = currentService.userId === currentUser.id;
+            const platformFee = parseFloat(currentService.price) * 0.05;
+            const totalAmount = parseFloat(currentService.price) + platformFee;
+
+            serviceSidebar.innerHTML = `
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-2">Precio</h6>
+                        <div class="stat-card-value">${currentService.price} QZ</div>
+                        <span class="badge badge-info">+ ${platformFee.toFixed(2)} QZ comisión</span>
+                    </div>
+                </div>
+
+                ${isOwnService ? `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Este es tu servicio
+                    </div>
+                    <a href="edit-service.html?id=${currentService.id}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-edit"></i> Editar Servicio
+                    </a>
+                ` : currentService.isActive ? `
+                    <button class="btn btn-success w-100 btn-lg mb-3" id="hireServiceBtn">
+                        <i class="fas fa-shopping-cart"></i> Contratar Servicio
+                    </button>
+                    <div class="card">
+                        <div class="card-body">
+                            <h6><i class="fas fa-shield-alt text-success"></i> Pago Seguro</h6>
+                            <ul class="small mb-0">
+                                <li>Fondos en garantía (escrow)</li>
+                                <li>Pago solo si estás satisfecho</li>
+                                <li>Soporte 24/7</li>
+                            </ul>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Este servicio no está disponible actualmente
+                    </div>
+                `}
+
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6><i class="fas fa-clock"></i> Tiempo de entrega</h6>
+                        <p class="mb-0">${currentService.deliveryTime || 'A convenir'} días</p>
+                    </div>
+                </div>
+            `;
+
+            // Event listener para contratar
+            const hireBtn = document.getElementById('hireServiceBtn');
+            if (hireBtn) {
+                hireBtn.addEventListener('click', openContractModal);
+            }
+        }
+
+        // Abrir modal de contratación
+        function openContractModal() {
+            const platformFee = parseFloat(currentService.price) * 0.05;
+            const totalAmount = parseFloat(currentService.price) + platformFee;
+            const currentBalance = parseFloat(userWallet?.balance || 0);
+            const hasEnoughFunds = currentBalance >= totalAmount;
+
+            document.getElementById('modalServiceTitle').textContent = currentService.title;
+            document.getElementById('modalServiceProvider').textContent = `Por: ${currentService.provider?.fullName || currentService.User?.fullName || 'Proveedor'}`;
+            document.getElementById('modalServicePrice').textContent = `${currentService.price} QZ`;
+            document.getElementById('modalServiceDelivery').textContent = `${currentService.deliveryTime || 'A convenir'} días`;
+            document.getElementById('modalPriceBreakdown').textContent = `${currentService.price} QZ`;
+            document.getElementById('modalFeeBreakdown').textContent = `${platformFee.toFixed(2)} QZ`;
+            document.getElementById('modalTotalBreakdown').textContent = `${totalAmount.toFixed(2)} QZ`;
+            document.getElementById('modalCurrentBalance').textContent = `${currentBalance.toFixed(2)} QZ`;
+
+            const insufficientWarning = document.getElementById('insufficientFundsWarning');
+            if (!hasEnoughFunds) {
+                insufficientWarning.style.display = 'block';
+                confirmContractBtn.disabled = true;
+            } else {
+                insufficientWarning.style.display = 'none';
+                confirmContractBtn.disabled = false;
+            }
+
+            contractModal.show();
+        }
+
+        // Confirmar contratación
+        confirmContractBtn.addEventListener('click', async () => {
+            try {
+                confirmContractBtn.disabled = true;
+                confirmContractBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+
+                const requirements = contractRequirements.value.trim();
+
+                const contract = await createContract(serviceId, requirements);
+
+                contractModal.hide();
+                
+                // Redirigir a la página de pago del contrato
+                // Aviso simple y redirección
+                alert('Contrato creado. Redirigiendo al pago...');
+                setTimeout(() => {
+                    window.location.href = `my-contracts.html?highlight=${contract.id}`;
+                }, 1500);
+
+            } catch (error) {
+                confirmContractBtn.disabled = false;
+                confirmContractBtn.innerHTML = '<i class="fas fa-check"></i> Confirmar y Continuar al Pago';
+                console.error('Error:', error);
+            }
+        });
+
+        // Logout se gestiona desde user-sidebar.js
+
+        // Cargar servicio al iniciar
+        loadService();
+    </script>
+</body>
+</html>

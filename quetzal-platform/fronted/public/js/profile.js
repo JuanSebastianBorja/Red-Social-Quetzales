@@ -55,6 +55,60 @@
     // Cargar datos del usuario
     loadUserData();
 
+    // Cargar actividad adicional (wallet, servicios, transacciones)
+    loadProfileActivity();
+
+    async function loadProfileActivity() {
+        try {
+            // Wallet
+            const balance = await API.getWalletBalance();
+            document.getElementById('profile-balance-quetzales').textContent = `Q${(balance.balance || 0).toFixed(2)}`;
+            document.getElementById('profile-pending-escrow').textContent = `Q${(balance.escrowBalance || 0).toFixed(2)}`;
+            document.getElementById('profile-balance-cop').textContent = `$${((balance.balance || 0) * 10000).toLocaleString()} COP`;
+
+            // Mis servicios
+            const myServices = await API.getMyServices();
+            const servicesContainer = document.getElementById('profile-my-services');
+            servicesContainer.innerHTML = '';
+            (myServices || []).forEach(service => {
+                const div = document.createElement('div');
+                div.className = 'service-card';
+                div.innerHTML = `
+                    <div class="service-card-image"><img src="${(service.images && service.images[0]) || '/public/img/placeholder.jpg'}" alt="${service.title}"></div>
+                    <div class="service-card-content">
+                        <h4>${service.title}</h4>
+                        <p class="price">Q${(service.price || 0).toFixed(2)}</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="status status-${service.status}">${service.status}</span>
+                            <a href="edit-service.html?id=${service.id}" class="btn btn-sm btn-secondary">Editar</a>
+                        </div>
+                    </div>
+                `;
+                servicesContainer.appendChild(div);
+            });
+
+            // Transacciones
+            const txs = await API.getTransactions({ limit: 10 });
+            const txContainer = document.getElementById('profile-transactions-list');
+            txContainer.innerHTML = '';
+            (txs || []).forEach(tx => {
+                const item = document.createElement('div');
+                item.className = 'transaction-item';
+                item.innerHTML = `
+                    <div class="transaction-icon ${tx.type}">${tx.type}</div>
+                    <div class="transaction-info">
+                        <div class="transaction-title">${tx.description}</div>
+                        <div class="transaction-date">${new Date(tx.createdAt || tx.date || tx.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <div class="transaction-amount ${tx.amount > 0 ? 'positive' : 'negative'}">${tx.amount > 0 ? '+' : ''}Q${(tx.amount || 0).toFixed(2)}</div>
+                `;
+                txContainer.appendChild(item);
+            });
+        } catch (err) {
+            console.error('Error loading profile activity', err);
+        }
+    }
+
     /**
      * Carga los datos del usuario desde localStorage o API
      */

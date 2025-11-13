@@ -8,9 +8,14 @@
         "dev": "nodemon server.js",
         "build": "echo 'No build needed'",
         "test": "jest --coverage",
+        "test:watch": "jest --watch",
+        "test:health": "jest __tests__/health.test.js",
+        "test:models": "node test-all-models.js",
         "db:migrate": "sequelize-cli db:migrate",
         "db:seed": "sequelize-cli db:seed:all",
-        "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all"
+        "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all",
+    "db:migrate:manual": "psql -U postgres -d quetzal_db -f migrations/002_create_transactions_table.sql && psql -U postgres -d quetzal_db -f migrations/003_create_contracts_table.sql && psql -U postgres -d quetzal_db -f migrations/004_create_messaging_tables.sql",
+        "db:migrate:sql": "node scripts/run-sql-migrations.js"
     },
     "keywords": [
         "quetzal",

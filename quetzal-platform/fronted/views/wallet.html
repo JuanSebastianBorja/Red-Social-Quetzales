@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Billetera - Quetzal Platform</title>
+	<link rel="stylesheet" href="../public/css/main.css">
+	<link rel="stylesheet" href="../public/css/components.css">
+	<link rel="stylesheet" href="../public/css/user.css">
+</head>
+<body>
+	<div class="user-layout">
+		<!-- Sidebar -->
+		<aside class="user-sidebar" id="userSidebar">
+			<!-- Header -->
+			<div class="user-sidebar-header">
+				<div class="user-sidebar-brand">
+					<span class="user-sidebar-brand-icon">🦜</span>
+					<span>Quetzal</span>
+				</div>
+			</div>
+
+			<!-- User Profile -->
+			<div class="user-sidebar-profile">
+				<img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
+				<div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
+				<div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
+				<div class="user-sidebar-balance">
+					<div class="user-sidebar-balance-label">Balance Disponible</div>
+					<div class="user-sidebar-balance-amount">
+						<span>💰</span>
+						<span id="sidebar-balance">Q 0.00</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Navigation -->
+			<nav class="user-sidebar-nav">
+				<div class="user-sidebar-nav-title">Menú Principal</div>
+				<a href="dashboard.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">📊</span>
+					<span class="user-sidebar-nav-text">Dashboard</span>
+				</a>
+				<a href="services.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">⚡</span>
+					<span class="user-sidebar-nav-text">Servicios</span>
+				</a>
+				<a href="messages.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">💬</span>
+					<span class="user-sidebar-nav-text">Mensajes</span>
+					<span class="user-sidebar-nav-badge" id="messages-badge">3</span>
+				</a>
+				<a href="wallet.html" class="user-sidebar-nav-item active">
+					<span class="user-sidebar-nav-icon">💰</span>
+					<span class="user-sidebar-nav-text">Billetera</span>
+				</a>
+
+				<div class="user-sidebar-nav-title">Mi Cuenta</div>
+				<a href="profile.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">👤</span>
+					<span class="user-sidebar-nav-text">Perfil</span>
+				</a>
+				<a href="create-service.html" class="user-sidebar-nav-item">
+					<span class="user-sidebar-nav-icon">➕</span>
+					<span class="user-sidebar-nav-text">Publicar Servicio</span>
+				</a>
+			</nav>
+
+			<!-- Footer -->
+			<div class="user-sidebar-footer">
+				<button class="user-sidebar-logout" id="logout-btn">
+					<span>🚪</span>
+					<span>Cerrar Sesión</span>
+				</button>
+			</div>
+		</aside>
+
+		<!-- Main Content -->
+		<main class="user-main">
+			<!-- Top Bar -->
+			<div class="user-topbar">
+				<div class="user-topbar-left">
+					<button class="user-toggle-btn" id="sidebarToggle">
+						<span>☰</span>
+					</button>
+					<div>
+						<div class="user-topbar-title">Mi Billetera</div>
+						<div class="user-topbar-breadcrumb">
+							<a href="dashboard.html">Inicio</a>
+							<span>›</span>
+							<span>Billetera</span>
+						</div>
+					</div>
+				</div>
+				<div class="user-topbar-right">
+					<div class="user-topbar-search">
+						<span class="user-topbar-search-icon">🔍</span>
+						<input type="text" placeholder="Buscar transacciones...">
+					</div>
+					<button class="user-topbar-notifications">
+						<span>🔔</span>
+						<span class="user-topbar-notifications-badge">5</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Content -->
+			<div class="user-content animate-fadeIn">
+				<!-- Page Header -->
+				<div class="user-page-header">
+					<h1 class="user-page-title">💰 Gestiona tus Quetzales</h1>
+					<p class="user-page-subtitle">Administra tu balance, compra fondos y revisa tus transacciones</p>
+				</div>
+
+				<!-- Balance Card -->
+				<div class="card card-gradient mb-4">
+					<div class="card-body">
+						<div class="d-flex justify-between align-center">
+							<div>
+								<p class="text-sm text-muted mb-1">Balance Disponible</p>
+								<h2 class="balance-amount" id="balance">
+									<span class="spinner animate-pulse"></span> Cargando...
+								</h2>
+								<p class="text-xs text-muted mt-1" id="balance-cop">≈ $0 COP</p>
+							</div>
+							<div class="balance-icon">
+								<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<circle cx="12" cy="12" r="10"></circle>
+									<path d="M12 6v12M9 9l3-3 3 3"></path>
+								</svg>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Actions Grid -->
+				<div class="grid grid-2 gap-4 mb-4">
+					<!-- Comprar Quetzales Card -->
+					<div class="card">
+						<div class="card-header">
+							<h3 class="card-title">💳 Comprar Quetzales</h3>
+							<p class="text-sm text-muted">Añade fondos a tu cartera</p>
+						</div>
+						<div class="card-body">
+							<form id="purchase-form">
+								<div class="form-group">
+									<label for="q-amount" class="form-label">Cantidad (Quetzales)</label>
+									<div class="input-with-icon">
+										<span class="input-icon">Q</span>
+										<input 
+											type="number" 
+											id="q-amount" 
+											name="amount" 
+											class="form-control" 
+											min="1" 
+											step="0.01" 
+											placeholder="0.00"
+											required 
+										/>
+									</div>
+									<small class="text-muted" id="purchase-cop-preview">1 Quetzal = 10,000 COP</small>
+								</div>
+								<button type="submit" class="btn btn-primary btn-block">
+									<span class="btn-icon">💳</span>
+									Comprar Ahora
+								</button>
+							</form>
+							<div id="purchase-result" class="mt-3"></div>
+						</div>
+					</div>
+
+					<!-- Retirar Fondos Card -->
+					<div class="card">
+						<div class="card-header">
+							<h3 class="card-title">🏦 Retirar Fondos</h3>
+							<p class="text-sm text-muted">Solicita un retiro a tu cuenta bancaria</p>
+						</div>
+						<div class="card-body">
+							<form id="withdraw-form">
+								<div class="form-group">
+									<label for="w-amount" class="form-label">Cantidad (Quetzales)</label>
+									<div class="input-with-icon">
+										<span class="input-icon">Q</span>
+										<input 
+											type="number" 
+											id="w-amount" 
+											name="amount" 
+											class="form-control" 
+											min="1" 
+											step="0.01" 
+											placeholder="0.00"
+											required 
+										/>
+									</div>
+									<small class="text-muted" id="withdraw-cop-preview">≈ $0 COP</small>
+								</div>
+								<div class="form-group">
+									<label for="bank-details" class="form-label">Datos Bancarios</label>
+									<input 
+										type="text" 
+										id="bank-details" 
+										name="bankDetails" 
+										class="form-control" 
+										placeholder="Ej: Bancolombia - 123456789 - Ahorros" 
+										required 
+									/>
+								</div>
+								<button type="submit" class="btn btn-secondary btn-block">
+									<span class="btn-icon">🏦</span>
+									Solicitar Retiro
+								</button>
+							</form>
+							<div id="withdraw-result" class="mt-3"></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Transacciones Card -->
+				<div class="card">
+					<div class="card-header">
+						<h3 class="card-title">📊 Transacciones Recientes</h3>
+						<p class="text-sm text-muted">Historial de movimientos en tu cartera</p>
+					</div>
+					<div class="card-body">
+						<div id="transactions-list" class="transactions-container animate-fadeIn">
+							<div class="text-center py-4">
+								<span class="spinner animate-pulse"></span>
+								<p class="text-muted mt-2">Cargando transacciones...</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<!-- Overlay para móviles -->
+	<div class="user-sidebar-overlay" id="sidebarOverlay"></div>
+
+	<script src="../public/js/utils.js"></script>
+	<script src="../public/js/user-sidebar.js"></script>
+	<script type="module" src="../public/js/wallet.js"></script>
+	<script src="../public/js/app.js"></script>
+</body>
+</html>
