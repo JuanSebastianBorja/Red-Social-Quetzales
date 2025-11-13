@@ -227,7 +227,7 @@ async function testAllControllers() {
     });
     console.log('✅ Servicio con relaciones:', serviceWithRelations.toJSON());
 
-    console.log('🎉 ¡Todos los modelos están funcionando correctamente!');
+    console.log('🎉 ¡Todos los controllers están funcionando correctamente!');
   } catch (error) {
     console.error('❌ Error en la prueba:', error.message);
     console.error('Campo inválido:', error.errors?.[0]?.path);
