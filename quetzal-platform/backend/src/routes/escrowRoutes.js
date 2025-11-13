@@ -1,42 +1,143 @@
 // ============================================
-// ESCROW ROUTES - Rutas de custodia de pagos
+// ESCROW ROUTES - Rutas de Cuentas en Garantía (Escrow)
 // ============================================
 
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth'); // Middleware para proteger rutas
+const { body, param, query } = require('express-validator');
+const { 
+  getEscrows,
+  getEscrowById,
+  createEscrow,
+  updateEscrow,
+  deleteEscrow,
+  getEscrowsByService,
+  getEscrowsByUser
+} = require('../controllers/escrowController');
 
-// GET /api/escrow - Obtener mis custodias
-router.get('/', (req, res) => {
-    res.json({ 
-        message: 'Obtener custodias del usuario',
-        status: 'en desarrollo'
-    });
-});
+// ============================================
+// VALIDACIONES
+// ============================================
 
-// POST /api/escrow - Crear nueva custodia
-router.post('/', (req, res) => {
-    res.json({ 
-        message: 'Crear nueva custodia',
-        body: req.body,
-        status: 'en desarrollo'
-    });
-});
+const validateEscrow = [
+  body('serviceId')
+    .isUUID(4)
+    .withMessage('El ID del servicio debe ser un UUID válido'),
+  body('buyerId')
+    .isUUID(4)
+    .withMessage('El ID del comprador debe ser un UUID válido'),
+  body('sellerId')
+    .isUUID(4)
+    .withMessage('El ID del vendedor debe ser un UUID válido'),
+  body('amount')
+    .isDecimal({ decimal_digits: '2' })
+    .withMessage('El monto debe ser un número decimal válido'),
+  body('status')
+    .optional()
+    .isIn(['pending', 'funded', 'released', 'refunded', 'disputed'])
+    .withMessage('Estado inválido')
+];
 
-// PUT /api/escrow/:id/release - Liberar fondos
-router.put('/:id/release', (req, res) => {
-    res.json({ 
-        message: `Liberar fondos de custodia ${req.params.id}`,
-        status: 'en desarrollo'
-    });
-});
+const validateEscrowId = [
+  param('id')
+    .isUUID(4)
+    .withMessage('ID de escrow inválido')
+];
 
-// PUT /api/escrow/:id/dispute - Disputar custodia
-router.put('/:id/dispute', (req, res) => {
-    res.json({ 
-        message: `Disputar custodia ${req.params.id}`,
-        body: req.body,
-        status: 'en desarrollo'
-    });
-});
+const validateUserId = [
+  param('userId')
+    .isUUID(4)
+    .withMessage('ID de usuario inválido')
+];
+
+const validateServiceId = [
+  param('serviceId')
+    .isUUID(4)
+    .withMessage('ID de servicio inválido')
+];
+
+const validateEscrowFilters = [
+  query('status')
+    .optional()
+    .isIn(['pending', 'funded', 'released', 'refunded', 'disputed'])
+    .withMessage('Estado inválido'),
+  query('page')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Número de página inválido'),
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('Límite de resultados inválido')
+];
+
+// ============================================
+// RUTAS PROTEGIDAS (requieren autenticación)
+// ============================================
+
+// GET /api/escrow - Obtener todas las cuentas de garantía
+router.get('/', auth, validateEscrowFilters, getEscrows);
+
+// GET /api/escrow/:id - Obtener una cuenta de garantía por ID
+router.get('/:id', auth, validateEscrowId, getEscrowById);
+
+// POST /api/escrow - Crear una nueva cuenta de garantía
+router.post('/', auth, validateEscrow, createEscrow);
+
+// PUT /api/escrow/:id - Actualizar una cuenta de garantía
+router.put('/:id', auth, validateEscrowId, validateEscrow, updateEscrow);
+
+// DELETE /api/escrow/:id - Eliminar una cuenta de garantía
+router.delete('/:id', auth, validateEscrowId, deleteEscrow);
+
+// GET /api/services/:serviceId/escrows - Obtener cuentas de garantía de un servicio
+router.get('/services/:serviceId/escrows', auth, validateServiceId, getEscrowsByService);
+
+// GET /api/users/:userId/escrows - Obtener cuentas de garantía de un usuario
+router.get('/users/:userId/escrows', auth, validateUserId, getEscrowsByUser);
+
+// ============================================
+// EXPLICACIÓN DE LAS RUTAS:
+// ============================================
+
+/*
+
+📌 ¿QUÉ HACE CADA RUTA?
+
+1. GET /api/escrow
+- Retorna todas las cuentas de garantía con filtros opcionales
+- Parámetros: page, limit, status, serviceId, buyerId, sellerId
+- Uso: Ver todas las cuentas de garantía en el panel de administración
+
+2. GET /api/escrow/:id
+- Retorna una cuenta de garantía específica por ID
+- Uso: Ver detalles de una cuenta de garantía
+
+3. POST /api/escrow
+- Crea una nueva cuenta de garantía
+- Body: { serviceId, buyerId, sellerId, amount }
+- Uso: Crear una cuenta de garantía para un servicio
+
+4. PUT /api/escrow/:id
+- Actualiza una cuenta de garantía existente
+- Body: { status, disputeReason }
+- Uso: Actualizar estado o razón de disputa
+
+5. DELETE /api/escrow/:id
+- Elimina una cuenta de garantía (solo admins)
+- Uso: Eliminar cuentas de garantía inválidas
+
+6. GET /api/services/:serviceId/escrows
+- Retorna todas las cuentas de garantía de un servicio
+- Parámetros: page, limit, status
+- Uso: Ver garantías de un servicio específico
+
+7. GET /api/users/:userId/escrows
+- Retorna todas las garantías de un usuario (como comprador o vendedor)
+- Parámetros: page, limit, role, status
+- Uso: Ver garantías del usuario en su perfil
+
+*/
 
 module.exports = router;

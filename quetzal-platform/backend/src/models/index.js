@@ -108,6 +108,7 @@ ServiceReport.belongsTo(User, { foreignKey: 'reporterId', as: 'reporter', onDele
 ServiceReport.belongsTo(Service, { foreignKey: 'serviceId', as: 'reportedService', onDelete: 'CASCADE' });
 ServiceReport.belongsTo(AdminUser, { foreignKey: 'reviewedBy', as: 'reviewer', onDelete: 'SET NULL' });
 
+
 // ============================================
 // EXPLICACIÓN DE LAS RELACIONES:
 // ============================================

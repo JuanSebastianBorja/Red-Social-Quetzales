@@ -1,14 +1,14 @@
 // ============================================
-// ESCROW CONTROLLER - Controlador de Cuentas en Garantía (Escrow)
+// SERVICEREQUEST CONTROLLER - Controlador de Solicitudes de Servicio
 // ============================================
 
 const { validationResult } = require('express-validator');
-const { EscrowAccount, Service, User } = require('../models');
+const { ServiceRequest, Service, User } = require('../models');
 
-// @desc    Obtener todas las cuentas de garantía
-// @route   GET /api/escrow
+// @desc    Obtener todas las solicitudes de servicio
+// @route   GET /api/service-requests
 // @access  Private (solo admins o usuarios con permiso)
-exports.getEscrows = async (req, res, next) => {
+exports.getServiceRequests = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, status, serviceId, buyerId, sellerId } = req.query;
 
@@ -18,7 +18,7 @@ exports.getEscrows = async (req, res, next) => {
     if (buyerId) whereClause.buyer_id = buyerId;
     if (sellerId) whereClause.seller_id = sellerId;
 
-    const escrows = await EscrowAccount.findAndCountAll({
+    const requests = await ServiceRequest.findAndCountAll({
       where: whereClause,
       include: [
         {
@@ -51,9 +51,9 @@ exports.getEscrows = async (req, res, next) => {
 
     res.json({
       success: true,
-      count: escrows.count,
-      pages: Math.ceil(escrows.count / parseInt(limit)),
-       escrows: escrows.rows
+      count: requests.count,
+      pages: Math.ceil(requests.count / parseInt(limit)),
+       requests: requests.rows
     });
 
   } catch (error) {
@@ -61,14 +61,14 @@ exports.getEscrows = async (req, res, next) => {
   }
 };
 
-// @desc    Obtener una cuenta de garantía por ID
-// @route   GET /api/escrow/:id
-// @access  Private (solo admins o usuarios con permiso)
-exports.getEscrowById = async (req, res, next) => {
+// @desc    Obtener una solicitud de servicio por ID
+// @route   GET /api/service-requests/:id
+// @access  Private (solo admins o usuarios involucrados)
+exports.getServiceRequestById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const escrow = await EscrowAccount.findByPk(id, {
+    const request = await ServiceRequest.findByPk(id, {
       include: [
         {
           model: Service,
@@ -95,16 +95,16 @@ exports.getEscrowById = async (req, res, next) => {
       ]
     });
 
-    if (!escrow) {
+    if (!request) {
       return res.status(404).json({
         success: false,
-        message: 'Cuenta de garantía no encontrada.'
+        message: 'Solicitud de servicio no encontrada.'
       });
     }
 
     res.json({
       success: true,
-       escrow
+       request
     });
 
   } catch (error) {
@@ -112,10 +112,10 @@ exports.getEscrowById = async (req, res, next) => {
   }
 };
 
-// @desc    Crear una nueva cuenta de garantía
-// @route   POST /api/escrow
-// @access  Private (solo consumidores o usuarios con permiso)
-exports.createEscrow = async (req, res, next) => {
+// @desc    Crear una nueva solicitud de servicio
+// @route   POST /api/service-requests
+// @access  Private (solo consumidores)
+exports.createServiceRequest = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -125,7 +125,7 @@ exports.createEscrow = async (req, res, next) => {
       });
     }
 
-    const { serviceId, buyerId, sellerId, amount } = req.body;
+    const { serviceId, buyerId, sellerId, message, proposedPrice } = req.body;
 
     // Verificar que el servicio exista
     const service = await Service.findByPk(serviceId);
@@ -156,25 +156,26 @@ exports.createEscrow = async (req, res, next) => {
       });
     }
 
-    // Verificar que el monto coincida con el precio del servicio
-    if (parseFloat(amount) !== parseFloat(service.price)) {
+    // Verificar que el comprador no sea el mismo que el vendedor
+    if (buyerId === sellerId) {
       return res.status(400).json({
         success: false,
-        message: 'El monto no coincide con el precio del servicio.'
+        message: 'El comprador y el vendedor no pueden ser el mismo usuario.'
       });
     }
 
-    const escrow = await EscrowAccount.create({
+    const request = await ServiceRequest.create({
       serviceId,
       buyerId,
       sellerId,
-      amount
+      message,
+      proposedPrice
     });
 
     res.status(201).json({
       success: true,
-      message: 'Cuenta de garantía creada exitosamente.',
-       escrow
+      message: 'Solicitud de servicio creada exitosamente.',
+       request
     });
 
   } catch (error) {
@@ -182,10 +183,10 @@ exports.createEscrow = async (req, res, next) => {
   }
 };
 
-// @desc    Actualizar una cuenta de garantía
-// @route   PUT /api/escrow/:id
-// @access  Private (solo admins o usuarios con permiso)
-exports.updateEscrow = async (req, res, next) => {
+// @desc    Actualizar una solicitud de servicio
+// @route   PUT /api/service-requests/:id
+// @access  Private (solo admins o usuarios involucrados)
+exports.updateServiceRequest = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -196,22 +197,31 @@ exports.updateEscrow = async (req, res, next) => {
     }
 
     const { id } = req.params;
-    const { status, disputeReason } = req.body;
+    const { status, rejectionReason, proposedPrice, negotiatedPrice, termsAgreed } = req.body;
 
-    const escrow = await EscrowAccount.findByPk(id);
-    if (!escrow) {
+    const request = await ServiceRequest.findByPk(id);
+    if (!request) {
       return res.status(404).json({
         success: false,
-        message: 'Cuenta de garantía no encontrada.'
+        message: 'Solicitud de servicio no encontrada.'
       });
     }
 
-    await escrow.update({ status, disputeReason });
+    // Verificar si el estado es válido
+    const validStatuses = ['pending', 'accepted', 'rejected', 'completed', 'cancelled', 'negotiating'];
+    if (status && !validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Estado inválido.'
+      });
+    }
+
+    await request.update({ status, rejectionReason, proposedPrice, negotiatedPrice, termsAgreed });
 
     res.json({
       success: true,
-      message: 'Cuenta de garantía actualizada exitosamente.',
-       escrow
+      message: 'Solicitud de servicio actualizada exitosamente.',
+       request
     });
 
   } catch (error) {
@@ -219,26 +229,26 @@ exports.updateEscrow = async (req, res, next) => {
   }
 };
 
-// @desc    Eliminar una cuenta de garantía
-// @route   DELETE /api/escrow/:id
-// @access  Private (solo admins)
-exports.deleteEscrow = async (req, res, next) => {
+// @desc    Eliminar una solicitud de servicio
+// @route   DELETE /api/service-requests/:id
+// @access  Private (solo admins o usuarios involucrados)
+exports.deleteServiceRequest = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const escrow = await EscrowAccount.findByPk(id);
-    if (!escrow) {
+    const request = await ServiceRequest.findByPk(id);
+    if (!request) {
       return res.status(404).json({
         success: false,
-        message: 'Cuenta de garantía no encontrada.'
+        message: 'Solicitud de servicio no encontrada.'
       });
     }
 
-    await escrow.destroy();
+    await request.destroy();
 
     res.json({
       success: true,
-      message: 'Cuenta de garantía eliminada exitosamente.'
+      message: 'Solicitud de servicio eliminada exitosamente.'
     });
 
   } catch (error) {
@@ -246,10 +256,10 @@ exports.deleteEscrow = async (req, res, next) => {
   }
 };
 
-// @desc    Obtener cuentas de garantía de un servicio
-// @route   GET /api/services/:serviceId/escrows
+// @desc    Obtener solicitudes de un servicio
+// @route   GET /api/services/:serviceId/requests
 // @access  Private (solo proveedor del servicio o admins)
-exports.getEscrowsByService = async (req, res, next) => {
+exports.getServiceRequestsByService = async (req, res, next) => {
   try {
     const { serviceId } = req.params;
     const { page = 1, limit = 10, status } = req.query;
@@ -257,7 +267,7 @@ exports.getEscrowsByService = async (req, res, next) => {
     const whereClause = { serviceId };
     if (status) whereClause.status = status;
 
-    const escrows = await EscrowAccount.findAndCountAll({
+    const requests = await ServiceRequest.findAndCountAll({
       where: whereClause,
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
@@ -266,9 +276,9 @@ exports.getEscrowsByService = async (req, res, next) => {
 
     res.json({
       success: true,
-      count: escrows.count,
-      pages: Math.ceil(escrows.count / parseInt(limit)),
-       escrows: escrows.rows
+      count: requests.count,
+      pages: Math.ceil(requests.count / parseInt(limit)),
+       requests: requests.rows
     });
 
   } catch (error) {
@@ -276,10 +286,10 @@ exports.getEscrowsByService = async (req, res, next) => {
   }
 };
 
-// @desc    Obtener cuentas de garantía de un usuario (como comprador o vendedor)
-// @route   GET /api/users/:userId/escrows
+// @desc    Obtener solicitudes de un usuario (como comprador o vendedor)
+// @route   GET /api/users/:userId/requests
 // @access  Private (solo dueño del usuario o admins)
-exports.getEscrowsByUser = async (req, res, next) => {
+exports.getServiceRequestsByUser = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const { page = 1, limit = 10, role, status } = req.query;
@@ -291,7 +301,7 @@ exports.getEscrowsByUser = async (req, res, next) => {
 
     if (status) whereClause.status = status;
 
-    const escrows = await EscrowAccount.findAndCountAll({
+    const requests = await ServiceRequest.findAndCountAll({
       where: whereClause,
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
@@ -300,9 +310,9 @@ exports.getEscrowsByUser = async (req, res, next) => {
 
     res.json({
       success: true,
-      count: escrows.count,
-      pages: Math.ceil(escrows.count / parseInt(limit)),
-       escrows: escrows.rows
+      count: requests.count,
+      pages: Math.ceil(requests.count / parseInt(limit)),
+       requests: requests.rows
     });
 
   } catch (error) {
@@ -310,4 +320,4 @@ exports.getEscrowsByUser = async (req, res, next) => {
   }
 };
 
-module.exports = EscrowAccount;
+module.exports = ServiceRequest;
