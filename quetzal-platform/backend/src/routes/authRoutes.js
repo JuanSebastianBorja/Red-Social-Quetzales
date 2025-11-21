@@ -12,7 +12,7 @@
     forgotPassword,
     resetPassword
     } = require('../controllers/authController');
-    const { protect } = require('../middleware/authMiddleware');
+    const { protect } = require('../middleware/auth');
 
     const router = express.Router();
 

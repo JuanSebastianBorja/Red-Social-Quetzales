@@ -73,11 +73,12 @@ const API = {
   async deleteService(id) { return request(`/services/${id}`, { method: 'DELETE' }); },
   async getMyServices() { return request('/services/my-services'); },
 
-  // Wallet & PSE
+  // Wallet & PSE & ePayco
   async getWalletSummary() { return request('/wallet/summary'); },
   async getTransactions(params = {}) { const q = new URLSearchParams(params).toString(); return request(`/wallet/summary?${q}`); },
   async getPseBanks() { return request('/wallet/pse/banks'); },
   async initPsePayment(data) { return request('/wallet/pse/init', { method: 'POST', body: data }); },
+  async initEpaycoPayment(data) { return request('/wallet/epayco/init', { method: 'POST', body: data }); },
   async getPseStatus(reference) { return request(`/wallet/pse/status/${reference}`); },
   async processPseCallback(callbackData) { return request('/wallet/pse/callback', { method: 'POST', body: callbackData }); },
 

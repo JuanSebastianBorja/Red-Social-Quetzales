@@ -1,282 +1,234 @@
 // ============================================
-// TRANSACTION CONTROLLER - Controlador de Transacciones
+// TRANSACTION CONTROLLER - Actualizado PSE + DB real
 // ============================================
 
-const { validationResult } = require('express-validator');
-const { Transaction, Wallet, User } = require('../models');
+const { Op } = require("sequelize");
+const { validationResult } = require("express-validator");
+const { Transaction, Wallet, User } = require("../models");
 
-// @desc    Obtener todas las transacciones
-// @route   GET /api/transactions
-// @access  Private (solo admins o usuarios con permiso)
+// ======================================================
+// GET /api/transactions
+// Filtros de administrador
+// ======================================================
 exports.getTransactions = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, type, status, startDate, endDate, walletId } = req.query;
+    const {
+      page = 1,
+      limit = 20,
+      type,
+      status,
+      paymentMethod,
+      userId,
+      walletId,
+      startDate,
+      endDate,
+      reference,
+    } = req.query;
 
-    const whereClause = {};
-    if (type) whereClause.type = type;
-    if (status) whereClause.status = status;
-    if (startDate) whereClause.created_at = { [require('sequelize').Op.gte]: startDate };
-    if (endDate) whereClause.created_at = { ...whereClause.created_at, [require('sequelize').Op.lte]: endDate };
-    if (walletId) whereClause.wallet_id = walletId;
+    const where = {};
 
-    const transactions = await Transaction.findAndCountAll({
-      where: whereClause,
-      include: [
-        {
-          model: Wallet,
-          as: 'wallet',
-          attributes: ['id', 'balance', 'currency'],
-          include: [
-            {
-              model: User,
-              as: 'user',
-              attributes: ['id', 'fullName', 'email']
-            }
-          ]
-        }
-      ],
-      order: [['createdAt', 'DESC']],
-      limit: parseInt(limit),
-      offset: (parseInt(page) - 1) * parseInt(limit)
-    });
+    if (type) where.type = type;
+    if (status) where.status = status;
+    if (paymentMethod) where.paymentMethod = paymentMethod;
+    if (walletId) where.walletId = walletId;
+    if (userId) where.userId = userId;
+    if (reference) where.paymentReference = reference;
 
-    res.json({
-      success: true,
-      count: transactions.count,
-      pages: Math.ceil(transactions.count / parseInt(limit)),
-       transactions: transactions.rows
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Obtener una transacción por ID
-// @route   GET /api/transactions/:id
-// @access  Private (solo admins o usuarios con permiso)
-exports.getTransactionById = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const transaction = await Transaction.findByPk(id, {
-      include: [
-        {
-          model: Wallet,
-          as: 'wallet',
-          attributes: ['id', 'balance', 'currency'],
-          include: [
-            {
-              model: User,
-              as: 'user',
-              attributes: ['id', 'fullName', 'email']
-            }
-          ]
-        }
-      ]
-    });
-
-    if (!transaction) {
-      return res.status(404).json({
-        success: false,
-        message: 'Transacción no encontrada.'
-      });
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt[Op.gte] = new Date(startDate);
+      if (endDate) where.createdAt[Op.lte] = new Date(endDate);
     }
 
-    res.json({
-      success: true,
-       transaction
+    const tx = await Transaction.findAndCountAll({
+      where,
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "fullName", "email"],
+        },
+        {
+          model: Wallet,
+          as: "wallet",
+          attributes: ["id", "balance", "currency"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+      limit: parseInt(limit),
+      offset: (page - 1) * limit,
     });
 
+    res.json({
+      success: true,
+      count: tx.count,
+      pages: Math.ceil(tx.count / limit),
+      transactions: tx.rows,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Crear una nueva transacción
-// @route   POST /api/transactions
-// @access  Private (solo admins o usuarios con permiso)
+// ======================================================
+// GET /api/transactions/:id
+// ======================================================
+exports.getTransactionById = async (req, res, next) => {
+  try {
+    const tx = await Transaction.findByPk(req.params.id, {
+      include: [
+        { model: User, as: "user", attributes: ["id", "fullName", "email"] },
+        { model: Wallet, as: "wallet", attributes: ["id", "balance"] },
+      ],
+    });
+
+    if (!tx) {
+      return res.status(404).json({ success: false, message: "Transacción no encontrada" });
+    }
+
+    res.json({ success: true, transaction: tx });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ======================================================
+// POST /api/transactions
+// Creación manual (solo admins)
+// ======================================================
 exports.createTransaction = async (req, res, next) => {
   try {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        errors: errors.array()
-      });
-    }
+    if (!errors.isEmpty())
+      return res.status(400).json({ success: false, errors: errors.array() });
 
-    const { walletId, type, amount, description, referenceId, status } = req.body;
-
-    // Verificar que la wallet exista
-    const wallet = await Wallet.findByPk(walletId);
-    if (!wallet) {
-      return res.status(404).json({
-        success: false,
-        message: 'Wallet no encontrada.'
-      });
-    }
-
-    const transaction = await Transaction.create({
+    const {
+      userId,
       walletId,
       type,
       amount,
       description,
+      paymentMethod,
+      status,
       referenceId,
-      status
-    });
+    } = req.body;
 
-    // Actualizar balance de la wallet si la transacción es exitosa
-    if (status === 'completed') {
-      let newBalance = wallet.balance;
-      if (type === 'deposit' || type === 'transfer_in') {
-        newBalance = parseFloat(newBalance) + parseFloat(amount);
-      } else if (type === 'withdrawal' || type === 'transfer_out' || type === 'payment' || type === 'refund') {
-        newBalance = parseFloat(newBalance) - parseFloat(amount);
-      }
-
-      if (newBalance < 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'Saldo insuficiente para completar la transacción.'
-        });
-      }
-
-      await wallet.update({ balance: newBalance });
+    const wallet = await Wallet.findByPk(walletId);
+    if (!wallet) {
+      return res.status(404).json({ success: false, message: "Wallet no encontrada" });
     }
 
-    res.status(201).json({
-      success: true,
-      message: 'Transacción creada exitosamente.',
-       transaction
+    const tx = await Transaction.create({
+      userId,
+      walletId,
+      type,
+      amount,
+      description,
+      paymentMethod: paymentMethod || "wallet",
+      referenceId,
+      status: status || "completed",
     });
 
+    // Ajustar balance si completed
+    if (tx.status === "completed") {
+      let balance = parseFloat(wallet.balance);
+
+      if (["deposit", "topup", "transfer_in"].includes(type)) {
+        balance += parseFloat(amount);
+      }
+
+      if (["withdraw", "transfer", "payment", "purchase"].includes(type)) {
+        if (balance < amount) {
+          return res.status(400).json({ success: false, message: "Saldo insuficiente" });
+        }
+        balance -= amount;
+      }
+
+      await wallet.update({ balance });
+    }
+
+    res.status(201).json({ success: true, transaction: tx });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Actualizar una transacción
-// @route   PUT /api/transactions/:id
-// @access  Private (solo admins)
+// ======================================================
+// PUT /api/transactions/:id
+// Actualización manual (admins)
+// ======================================================
 exports.updateTransaction = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        errors: errors.array()
-      });
-    }
+    const tx = await Transaction.findByPk(req.params.id);
+    if (!tx)
+      return res.status(404).json({ success: false, message: "Transacción no encontrada" });
 
-    const { id } = req.params;
-    const { type, amount, description, referenceId, status } = req.body;
+    await tx.update(req.body);
 
-    const transaction = await Transaction.findByPk(id);
-    if (!transaction) {
-      return res.status(404).json({
-        success: false,
-        message: 'Transacción no encontrada.'
-      });
-    }
-
-    await transaction.update({ type, amount, description, referenceId, status });
-
-    res.json({
-      success: true,
-      message: 'Transacción actualizada exitosamente.',
-       transaction
-    });
-
+    res.json({ success: true, transaction: tx });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Eliminar una transacción
-// @route   DELETE /api/transactions/:id
-// @access  Private (solo admins)
+// ======================================================
+// DELETE /api/transactions/:id
+// ======================================================
 exports.deleteTransaction = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const tx = await Transaction.findByPk(req.params.id);
+    if (!tx)
+      return res.status(404).json({ success: false, message: "Transacción no encontrada" });
 
-    const transaction = await Transaction.findByPk(id);
-    if (!transaction) {
-      return res.status(404).json({
-        success: false,
-        message: 'Transacción no encontrada.'
-      });
-    }
+    await tx.destroy();
 
-    await transaction.destroy();
-
-    res.json({
-      success: true,
-      message: 'Transacción eliminada exitosamente.'
-    });
-
+    res.json({ success: true, message: "Transacción eliminada" });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Obtener transacciones de una wallet específica
-// @route   GET /api/wallets/:walletId/transactions
-// @access  Private (solo dueño de la wallet o admins)
+// ======================================================
+// GET /api/wallets/:walletId/transactions
+// ======================================================
 exports.getTransactionsByWallet = async (req, res, next) => {
   try {
-    const { walletId } = req.params;
     const { page = 1, limit = 20, type, status } = req.query;
+    const where = { walletId: req.params.walletId };
 
-    const whereClause = { walletId };
-    if (type) whereClause.type = type;
-    if (status) whereClause.status = status;
+    if (type) where.type = type;
+    if (status) where.status = status;
 
-    const transactions = await Transaction.findAndCountAll({
-      where: whereClause,
-      order: [['createdAt', 'DESC']],
+    const tx = await Transaction.findAndCountAll({
+      where,
+      order: [["createdAt", "DESC"]],
       limit: parseInt(limit),
-      offset: (parseInt(page) - 1) * parseInt(limit)
+      offset: (page - 1) * limit,
     });
 
     res.json({
       success: true,
-      count: transactions.count,
-      pages: Math.ceil(transactions.count / parseInt(limit)),
-       transactions: transactions.rows
+      count: tx.count,
+      pages: Math.ceil(tx.count / limit),
+      transactions: tx.rows,
     });
-
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Obtener balance actual de una wallet
-// @route   GET /api/wallets/:walletId/balance
-// @access  Private (solo dueño de la wallet o admins)
+// ======================================================
+// GET /api/wallets/:walletId/balance
+// ======================================================
 exports.getWalletBalance = async (req, res, next) => {
   try {
-    const { walletId } = req.params;
+    const wallet = await Wallet.findByPk(req.params.walletId);
 
-    const wallet = await Wallet.findByPk(walletId, {
-      attributes: ['id', 'balance', 'currency', 'createdAt', 'updatedAt']
-    });
+    if (!wallet)
+      return res.status(404).json({ success: false, message: "Wallet no encontrada" });
 
-    if (!wallet) {
-      return res.status(404).json({
-        success: false,
-        message: 'Wallet no encontrada.'
-      });
-    }
-
-    res.json({
-      success: true,
-       wallet
-    });
-
+    res.json({ success: true, wallet });
   } catch (error) {
     next(error);
   }
 };
-
-module.exports = Transaction;

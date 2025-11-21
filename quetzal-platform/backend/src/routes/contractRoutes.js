@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const contractController = require('../controllers/contractController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/auth');
 
 // Aplicar autenticación a todas las rutas
 router.use(protect);

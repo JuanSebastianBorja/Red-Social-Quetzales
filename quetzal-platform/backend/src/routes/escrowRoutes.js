@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth'); // Middleware para proteger rutas
+const { protect } = require('../middleware/auth'); // Middleware para proteger rutas
 const { body, param, query } = require('express-validator');
 const { 
   getEscrows,
@@ -77,25 +77,25 @@ const validateEscrowFilters = [
 // ============================================
 
 // GET /api/escrow - Obtener todas las cuentas de garantía
-router.get('/', auth, validateEscrowFilters, getEscrows);
+router.get('/', protect, validateEscrowFilters, getEscrows); // <-- Cambiado 'auth' por 'protect'
 
 // GET /api/escrow/:id - Obtener una cuenta de garantía por ID
-router.get('/:id', auth, validateEscrowId, getEscrowById);
+router.get('/:id', protect, validateEscrowId, getEscrowById); // <-- Cambiado 'auth' por 'protect'
 
 // POST /api/escrow - Crear una nueva cuenta de garantía
-router.post('/', auth, validateEscrow, createEscrow);
+router.post('/', protect, validateEscrow, createEscrow); // <-- Cambiado 'auth' por 'protect'
 
 // PUT /api/escrow/:id - Actualizar una cuenta de garantía
-router.put('/:id', auth, validateEscrowId, validateEscrow, updateEscrow);
+router.put('/:id', protect, validateEscrowId, validateEscrow, updateEscrow); // <-- Cambiado 'auth' por 'protect'
 
 // DELETE /api/escrow/:id - Eliminar una cuenta de garantía
-router.delete('/:id', auth, validateEscrowId, deleteEscrow);
+router.delete('/:id', protect, validateEscrowId, deleteEscrow); // <-- Cambiado 'auth' por 'protect'
 
 // GET /api/services/:serviceId/escrows - Obtener cuentas de garantía de un servicio
-router.get('/services/:serviceId/escrows', auth, validateServiceId, getEscrowsByService);
+router.get('/services/:serviceId/escrows', protect, validateServiceId, getEscrowsByService); // <-- Cambiado 'auth' por 'protect'
 
 // GET /api/users/:userId/escrows - Obtener cuentas de garantía de un usuario
-router.get('/users/:userId/escrows', auth, validateUserId, getEscrowsByUser);
+router.get('/users/:userId/escrows', protect, validateUserId, getEscrowsByUser); // <-- Cambiado 'auth' por 'protect'
 
 // ============================================
 // EXPLICACIÓN DE LAS RUTAS:

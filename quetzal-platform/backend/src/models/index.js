@@ -38,6 +38,8 @@ Service.belongsTo(User, {
     foreignKey: 'userId',
     as: 'provider'  // Lo llamamos "provider" para que sea más claro
 });
+User.hasMany(Transaction, { foreignKey: 'user_id', as: 'userTransactions', onDelete: 'CASCADE' });
+Transaction.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 // Service
 Service.hasMany(Rating, { foreignKey: 'service_id', as: 'ratings', onDelete: 'CASCADE' });
@@ -53,7 +55,7 @@ ServiceRequest.belongsTo(User, { foreignKey: 'sellerId', as: 'seller', onDelete:
 // Wallet
 User.hasOne(Wallet, { foreignKey: 'user_id', as: 'wallet', onDelete: 'CASCADE' });
 Wallet.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-Wallet.hasMany(Transaction, { foreignKey: 'wallet_id', as: 'transactions', onDelete: 'RESTRICT' });
+Wallet.hasMany(Transaction, { foreignKey: 'wallet_id', as: 'transactions', onDelete: 'SET NULL' });
 Transaction.belongsTo(Wallet, { foreignKey: 'wallet_id', as: 'wallet' });
 
 // UserReport

@@ -161,9 +161,36 @@
 									</div>
 									<small class="text-muted" id="purchase-cop-preview">1 Quetzal = 10,000 COP</small>
 								</div>
+
+								<!-- Selección de Método de Pago -->
+								<div class="form-group mb-3">
+									<label class="form-label">Método de Pago</label>
+									<div class="form-check">
+										<input class="form-check-input" type="radio" name="payment-method" id="pse-method" value="pse" checked>
+										<label class="form-check-label" for="pse-method">PSE</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="radio" name="payment-method" id="epayco-method" value="epayco">
+										<label class="form-check-label" for="epayco-method">ePayco (Tarjeta de Crédito/Débito)</label>
+									</div>
+								</div>
+
+								<!-- Campo de Email (oculto por defecto, se muestra si se elige ePayco) -->
+								<div id="epayco-email-group" class="form-group mb-3" style="display: none;">
+									<label for="epayco-email" class="form-label">Email para la factura</label>
+									<input 
+										type="email" 
+										id="epayco-email" 
+										name="email" 
+										class="form-control" 
+										placeholder="correo@ejemplo.com"
+										required 
+									/>
+								</div>
+
 								<button type="submit" class="btn btn-primary btn-block">
 									<span class="btn-icon">💳</span>
-									Comprar Ahora
+									Procesar Pago
 								</button>
 							</form>
 							<div id="purchase-result" class="mt-3"></div>
@@ -238,6 +265,7 @@
 	<!-- Overlay para móviles -->
 	<div class="user-sidebar-overlay" id="sidebarOverlay"></div>
 
+	<script src="https://checkout.epayco.co/checkout.js"></script>
 	<script src="../public/js/utils.js"></script>
 	<script src="../public/js/user-sidebar.js"></script>
 	<script type="module" src="../public/js/wallet.js"></script>
