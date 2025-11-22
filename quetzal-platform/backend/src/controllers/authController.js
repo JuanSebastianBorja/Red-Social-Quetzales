@@ -216,17 +216,17 @@
     };
 
     // @desc    Sincronizar usuario de Supabase con la base de datos local
-// @route   POST /api/auth/sync-with-supabase
-// @access  Public (pero se verifica el token de Supabase)
-exports.syncUserWithSupabase = async (req, res, next) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        errors: errors.array()
-      });
-    }
+    // @route   POST /api/auth/sync-with-supabase
+    // @access  Public (pero se verifica el token de Supabase)
+    exports.syncUserWithSupabase = async (req, res, next) => {
+        try {
+                const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                errors: errors.array()
+            });
+        }
 
     const { token } = req.body; // El access_token de Supabase recibido del frontend
 
@@ -239,15 +239,12 @@ exports.syncUserWithSupabase = async (req, res, next) => {
 
     // Verificar el token con el cliente de Supabase (esto lo puedes hacer en el controlador o en un servicio aparte)
     // Asegúrate de que tienes el cliente de Supabase inicializado en este archivo o importado desde otro lugar
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = new ePayco({ // Reutiliza la configuración de auth.js o crea un cliente aquí
-      apiKey: process.env.EPAYCO_PUBLIC_KEY, // Usar las mismas variables de entorno
-      privateKey: process.env.EPAYCO_PRIVATE_KEY,
-      lang: "ES",
-      test: process.env.EPAYCO_TEST === 'true' || process.env.EPAYCO_TEST === '1'
-    });
-    // NO, no uses ePayco SDK aquí. Usa el SDK de Supabase.
+    const { createClient } = require('@supabase/supabase-js'); 
+
+    // Crear cliente de Supabase
     const supabaseClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+
+    // Usar el cliente de Supabase para verificar el token
     const { data, error } = await supabaseClient.auth.getUser(token);
 
     if (error) {
@@ -258,7 +255,7 @@ exports.syncUserWithSupabase = async (req, res, next) => {
       });
     }
 
-    const supabaseUser = data.user;
+    const supabaseUser = data.user; // Información del usuario desde Supabase Auth
 
     // Buscar usuario en la base de datos local usando el ID de Supabase
     let localUser = await User.findByPk(supabaseUser.id);
@@ -268,15 +265,13 @@ exports.syncUserWithSupabase = async (req, res, next) => {
       console.log(`Usuario ${supabaseUser.email} no encontrado en DB local. Creando...`);
 
       // Extraer datos de Supabase para crear el usuario local
-      // Asumiendo que tu tabla 'users' puede aceptar estos campos o mapearlos desde user_metadata
       const userMetadata = supabaseUser.user_metadata || {};
       const appMetadata = supabaseUser.app_metadata || {};
 
       localUser = await User.create({
         id: supabaseUser.id, // Importante: Usar el ID de Supabase como ID local
         email: supabaseUser.email,
-        // La contraseña no se almacena aquí, ya que se autenticó con Supabase
-        // password: '', // No es ideal dejarla vacía si el modelo la requiere. Quizás un hash genérico o un campo opcional.
+        password: '$2a$10$SupabaseOnlyUserPlaceholderHash',
         fullName: userMetadata.full_name || supabaseUser.email.split('@')[0], // Usar metadata o derivar del email
         phone: userMetadata.phone || '',
         city: userMetadata.city || '',
