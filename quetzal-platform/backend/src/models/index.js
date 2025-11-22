@@ -3,7 +3,7 @@
 // ============================================
 
 const Sequelize = require("sequelize");
-const sequelize = require("../config/database"); 
+const sequelize = require("../config/database");
 const User = require('./User');
 const Service = require('./Service');
 const AdminRole = require('./AdminRole');
@@ -28,89 +28,255 @@ const UserSkill = require('./UserSkill');
 // RELACIONES (ASSOCIATIONS)
 // ============================================
 
-// Un Usuario puede tener MUCHOS Servicios
+// User -> Services
 User.hasMany(Service, {
     foreignKey: 'userId',
     as: 'services',
-    onDelete: 'CASCADE'  // Si se elimina el usuario, se eliminan sus servicios
+    onDelete: 'CASCADE'
 });
 
-// Un Servicio pertenece a UN Usuario
 Service.belongsTo(User, {
     foreignKey: 'userId',
-    as: 'provider'  // Lo llamamos "provider" para que sea más claro
+    as: 'provider'
 });
-User.hasMany(Transaction, { foreignKey: 'user_id', as: 'userTransactions', onDelete: 'CASCADE' });
-Transaction.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
-// Service
-Service.hasMany(Rating, { foreignKey: 'service_id', as: 'ratings', onDelete: 'CASCADE' });
-Service.hasMany(ServiceImage, { foreignKey: 'serviceId', as: 'images', onDelete: 'CASCADE' });
-ServiceImage.belongsTo(Service, { foreignKey: 'serviceId', as: 'imageService', onDelete: 'CASCADE' });
+// User -> Transactions
+User.hasMany(Transaction, {
+    foreignKey: 'userId',
+    as: 'userTransactions',
+    onDelete: 'CASCADE'
+});
 
+Transaction.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
+
+// Service -> Ratings
+Service.hasMany(Rating, {
+    foreignKey: 'serviceId',
+    as: 'ratings',
+    onDelete: 'CASCADE'
+});
+
+Rating.belongsTo(Service, {
+    foreignKey: 'serviceId',
+    as: 'ratingService'
+});
+
+Rating.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
+
+// Service -> Images
+Service.hasMany(ServiceImage, {
+    foreignKey: 'serviceId',
+    as: 'images',
+    onDelete: 'CASCADE'
+});
+
+ServiceImage.belongsTo(Service, {
+    foreignKey: 'serviceId',
+    as: 'imageService',
+    onDelete: 'CASCADE'
+});
 
 // ServiceRequest
-ServiceRequest.belongsTo(Service, { foreignKey: 'serviceId', as: 'requestService', onDelete: 'CASCADE' });
-ServiceRequest.belongsTo(User, { foreignKey: 'buyerId', as: 'buyer', onDelete: 'CASCADE' });
-ServiceRequest.belongsTo(User, { foreignKey: 'sellerId', as: 'seller', onDelete: 'CASCADE' });
+ServiceRequest.belongsTo(Service, {
+    foreignKey: 'serviceId',
+    as: 'requestService',
+    onDelete: 'CASCADE'
+});
+
+ServiceRequest.belongsTo(User, {
+    foreignKey: 'buyerId',
+    as: 'buyer',
+    onDelete: 'CASCADE'
+});
+
+ServiceRequest.belongsTo(User, {
+    foreignKey: 'sellerId',
+    as: 'seller',
+    onDelete: 'CASCADE'
+});
 
 // Wallet
-User.hasOne(Wallet, { foreignKey: 'user_id', as: 'wallet', onDelete: 'CASCADE' });
-Wallet.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-Wallet.hasMany(Transaction, { foreignKey: 'wallet_id', as: 'transactions', onDelete: 'SET NULL' });
-Transaction.belongsTo(Wallet, { foreignKey: 'wallet_id', as: 'wallet' });
+User.hasOne(Wallet, {
+    foreignKey: 'userId',
+    as: 'wallet',
+    onDelete: 'CASCADE'
+});
+
+Wallet.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
+
+Wallet.hasMany(Transaction, {
+    foreignKey: 'walletId',
+    as: 'transactions',
+    onDelete: 'SET NULL'
+});
+
+Transaction.belongsTo(Wallet, {
+    foreignKey: 'walletId',
+    as: 'wallet'
+});
 
 // UserReport
-User.hasMany(UserReport, { foreignKey: 'user_id', as: 'reports', onDelete: 'CASCADE' });
-UserReport.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasMany(UserReport, {
+    foreignKey: 'userId',
+    as: 'reports',
+    onDelete: 'CASCADE'
+});
+
+UserReport.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
 
 // UserSkill
-User.hasMany(UserSkill, { foreignKey: 'user_id', as: 'skills', onDelete: 'CASCADE' });
-UserSkill.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasMany(UserSkill, {
+    foreignKey: 'userId',
+    as: 'skills',
+    onDelete: 'CASCADE'
+});
+
+UserSkill.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
 
 // AdminRole
-AdminRole.hasMany(AdminUser, { foreignKey: 'role_id', as: 'users', onDelete: 'CASCADE' });
-AdminUser.belongsTo(AdminRole, { foreignKey: 'role_id', as: 'role' });
+AdminRole.hasMany(AdminUser, {
+    foreignKey: 'roleId',
+    as: 'users',
+    onDelete: 'CASCADE'
+});
+
+AdminUser.belongsTo(AdminRole, {
+    foreignKey: 'roleId',
+    as: 'role'
+});
 
 // Analytics
-Analytics.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Analytics.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
 
 // Conversation
-Conversation.belongsTo(User, { foreignKey: 'user1_id', as: 'user1', onDelete: 'CASCADE' });
-Conversation.belongsTo(User, { foreignKey: 'user2_id', as: 'user2', onDelete: 'CASCADE' });
-Conversation.belongsTo(Service, { foreignKey: 'service_id', as: 'conversationService', onDelete: 'SET NULL' });
-Conversation.hasMany(Message, { foreignKey: 'conversation_id', as: 'messages', onDelete: 'CASCADE' });
+Conversation.belongsTo(User, {
+    foreignKey: 'user1Id',
+    as: 'user1',
+    onDelete: 'CASCADE'
+});
+
+Conversation.belongsTo(User, {
+    foreignKey: 'user2Id',
+    as: 'user2',
+    onDelete: 'CASCADE'
+});
+
+Conversation.belongsTo(Service, {
+    foreignKey: 'serviceId',
+    as: 'conversationService',
+    onDelete: 'SET NULL'
+});
+
+Conversation.hasMany(Message, {
+    foreignKey: 'conversationId',
+    as: 'messages',
+    onDelete: 'CASCADE'
+});
 
 // Message
-Message.belongsTo(User, { foreignKey: 'sender_id', as: 'sender', onDelete: 'CASCADE' });
-Message.belongsTo(Conversation, { foreignKey: 'conversation_id', as: 'conversation', onDelete: 'CASCADE' });
+Message.belongsTo(User, {
+    foreignKey: 'senderId',
+    as: 'sender',
+    onDelete: 'CASCADE'
+});
+
+Message.belongsTo(Conversation, {
+    foreignKey: 'conversationId',
+    as: 'conversation',
+    onDelete: 'CASCADE'
+});
 
 // Dispute
-Dispute.belongsTo(EscrowAccount, { foreignKey: 'escrowId', as: 'escrow' });
-Dispute.belongsTo(User, { foreignKey: 'complainantId', as: 'complainant' });
-Dispute.belongsTo(User, { foreignKey: 'respondentId', as: 'respondent' });
-Dispute.belongsTo(AdminUser, { foreignKey: 'resolvedBy', as: 'resolvedByAdmin' });
+Dispute.belongsTo(EscrowAccount, {
+    foreignKey: 'escrowId',
+    as: 'escrow'
+});
+
+Dispute.belongsTo(User, {
+    foreignKey: 'complainantId',
+    as: 'complainant'
+});
+
+Dispute.belongsTo(User, {
+    foreignKey: 'respondentId',
+    as: 'respondent'
+});
+
+Dispute.belongsTo(AdminUser, {
+    foreignKey: 'resolvedBy',
+    as: 'resolvedByAdmin'
+});
 
 // EscrowAccount
-EscrowAccount.belongsTo(Service, { foreignKey: 'serviceId', as: 'escrowService' });
-EscrowAccount.belongsTo(User, { foreignKey: 'buyerId', as: 'buyer' });
-EscrowAccount.belongsTo(User, { foreignKey: 'sellerId', as: 'seller' });
+EscrowAccount.belongsTo(Service, {
+    foreignKey: 'serviceId',
+    as: 'escrowService'
+});
+
+EscrowAccount.belongsTo(User, {
+    foreignKey: 'buyerId',
+    as: 'buyer'
+});
+
+EscrowAccount.belongsTo(User, {
+    foreignKey: 'sellerId',
+    as: 'seller'
+});
 
 // Notification
-User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications', onDelete: 'CASCADE' });
-Notification.belongsTo(User, { foreignKey: 'userId', as: 'user', onDelete: 'CASCADE' });
+User.hasMany(Notification, {
+    foreignKey: 'userId',
+    as: 'notifications',
+    onDelete: 'CASCADE'
+});
+
+Notification.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
 
 // NotificationPreference
-NotificationPreference.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-
-// Rating
-Rating.belongsTo(Service, { foreignKey: 'serviceId', as: 'ratingService', onDelete: 'CASCADE' });
-Rating.belongsTo(User, { foreignKey: 'userId', as: 'user', onDelete: 'CASCADE' });
+NotificationPreference.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
 
 // ServiceReport
-ServiceReport.belongsTo(User, { foreignKey: 'reporterId', as: 'reporter', onDelete: 'CASCADE' });
-ServiceReport.belongsTo(Service, { foreignKey: 'serviceId', as: 'reportedService', onDelete: 'CASCADE' });
-ServiceReport.belongsTo(AdminUser, { foreignKey: 'reviewedBy', as: 'reviewer', onDelete: 'SET NULL' });
+ServiceReport.belongsTo(User, {
+    foreignKey: 'reporterId',
+    as: 'reporter',
+    onDelete: 'CASCADE'
+});
+
+ServiceReport.belongsTo(Service, {
+    foreignKey: 'serviceId',
+    as: 'reportedService',
+    onDelete: 'CASCADE'
+});
+
+ServiceReport.belongsTo(AdminUser, {
+    foreignKey: 'reviewedBy',
+    as: 'reviewer',
+    onDelete: 'SET NULL'
+});
 
 // ============================================
 // EXPLICACIÓN DE LAS RELACIONES:
@@ -196,11 +362,10 @@ const image = await ServiceImage.findByPk(imageId, {
 }
 
 */
-
 module.exports = {
     sequelize,
     Sequelize,
-    
+
     User,
     Service,
     AdminRole,
