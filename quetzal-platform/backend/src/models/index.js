@@ -4,6 +4,8 @@
 
 const Sequelize = require("sequelize");
 const sequelize = require("../config/database");
+
+// Modelos
 const User = require('./User');
 const Service = require('./Service');
 const AdminRole = require('./AdminRole');
@@ -23,6 +25,7 @@ const Wallet = require('./Wallet');
 const Transaction = require('./Transaction');
 const UserReport = require('./UserReport');
 const UserSkill = require('./UserSkill');
+const Contract = require('./Contract');
 
 // ============================================
 // RELACIONES (ASSOCIATIONS)
@@ -50,6 +53,29 @@ User.hasMany(Transaction, {
 Transaction.belongsTo(User, {
     foreignKey: 'userId',
     as: 'user'
+});
+
+// Wallet
+User.hasOne(Wallet, {
+    foreignKey: 'userId',
+    as: 'wallet',
+    onDelete: 'CASCADE'
+});
+
+Wallet.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
+
+Wallet.hasMany(Transaction, {
+    foreignKey: 'walletId',
+    as: 'transactions',
+    onDelete: 'SET NULL'
+});
+
+Transaction.belongsTo(Wallet, {
+    foreignKey: 'walletId',
+    as: 'wallet'
 });
 
 // Service -> Ratings
@@ -99,29 +125,6 @@ ServiceRequest.belongsTo(User, {
     foreignKey: 'sellerId',
     as: 'seller',
     onDelete: 'CASCADE'
-});
-
-// Wallet
-User.hasOne(Wallet, {
-    foreignKey: 'userId',
-    as: 'wallet',
-    onDelete: 'CASCADE'
-});
-
-Wallet.belongsTo(User, {
-    foreignKey: 'userId',
-    as: 'user'
-});
-
-Wallet.hasMany(Transaction, {
-    foreignKey: 'walletId',
-    as: 'transactions',
-    onDelete: 'SET NULL'
-});
-
-Transaction.belongsTo(Wallet, {
-    foreignKey: 'walletId',
-    as: 'wallet'
 });
 
 // UserReport
@@ -278,6 +281,70 @@ ServiceReport.belongsTo(AdminUser, {
     onDelete: 'SET NULL'
 });
 
+// -------------------------
+// CONTRACT - asociaciones
+// -------------------------
+
+// Un servicio puede tener muchos contratos
+Service.hasMany(Contract, {
+    foreignKey: 'serviceId',
+    as: 'contracts',
+    onDelete: 'CASCADE'
+});
+
+// Contrato pertenece a un servicio
+Contract.belongsTo(Service, {
+    foreignKey: 'serviceId',
+    as: 'service'
+});
+
+// Contrato -> Buyer y Seller (usuarios)
+Contract.belongsTo(User, {
+    foreignKey: 'buyerId',
+    as: 'buyer'
+});
+
+Contract.belongsTo(User, {
+    foreignKey: 'sellerId',
+    as: 'seller'
+});
+
+// Usuarios pueden tener muchos contratos como comprador o vendedor
+User.hasMany(Contract, {
+    foreignKey: 'buyerId',
+    as: 'purchases',
+    onDelete: 'CASCADE'
+});
+
+User.hasMany(Contract, {
+    foreignKey: 'sellerId',
+    as: 'sales',
+    onDelete: 'CASCADE'
+});
+
+// Contrato -> Escrow
+Contract.belongsTo(EscrowAccount, {
+    foreignKey: 'escrowId',
+    as: 'escrow'
+});
+
+EscrowAccount.hasOne(Contract, {
+    foreignKey: 'escrowId',
+    as: 'contract'
+});
+
+// Contrato -> Conversation (opcional)
+Contract.belongsTo(Conversation, {
+    foreignKey: 'conversationId',
+    as: 'conversation'
+});
+
+// Contrato -> Rating (opcional)
+Contract.belongsTo(Rating, {
+    foreignKey: 'ratingId',
+    as: 'rating'
+});
+
 // ============================================
 // EXPLICACIÓN DE LAS RELACIONES:
 // ============================================
@@ -384,5 +451,6 @@ module.exports = {
     Wallet,
     Transaction,
     UserReport,
-    UserSkill
+    UserSkill,
+    Contract
 };
