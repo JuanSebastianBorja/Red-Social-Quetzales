@@ -3,9 +3,11 @@
 // ============================================
 
 const crypto = require("crypto");
-const { Transaction, Wallet, sequelize} = require("../models");
+const { Transaction: SequelizeTransaction } = require("sequelize");
+const { Transaction, Wallet } = require("../models");
+const { sequelize } = require("../config/database");
 const { QZ_TO_COP, copToQZ } = require("../utils/currency");
-const ePayco = require('epayco-sdk-node'); // Importar el SDK
+const ePayco = require('epayco-sdk-node');
 
 // Inicializar el SDK con las credenciales desde las variables de entorno
 const epayco = new ePayco({
@@ -138,7 +140,7 @@ async function createEpaycoTransaction({ userId, amountCOP, email, ipAddress, us
       success: true,
       reference: transactionRecord.paymentReference, // Tu referencia interna
       amountCOP: parseFloat(amountCOP),
-      amountQZ: parseFloat(transactionRecord.amount.toFixed(2)),
+      amountQZ: parseFloat(parseFloat(transactionRecord.amount).toFixed(2)),
       // Datos específicos para que el frontend inicialice ePayco Onpage
       epaycoData: frontendCheckoutData, // <-- Envolver todos los datos de checkout aquí
     };
@@ -218,7 +220,7 @@ async function processEpaycoConfirmation(req) {
     return await sequelize.transaction(async (tx) => {
       const transactionRecord = await Transaction.findOne({
         where: { paymentReference: reference },
-        lock: tx.LOCK.UPDATE,
+        lock: SequelizeTransaction.LOCK.UPDATE,
         transaction: tx,
       });
 
@@ -240,7 +242,7 @@ async function processEpaycoConfirmation(req) {
       // Acreditar solo si está aprobado
       if (newStatus === "approved") {
         const wallet = await Wallet.findByPk(transactionRecord.walletId, {
-          lock: tx.LOCK.UPDATE,
+          lock: SequelizeTransaction.LOCK.UPDATE,
           transaction: tx,
         });
 

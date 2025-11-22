@@ -2,6 +2,8 @@
 // MODELS INDEX - Relaciones entre Modelos
 // ============================================
 
+const Sequelize = require("sequelize");
+const sequelize = require("../config/database"); 
 const User = require('./User');
 const Service = require('./Service');
 const AdminRole = require('./AdminRole');
@@ -196,6 +198,9 @@ const image = await ServiceImage.findByPk(imageId, {
 */
 
 module.exports = {
+    sequelize,
+    Sequelize,
+    
     User,
     Service,
     AdminRole,
