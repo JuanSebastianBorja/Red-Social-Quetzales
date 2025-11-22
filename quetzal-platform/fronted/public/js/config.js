@@ -9,7 +9,7 @@ const isProduction = window.location.hostname !== 'localhost' &&
 
 // API Base URL - En producción usa el mismo dominio (Vercel Serverless)
 const API_BASE_URL = isProduction 
-    ? `${window.location.origin}/api`  // Mismo dominio en producción
+    ? 'https://red-social-quetzales.onrender.com/api' // <-- URL EXPLÍCITA DEL BACKEND EN RENDER
     : 'http://localhost:3000/api';      // Localhost en desarrollo
 
 const config = {
