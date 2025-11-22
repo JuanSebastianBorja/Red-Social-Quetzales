@@ -357,4 +357,4 @@ exports.getRatingAverageByService = async (req, res, next) => {
   }
 };
 
-module.exports = Rating;
+//module.exports = Rating;

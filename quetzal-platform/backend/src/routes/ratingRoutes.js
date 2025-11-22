@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth'); // Middleware para proteger rutas
+const { protect } = require('../middleware/auth'); // Middleware para proteger rutas
 const { body, param, query } = require('express-validator');
 const { 
   getRatings,
@@ -83,19 +83,19 @@ const validateRatingFilters = [
 // ============================================
 
 // GET /api/ratings - Obtener todas las calificaciones
-router.get('/', auth, validateRatingFilters, getRatings);
+router.get('/', protect, validateRatingFilters, getRatings);
 
 // GET /api/ratings/:id - Obtener una calificación por ID
-router.get('/:id', auth, validateRatingId, getRatingById);
+router.get('/:id', protect, validateRatingId, getRatingById);
 
 // POST /api/ratings - Crear una nueva calificación
-router.post('/', auth, validateRating, createRating);
+router.post('/', protect, validateRating, createRating);
 
 // PUT /api/ratings/:id - Actualizar una calificación
-router.put('/:id', auth, validateRatingId, validateRating, updateRating);
+router.put('/:id', protect, validateRatingId, validateRating, updateRating);
 
 // DELETE /api/ratings/:id - Eliminar una calificación
-router.delete('/:id', auth, validateRatingId, deleteRating);
+router.delete('/:id', protect, validateRatingId, deleteRating);
 
 // ============================================
 // RUTAS PÚBLICAS (no requieren autenticación)

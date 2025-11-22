@@ -105,18 +105,81 @@ CREATE TABLE service_images (
 );
 
 -- ============================================
--- TABLA: TRANSACTIONS 
+-- TABLA: TRANSACTIONS (Actualizada con campos para PSE)
 -- ============================================
+DO $$ BEGIN
+    CREATE TYPE transaction_type AS ENUM (
+        -- 🔵 Tipos originales (escrow)
+        'purchase',
+        'transfer_in',
+        'transfer_out',
+        'withdrawal',
+        'payment',
+        'refund',
+        'deposit',
+
+        -- 🔵 Tipos nuevos para ePayco
+        'topup',
+        'transfer'
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+    CREATE TYPE payment_method AS ENUM (
+        'wallet',
+        'epayco',
+        'pse',
+        'credit_card',
+        'bank_transfer'
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+    CREATE TYPE transaction_status AS ENUM (
+        'pending',
+        'processing',
+        'approved',
+        'completed',
+        'failed',
+        'rejected',
+        'cancelled'
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
 CREATE TABLE transactions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE RESTRICT,
-    type VARCHAR(20) NOT NULL CHECK (type IN ('purchase', 'transfer_in', 'transfer_out', 'withdrawal', 'payment', 'refund', 'deposit')), -- +deposit
+
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    wallet_id UUID REFERENCES wallets(id) ON DELETE SET NULL,
+
+    type transaction_type NOT NULL,
+    payment_method payment_method NOT NULL DEFAULT 'wallet',
+    status transaction_status NOT NULL DEFAULT 'pending',
+
     amount DECIMAL(12, 2) NOT NULL,
+    amount_cop DECIMAL(12, 2),
+    amount_qz DECIMAL(12, 2),
+    exchange_rate DECIMAL(10, 2),
+
     description TEXT,
     reference_id UUID,
-    status VARCHAR(20) DEFAULT 'completed' CHECK (status IN ('pending', 'completed', 'failed', 'cancelled')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    -- 🔵 Campos nuevos ePayco
+    authorization_code VARCHAR(100),
+    payment_reference VARCHAR(100) UNIQUE,
+
+    error_message TEXT,
+    ip_address VARCHAR(50),
+    user_agent TEXT,
+
+    expires_at TIMESTAMP WITH TIME ZONE,
+    approved_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    metadata JSONB DEFAULT '{}'::jsonb
 );
+
 
 -- ============================================
 -- TABLA: ESCROW_ACCOUNTS 
@@ -329,9 +392,6 @@ CREATE INDEX idx_services_created_at ON services(created_at DESC);
 
 CREATE INDEX idx_service_images_service_id ON service_images(service_id);
 
-CREATE INDEX idx_transactions_wallet_id ON transactions(wallet_id);
-CREATE INDEX idx_transactions_type ON transactions(type);
-CREATE INDEX idx_transactions_created_at ON transactions(created_at DESC);
 CREATE INDEX idx_transactions_reference_id ON transactions(reference_id);
 
 CREATE INDEX idx_escrow_service_id ON escrow_accounts(service_id);
@@ -372,6 +432,16 @@ CREATE INDEX idx_service_reports_status ON service_reports(status);
 
 CREATE INDEX idx_analytics_user_id ON analytics(user_id);
 CREATE INDEX idx_analytics_action ON analytics(action);
+
+-- Crear índices para mejorar rendimiento
+CREATE INDEX idx_transactions_wallet_id ON transactions(wallet_id);
+CREATE INDEX idx_transactions_type ON transactions(type);
+CREATE INDEX idx_transactions_status ON transactions(status);
+CREATE INDEX idx_transactions_created_at ON transactions(created_at DESC);
+CREATE INDEX idx_transactions_payment_reference ON transactions(payment_reference);
+CREATE INDEX idx_transactions_payment_method ON transactions(payment_method);
+CREATE INDEX idx_transactions_expires_at ON transactions(expires_at);
+
 
 -- ============================================
 -- FUNCIONES ESENCIALES
@@ -445,6 +515,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Crear función para actualizar updated_at automáticamente
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
 -- ============================================
 -- TRIGGERS
 -- ============================================
@@ -498,6 +577,12 @@ CREATE TRIGGER trigger_update_conversation
 AFTER INSERT ON messages
 FOR EACH ROW
 EXECUTE FUNCTION update_conversation_on_message();
+
+-- Crear trigger para actualizar updated_at
+CREATE TRIGGER update_transactions_updated_at
+    BEFORE UPDATE ON transactions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
 -- VISTAS (de Estructura 1 - Mantenidas + esenciales)

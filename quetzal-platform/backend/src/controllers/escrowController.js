@@ -311,4 +311,4 @@ exports.getEscrowsByUser = async (req, res, next) => {
   }
 };
 
-module.exports = EscrowAccount;
+//module.exports = EscrowAccount;

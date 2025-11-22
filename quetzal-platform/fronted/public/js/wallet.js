@@ -166,6 +166,93 @@ async function handleDirectPurchase(ev) {
 	}
 }
 
+async function handlePurchase(ev) {
+	ev.preventDefault();
+	
+	// Verificar el método de pago seleccionado en el formulario
+	// Asumiendo que tienes inputs de tipo radio con name="payment-method"
+	const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value;
+	
+	// Asumiendo que el valor para ePayco es 'epayco'
+	if (paymentMethod === 'epayco') {
+		await handleEpaycoPurchase(ev);
+	} else if (paymentMethod === 'pse') {
+		// Mantener la lógica existente para PSE
+		await handlePsePurchase(ev);
+	} else {
+		// Opcional: manejar otros métodos o mostrar error
+		showAlert('Por favor selecciona un método de pago.', 'warning', 'purchase-result');
+		return;
+	}
+}
+
+// Nueva función para manejar la compra con ePayco Onpage
+async function handleEpaycoPurchase(ev) {
+	const amountQZ = parseFloat($('q-amount').value);
+	const email = document.getElementById('epayco-email')?.value; // Asumiendo un campo de email específico para ePayco
+
+	if (!amountQZ || amountQZ <= 0) {
+		showAlert('Por favor ingresa una cantidad válida', 'warning', 'purchase-result');
+		return;
+	}
+
+	if (!email || !email.includes('@')) { // Validación básica de email
+		showAlert('Por favor ingresa un email válido', 'warning', 'purchase-result');
+		return;
+	}
+
+	const amountCOP = amountQZ * QUETZAL_TO_COP;
+
+	const btn = ev.target.querySelector('button[type="submit"]');
+	const originalText = btn.innerHTML;
+	btn.disabled = true;
+	btn.innerHTML = '<span class="spinner"></span> Procesando...';
+
+	try {
+		// Llama a tu backend para crear la transacción y obtener los datos de ePayco
+		const response = await API.initEpaycoPayment({ amountCOP, email });
+
+		if (!response.success) {
+			throw new Error(response.message || 'Error iniciando pago ePayco Onpage');
+		}
+
+		// Recibe los datos de ePayco desde el backend
+		const { reference, epaycoData } = response.data; // Accede a response.data
+
+		console.log("Datos recibidos para ePayco Onpage:", epaycoData);
+
+		// 1. Guardar la referencia en localStorage para que pse-callback.html pueda verificarla (o crea una específica)
+		localStorage.setItem('lastTransactionRef', reference); // O usa una clave específica como 'epayco_pending_reference'
+		// localStorage.setItem('epayco_pending_reference', reference);
+
+		// 2. Inicializar ePayco Checkout Onpage con los datos recibidos
+		// Asegúrate de que el script <script src="https://checkout.epayco.co/checkout.js"></script> esté incluido en el HTML
+		if (typeof ePayco === 'undefined') {
+			throw new Error('El script de ePayco checkout.js no está cargado.');
+		}
+
+		// Configura el handler de ePayco con la información recibida del backend
+		var handler = ePayco.checkout.configure({
+			key: epaycoData.key, // Usar la clave pública del backend
+			test: epaycoData.test  // Usar el modo test del backend
+		});
+
+		// Abre el checkout de ePayco con los datos del backend
+		handler.open(epaycoData);
+
+		// Opcional: Puedes mostrar un mensaje de espera o deshabilitar más acciones hasta que el usuario cierre el checkout
+		// o manejar eventos de cierre si el SDK lo permite.
+
+	} catch (error) {
+		console.error('Error ePayco Onpage:', error);
+		showAlert(error.message || 'Error al procesar el pago', 'error', 'purchase-result');
+	} finally {
+		// Restaura el botón
+		btn.disabled = false;
+		btn.innerHTML = originalText;
+	}
+}
+
 // Compra con PSE
 async function handlePsePurchase(ev) {
 	const amountQZ = parseFloat($('q-amount').value);

@@ -5,7 +5,7 @@
 const User = require('../models/User');
 const Service = require('../models/Service');
 const Transaction = require('../models/Transaction');
-const Escrow = require('../models/Escrow');
+const EscrowAccount = require('../models/EscrowAccount');
 const Rating = require('../models/Rating');
 const { Op } = require('sequelize');
 
