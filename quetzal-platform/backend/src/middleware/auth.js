@@ -2,8 +2,16 @@
     // AUTH MIDDLEWARE - Middleware de Autenticación
     // ============================================
 
+    const { createClient } = require('@supabase/supabase-js');
     const jwt = require('jsonwebtoken');
     const User = require('../models/User');
+
+    // Inicializar cliente de Supabase usando las mismas credenciales que el frontend
+const supabase = createClient(
+  process.env.SUPABASE_URL, // Asegúrate de tener esta variable de entorno en Render
+  process.env.SUPABASE_ANON_KEY  // Asegúrate de tener esta variable de entorno en Render
+);
+
 
     // Proteger rutas - Verificar JWT
     exports.protect = async (req, res, next) => {
@@ -24,14 +32,18 @@
         }
 
         try {
-        // Verificar token
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET || 'quetzal_secret_key_2024'
-        );
+      // Verificar token usando el cliente de Supabase Auth
+      const { data, error } = await supabase.auth.getUser(token);
+
+      if (error) {
+        console.error("Error verificando token con Supabase:", error);
+        throw error; // Lanzar el error para que lo maneje el catch
+      }
+
+      const supabaseUser = data.user;
 
         // Buscar usuario
-        const user = await User.findByPk(decoded.id, {
+        const user = await User.findByPk(supabaseUser.id,{
             attributes: { exclude: ['password'] }
         });
 
@@ -107,35 +119,43 @@ exports.requireAdmin = (req, res, next) => {
 
     // Opcional: Protección suave (no requiere autenticación pero la usa si existe)
     exports.optionalAuth = async (req, res, next) => {
-    try {
-        let token;
+  try {
+    let token;
 
-        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
-        }
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
 
-        if (token) {
-        try {
-            const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET || 'quetzal_secret_key_2024'
-            );
+    if (token) {
+      try {
+        // CORREGIDO: Usar supabase.auth.getUser en lugar de jwt.verify
+        const { data, error } = await supabase.auth.getUser(token);
 
-            const user = await User.findByPk(decoded.id, {
-            attributes: { exclude: ['password'] }
+        if (error) {
+            // Token inválido, continuar sin usuario
+            console.error("Token opcional inválido (Supabase):", error);
+        } else {
+            const supabaseUser = data.user;
+
+            // Buscar usuario en tu base de datos local
+            const user = await User.findByPk(supabaseUser.id, { // <-- CORREGIDO: Usar supabaseUser.id
+                attributes: { exclude: ['password'] }
             });
 
             if (user && user.isActive) {
-            req.user = user;
+                req.user = user; // <-- Adjuntar usuario local a req
             }
-        } catch (error) {
-            // Token inválido pero continuamos sin usuario
         }
-        }
-
-        next();
-
-    } catch (error) {
-        next(error);
+      } catch (error) {
+        // Error inesperado al verificar token opcional, continuar sin usuario
+        console.error("Error verificando token opcional (Supabase):", error);
+        // No se adjunta req.user, se continúa sin autenticación
+      }
     }
-    };
+
+    next();
+
+  } catch (error) {
+    next(error);
+  }
+};
