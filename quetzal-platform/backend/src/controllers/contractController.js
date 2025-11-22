@@ -39,7 +39,7 @@ async function createContract(req, res) {
     const { serviceId, requirements, customDeliveryDays, attachments } = req.body;
     const buyerId = req.userId;
 
-    // 1. Obtener información del servicio
+    // 1. Obtener información del servicio (incluyendo provider)
     const service = await Service.findByPk(serviceId, {
       include: [{
         model: User,
@@ -63,10 +63,12 @@ async function createContract(req, res) {
       });
     }
 
-  // 3. Verificar que el comprador tenga fondos suficientes (Wallet)
-  const buyer = await User.findByPk(buyerId);
-  let buyerWallet = await Wallet.findOne({ where: { userId: buyerId } });
-  if (!buyerWallet) buyerWallet = await Wallet.create({ userId: buyerId, balance: 0 });
+    // 3. Verificar que el comprador tenga fondos suficientes (Wallet)
+    const buyer = await User.findByPk(buyerId);
+    let buyerWallet = await Wallet.findOne({ where: { userId: buyerId } });
+    if (!buyerWallet) buyerWallet = await Wallet.create({ userId: buyerId, balance: 0 });
+
+    // tomar precio y datos con fallback a snake_case si fuera necesario
     const servicePrice = parseFloat(service.price);
     const platformFee = parseFloat((servicePrice * 0.10).toFixed(2)); // 10% comisión
     const totalAmount = parseFloat((servicePrice + platformFee).toFixed(2));
@@ -83,28 +85,31 @@ async function createContract(req, res) {
     // 4. Generar número de contrato único
     const contractNumber = `CTR-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
 
-    // 5. Calcular fecha límite de entrega
-    const deliveryDays = customDeliveryDays || service.deliveryTime || 7;
+    // 5. Calcular fecha límite de entrega (soporta deliveryTime o delivery_time)
+    const deliveryDays = customDeliveryDays || service.deliveryTime || service.delivery_time || 7;
     const deadline = new Date();
-    deadline.setDate(deadline.getDate() + deliveryDays);
+    deadline.setDate(deadline.getDate() + Number(deliveryDays));
+
+    // maxRevisions: fallback si service no tiene el campo
+    const maxRevisions = service.revisions || service.maxRevisions || 2;
 
     // 6. Crear contrato y escrow en una transacción
-    const contract = await sequelize.transaction(async (t) => {
-      // Crear escrow
+    const createdContract = await sequelize.transaction(async (t) => {
+      // Crear escrow (usar status permitido por el DDL: 'pending' inicialmente)
       const escrow = await EscrowAccount.create({
         serviceId: service.id,
-        buyerId: buyerId,
+        buyerId,
         sellerId: service.userId,
         amount: servicePrice,
-        status: 'created',
-        releaseCondition: 'buyer_approval'
+        status: 'pending', // 'created' no existe en el enum del DDL
+        fundedAt: null
       }, { transaction: t });
 
       // Crear contrato
       const newContract = await Contract.create({
         contractNumber,
         serviceId: service.id,
-        buyerId: buyerId,
+        buyerId,
         sellerId: service.userId,
         escrowId: escrow.id,
         status: 'pending',
@@ -114,27 +119,29 @@ async function createContract(req, res) {
         servicePrice,
         platformFee,
         totalAmount,
-        deliveryDays,
+        deliveryDays: Number(deliveryDays),
         deadline,
         attachments: attachments || [],
-        maxRevisions: service.revisions || 2,
+        maxRevisions,
         metadata: {
           servicePriceAtCreation: servicePrice,
-          serviceCategory: service.category
+          serviceCategory: service.category || service.category // fallback
         }
       }, { transaction: t });
 
-  // Debitar del comprador (Wallet)
-  await buyerWallet.reload({ transaction: t, lock: t.LOCK.UPDATE });
-  const newBuyerBalance = parseFloat(buyerWallet.balance) - totalAmount;
-  await buyerWallet.update({ balance: newBuyerBalance.toFixed(2) }, { transaction: t });
+      // Debitar del comprador (Wallet) — bloquear y actualizar
+      await buyerWallet.reload({ transaction: t, lock: t.LOCK.UPDATE });
+      const newBuyerBalance = parseFloat(buyerWallet.balance) - totalAmount;
+      await buyerWallet.update({ balance: Number(newBuyerBalance.toFixed(2)) }, { transaction: t });
 
-      // Registrar transacción en wallet
+      // Registrar transacción en wallet (usar campos del DDL via camelCase)
       await Transaction.create({
         userId: buyerId,
-        amountQZ: totalAmount,
-        kind: 'debit',
-        category: 'contract',
+        walletId: buyerWallet.id,
+        type: 'purchase',           // transaction_type
+        paymentMethod: 'wallet',    // payment_method
+        status: 'completed',        // transaction_status
+        amountQz: totalAmount,
         description: `Contrato ${contractNumber} - ${service.title}`
       }, { transaction: t });
 
@@ -150,8 +157,8 @@ async function createContract(req, res) {
       return newContract;
     });
 
-    // 7. Retornar contrato creado
-    const contractWithDetails = await Contract.findByPk(contract.id, {
+    // 7. Retornar contrato creado (con includes)
+    const contractWithDetails = await Contract.findByPk(createdContract.id, {
       include: [
         { model: Service, as: 'service', attributes: ['id', 'title', 'category', 'imageUrl'] },
         { model: User, as: 'buyer', attributes: ['id', 'fullName', 'email', 'avatar'] },
@@ -315,14 +322,16 @@ async function updateContractStatus(req, res) {
           let sellerWallet = await Wallet.findOne({ where: { userId: seller.id }, transaction: t, lock: t.LOCK.UPDATE });
           if (!sellerWallet) sellerWallet = await Wallet.create({ userId: seller.id, balance: 0 }, { transaction: t });
           const newSellerBalance = parseFloat(sellerWallet.balance) + parseFloat(escrow.amount);
-          await sellerWallet.update({ balance: newSellerBalance.toFixed(2) }, { transaction: t });
+          await sellerWallet.update({ balance: Number(newSellerBalance.toFixed(2)) }, { transaction: t });
 
-          // Registrar transacción
+          // Registrar transacción (usar campos del DDL)
           await Transaction.create({
             userId: seller.id,
-            amountQZ: parseFloat(escrow.amount),
-            kind: 'credit',
-            category: 'contract_payment',
+            walletId: sellerWallet.id,
+            type: 'deposit',               // o 'transfer_in' según tu convención
+            paymentMethod: 'wallet',
+            status: 'completed',
+            amountQz: parseFloat(escrow.amount),
             description: `Pago recibido - Contrato ${contract.contractNumber}`
           }, { transaction: t });
 
@@ -351,18 +360,20 @@ async function updateContractStatus(req, res) {
             if (!buyerWalletCancel) buyerWalletCancel = await Wallet.create({ userId: buyer.id, balance: 0 }, { transaction: t });
             const refundAmount = parseFloat(contract.totalAmount);
             const newBuyerBalanceRefund = parseFloat(buyerWalletCancel.balance) + refundAmount;
-            await buyerWalletCancel.update({ balance: newBuyerBalanceRefund.toFixed(2) }, { transaction: t });
+            await buyerWalletCancel.update({ balance: Number(newBuyerBalanceRefund.toFixed(2)) }, { transaction: t });
 
             await Transaction.create({
               userId: buyer.id,
-              amountQZ: refundAmount,
-              kind: 'credit',
-              category: 'refund',
+              walletId: buyerWalletCancel.id,
+              type: 'refund',
+              paymentMethod: 'wallet',
+              status: 'completed',
+              amountQz: refundAmount,
               description: `Reembolso - Contrato ${contract.contractNumber} cancelado`
             }, { transaction: t });
 
             await contract.escrow.update({
-              status: 'cancelled'
+              status: 'refunded'
             }, { transaction: t });
           }
 
