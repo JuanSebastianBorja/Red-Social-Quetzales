@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Servicio - Quetzal Platform</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/user.css">
+</head>
+<body>
+    <div class="user-layout">
+        <!-- Sidebar -->
+        <aside class="user-sidebar" id="userSidebar">
+            <!-- Header -->
+            <div class="user-sidebar-header">
+                <div class="user-sidebar-brand">
+                    <span class="user-sidebar-brand-icon">🦜</span>
+                    <span>Quetzal</span>
+                </div>
+            </div>
+
+            <!-- User Profile -->
+            <div class="user-sidebar-profile">
+                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
+                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
+                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
+                <div class="user-sidebar-balance">
+                    <div class="user-sidebar-balance-label">Balance Disponible</div>
+                    <div class="user-sidebar-balance-amount">
+                        <span>💰</span>
+                        <span id="sidebar-balance">Q 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="user-sidebar-nav">
+                <div class="user-sidebar-nav-title">Menú Principal</div>
+                <a href="dashboard.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">📊</span>
+                    <span class="user-sidebar-nav-text">Dashboard</span>
+                </a>
+                <a href="services.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">⚡</span>
+                    <span class="user-sidebar-nav-text">Servicios</span>
+                </a>
+                <a href="messages.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💬</span>
+                    <span class="user-sidebar-nav-text">Mensajes</span>
+                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
+                </a>
+                <a href="wallet.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💰</span>
+                    <span class="user-sidebar-nav-text">Billetera</span>
+                </a>
+                <a href="my-contracts.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">📄</span>
+                    <span class="user-sidebar-nav-text">Mis Contrataciones</span>
+                </a>
+                <a href="my-sales.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">💼</span>
+                    <span class="user-sidebar-nav-text">Mis Ventas</span>
+                </a>
+
+                <div class="user-sidebar-nav-title">Mi Cuenta</div>
+                <a href="profile.html" class="user-sidebar-nav-item">
+                    <span class="user-sidebar-nav-icon">👤</span>
+                    <span class="user-sidebar-nav-text">Perfil</span>
+                </a>
+                <a href="create-service.html" class="user-sidebar-nav-item active">
+                    <span class="user-sidebar-nav-icon">➕</span>
+                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
+                </a>
+            </nav>
+
+            <!-- Footer -->
+            <div class="user-sidebar-footer">
+                <button class="user-sidebar-logout" id="logout-btn">
+                    <span>🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="user-main">
+            <!-- Top Bar -->
+            <div class="user-topbar">
+                <div class="user-topbar-left">
+                    <button class="user-toggle-btn" id="sidebarToggle">
+                        <span>☰</span>
+                    </button>
+                    <div>
+                        <div class="user-topbar-title">Publicar Nuevo Servicio</div>
+                        <div class="user-topbar-breadcrumb">
+                            <a href="dashboard.html">Inicio</a>
+                            <span>›</span>
+                            <span>Publicar Servicio</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-topbar-right">
+                    <a href="services.html" class="btn btn-secondary btn-sm">
+                        ← Volver a Servicios
+                    </a>
+                    <button class="user-topbar-notifications">
+                        <span>🔔</span>
+                        <span class="user-topbar-notifications-badge">5</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="user-content">
+                <!-- Page Header -->
+                <div class="user-page-header">
+                    <h1 class="user-page-title">✨ Comparte tu Talento</h1>
+                    <p class="user-page-subtitle">Completa la información de tu servicio para comenzar a recibir solicitudes</p>
+                </div>
+
+                <div class="container-sm">
+                    <div class="card">
+                        <div id="alert-container"></div>            <form id="create-service-form">
+            <!-- Información Básica -->
+            <div class="form-section">
+                <h3 class="form-section-title">Información Básica</h3>
+
+                <div class="form-group">
+                <label for="title" class="form-label form-label-required">Título del Servicio</label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    name="title"
+                    class="form-input" 
+                    placeholder="Ej: Desarrollo de Sitio Web Profesional"
+                    required
+                    maxlength="100">
+                <span class="form-help" id="title-counter">0/100 caracteres</span>
+                <span class="form-error" id="title-error"></span>
+                </div>
+
+                <div class="form-group">
+                <label for="category" class="form-label form-label-required">Categoría</label>
+                <select id="category" name="category" class="form-select" required>
+                    <option value="">Selecciona una categoría</option>
+                    <option value="desarrollo">Desarrollo y Programación</option>
+                    <option value="diseno">Diseño Gráfico</option>
+                    <option value="marketing">Marketing Digital</option>
+                    <option value="escritura">Escritura y Traducción</option>
+                    <option value="video">Video y Animación</option>
+                    <option value="musica">Música y Audio</option>
+                    <option value="negocios">Negocios y Consultoría</option>
+                    <option value="educacion">Educación y Tutorías</option>
+                    <option value="lifestyle">Estilo de Vida</option>
+                    <option value="otros">Otros</option>
+                </select>
+                <span class="form-error" id="category-error"></span>
+                </div>
+
+                <div class="form-group">
+                <label for="description" class="form-label form-label-required">Descripción</label>
+                <textarea 
+                    id="description" 
+                    name="description"
+                    class="form-textarea" 
+                    placeholder="Describe detalladamente qué incluye tu servicio, qué entregarás, tiempos estimados, etc."
+                    required
+                    maxlength="1000"></textarea>
+                <span class="form-help" id="description-counter">0/1000 caracteres</span>
+                <span class="form-error" id="description-error"></span>
+                </div>
+            </div>
+
+            <!-- Precio y Disponibilidad -->
+            <div class="form-section">
+                <h3 class="form-section-title">Precio y Disponibilidad</h3>
+
+                <div class="grid grid-cols-2">
+                <div class="form-group">
+                    <label for="price" class="form-label form-label-required">Precio en Quetzales (Q)</label>
+                    <input 
+                    type="number" 
+                    id="price" 
+                    name="price"
+                    class="form-input" 
+                    placeholder="5.0"
+                    step="0.1"
+                    min="0.1"
+                    required>
+                    <span class="form-help" id="price-cop">≈ $0 COP</span>
+                    <span class="form-error" id="price-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveryTime" class="form-label form-label-required">Tiempo de Entrega</label>
+                    <select id="deliveryTime" name="deliveryTime" class="form-select" required>
+                    <option value="">Selecciona</option>
+                    <option value="1">1 día</option>
+                    <option value="2">2 días</option>
+                    <option value="3">3 días</option>
+                    <option value="5">5 días</option>
+                    <option value="7">1 semana</option>
+                    <option value="14">2 semanas</option>
+                    <option value="30">1 mes</option>
+                    <option value="custom">Personalizado</option>
+                    </select>
+                    <span class="form-error" id="deliveryTime-error"></span>
+                </div>
+                </div>
+
+                <div class="form-group">
+                <label for="availability" class="form-label form-label-required">Estado</label>
+                <select id="availability" name="availability" class="form-select" required>
+                    <option value="active" selected>Activo - Recibir solicitudes</option>
+                    <option value="inactive">Inactivo - No visible</option>
+                    <option value="paused">Pausado - Visible pero sin solicitudes</option>
+                </select>
+                <span class="form-error" id="availability-error"></span>
+                </div>
+            </div>
+
+            <!-- Imágenes -->
+            <div class="form-section">
+                <h3 class="form-section-title">Imágenes del Servicio</h3>
+
+                <div class="form-group">
+                <label for="images" class="form-label">Subir Imágenes (Máx. 5)</label>
+                <input 
+                    type="file" 
+                    id="images" 
+                    name="images"
+                    accept="image/*"
+                    multiple
+                    class="form-input p-3">
+                <span class="form-help">Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB por imagen</span>
+                <span class="form-error" id="images-error"></span>
+                </div>
+
+                <div id="images-preview" class="images-preview-grid"></div>
+            </div>
+
+            <!-- Requisitos del Cliente -->
+            <div class="form-section">
+                <h3 class="form-section-title">Requisitos del Cliente</h3>
+
+                <div class="form-group">
+                <label for="requirements" class="form-label">¿Qué necesitas del cliente para comenzar?</label>
+                <textarea 
+                    id="requirements" 
+                    name="requirements"
+                    class="form-textarea" 
+                    placeholder="Ej: Logo en formato vectorial, texto del sitio web, colores de marca preferidos..."
+                    maxlength="500"></textarea>
+                <span class="form-help" id="requirements-counter">0/500 caracteres</span>
+                </div>
+            </div>
+
+            <!-- Términos -->
+            <div class="form-group">
+                <label class="flex items-start gap-2 cursor-pointer">
+                <input 
+                    type="checkbox" 
+                    id="terms" 
+                    name="terms"
+                    required>
+                <span class="text-sm text-secondary">
+                    Confirmo que este servicio cumple con las 
+                    <a href="#" class="auth-link">políticas de la plataforma</a> y no infringe 
+                    derechos de autor o propiedad intelectual.
+                </span>
+                </label>
+                <span class="form-error" id="terms-error"></span>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-2 justify-end">
+                <a href="services.html" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary" id="submit-btn">
+                Publicar Servicio
+                </button>
+            </div>
+            </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Overlay para móviles -->
+    <div class="user-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <script src="../public/js/utils.js"></script>
+    <script src="../public/js/api.js"></script>
+    <script src="../public/js/user-sidebar.js"></script>
+    <script src="../public/js/create-service.js"></script>
+    <script src="../public/js/app.js"></script>
+</body>
+</html>
