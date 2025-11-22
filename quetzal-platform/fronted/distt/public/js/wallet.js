@@ -124,34 +124,6 @@ function formatDate(date) {
 	return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-// Compra directa (método antiguo - solo para desarrollo/testing)
-async function handleDirectPurchase(ev) {
-	const amount = parseFloat($('q-amount').value);
-	if (!amount || amount <= 0) {
-		showAlert('Por favor ingresa una cantidad válida', 'warning', 'purchase-result');
-		return;
-	}
-	
-	const btn = ev.target.querySelector('button[type="submit"]');
-	const originalText = btn.innerHTML;
-	btn.disabled = true;
-	btn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px;"></span> Procesando...';
-	
-	try {
-		const res = await API.purchaseQuetzales({ amount });
-		showAlert(res.message || '✅ Compra exitosa! Tus Quetzales están disponibles.', 'success', 'purchase-result');
-		$('q-amount').value = '';
-		document.getElementById('purchase-cop-preview').textContent = '1 Quetzal = 10,000 COP';
-		await loadBalance();
-		await loadTransactions();
-	} catch (err) {
-		console.error(err);
-		showAlert(err.message || '❌ Error al procesar la compra', 'error', 'purchase-result');
-	} finally {
-		btn.disabled = false;
-		btn.innerHTML = originalText;
-	}
-}
 
 async function handlePurchase(ev) {
   ev.preventDefault();
