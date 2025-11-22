@@ -2,8 +2,8 @@
 // SUPABASE CLIENT - Configuración y Cliente
 // ============================================
 
-const SUPABASE_URL = 'https://sgttyuuvuakaybzrzwdx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNndHR5dXV2dWFrYXlienJ6d2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4ODIyMDEsImV4cCI6MjA3ODQ1ODIwMX0.V_kM1LuWgYkavW1x53OE3Cb2Axa9oLfDr80I9SQCRYg';
+const SUPABASE_URL = 'https://hdmujfbnntrylvoupgei.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_bilqy1WRiu-bw6-HyHacsw_6XZJg4Pe';
 
 // Crear cliente de Supabase
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
