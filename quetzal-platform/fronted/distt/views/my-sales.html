@@ -6,9 +6,9 @@
     <title>Mis Ventas - Quetzal Platform</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../public/css/main.css">
-    <link rel="stylesheet" href="../public/css/components.css">
-    <link rel="stylesheet" href="../public/css/user.css">
+    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/components.css">
+    <link rel="stylesheet" href="/public/css/user.css">
     </head>
 <body>
     <div class="user-layout">
@@ -210,13 +210,13 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../public/js/utils.js"></script>
-    <script src="../public/js/user-sidebar.js"></script>
-    <script src="../public/js/app.js"></script>
+    <script src="/public/js/utils.js"></script>
+    <script src="/public/js/user-sidebar.js"></script>
+    <script src="/public/js/app.js"></script>
     <script type="module">
         import API from '../public/js/api.js';
-        import { requireAuth, getCurrentUser } from '../public/js/auth.js';
-        import { getMySales, renderContractCard, initContractListeners } from '../public/js/contracts.js';
+        import { requireAuth, getCurrentUser } from '/public/js/auth.js';
+        import { getMySales, renderContractCard, initContractListeners } from '/public/js/contracts.js';
 
         // Verificar autenticación
         requireAuth();

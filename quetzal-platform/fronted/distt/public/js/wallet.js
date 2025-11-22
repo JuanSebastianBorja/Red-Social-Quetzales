@@ -124,19 +124,6 @@ function formatDate(date) {
 	return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-async function handlePurchase(ev) {
-	ev.preventDefault();
-	
-	// Verificar si se está usando PSE
-	const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'pse';
-	
-	if (paymentMethod === 'pse') {
-		await handlePsePurchase(ev);
-	} else {
-		await handleDirectPurchase(ev);
-	}
-}
-
 // Compra directa (método antiguo - solo para desarrollo/testing)
 async function handleDirectPurchase(ev) {
 	const amount = parseFloat($('q-amount').value);
