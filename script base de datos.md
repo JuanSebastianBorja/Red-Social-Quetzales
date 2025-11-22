@@ -180,6 +180,71 @@ CREATE TABLE transactions (
     metadata JSONB DEFAULT '{}'::jsonb
 );
 
+-- ============================================
+-- TABLA: CONTRACTS
+-- ============================================
+
+-- Crear ENUM para status del contrato si no existe
+DO $$ BEGIN
+CREATE TYPE contract_status AS ENUM (
+'pending', -- Creado, esperando pago
+'paid', -- Pagado, escrow activo
+'in_progress', -- Vendedor trabajando
+'delivered', -- Vendedor entregó trabajo
+'completed', -- Comprador confirmó y liberó fondos
+'disputed', -- En disputa
+'cancelled' -- Cancelado antes de pago
+);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE TABLE contracts (
+id SERIAL PRIMARY KEY,
+contract_number VARCHAR(50) NOT NULL UNIQUE,
+
+service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+buyer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+seller_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+escrow_id UUID REFERENCES escrow_accounts(id) ON DELETE SET NULL,
+
+status contract_status NOT NULL DEFAULT 'pending',
+
+title VARCHAR(255) NOT NULL,
+description TEXT,
+requirements TEXT,
+
+service_price DECIMAL(10,2) NOT NULL,
+platform_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
+total_amount DECIMAL(10,2) NOT NULL,
+
+delivery_days INTEGER NOT NULL,
+started_at TIMESTAMP,
+delivered_at TIMESTAMP,
+completed_at TIMESTAMP,
+deadline TIMESTAMP,
+
+delivery_files JSONB DEFAULT '[]'::jsonb,
+attachments JSONB DEFAULT '[]'::jsonb,
+
+revisions INTEGER NOT NULL DEFAULT 0,
+max_revisions INTEGER NOT NULL DEFAULT 2,
+
+conversation_id UUID REFERENCES conversations(id) ON DELETE SET NULL,
+rating_id UUID REFERENCES ratings(id) ON DELETE SET NULL,
+
+buyer_notes TEXT,
+seller_notes TEXT,
+admin_notes TEXT,
+
+cancellation_reason TEXT,
+dispute_reason TEXT,
+
+metadata JSONB DEFAULT '{}'::jsonb,
+
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
+
 
 -- ============================================
 -- TABLA: ESCROW_ACCOUNTS 
@@ -442,6 +507,15 @@ CREATE INDEX idx_transactions_payment_reference ON transactions(payment_referenc
 CREATE INDEX idx_transactions_payment_method ON transactions(payment_method);
 CREATE INDEX idx_transactions_expires_at ON transactions(expires_at);
 
+CREATE INDEX idx_contracts_service_id ON contracts(service_id);
+CREATE INDEX idx_contracts_buyer_id ON contracts(buyer_id);
+CREATE INDEX idx_contracts_seller_id ON contracts(seller_id);
+CREATE INDEX idx_contracts_status ON contracts(status);
+CREATE INDEX idx_contracts_escrow_id ON contracts(escrow_id);
+CREATE INDEX idx_contracts_created_at ON contracts(created_at DESC);
+CREATE INDEX idx_contracts_buyer_status ON contracts(buyer_id, status);
+CREATE INDEX idx_contracts_seller_status ON contracts(seller_id, status);
+
 
 -- ============================================
 -- FUNCIONES ESENCIALES
@@ -582,6 +656,24 @@ EXECUTE FUNCTION update_conversation_on_message();
 CREATE TRIGGER update_transactions_updated_at
     BEFORE UPDATE ON transactions
     FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+    CREATE OR REPLACE FUNCTION update_contracts_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+NEW.updated_at = CURRENT_TIMESTAMP;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_contracts_updated_at
+BEFORE UPDATE ON contracts
+FOR EACH ROW
+EXECUTE FUNCTION update_contracts_updated_at();
+
+CREATE TRIGGER update_contracts_updated_at 
+    BEFORE UPDATE ON contracts
+    FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
