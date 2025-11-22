@@ -238,7 +238,7 @@ const Contract = sequelize.define('Contract', {
     comment: 'Datos adicionales flexibles'
   }
 }, {
-  tableName: 'Contracts',
+  tableName: 'contracts',
   timestamps: true,
   indexes: [
     { fields: ['contractNumber'], unique: true },
