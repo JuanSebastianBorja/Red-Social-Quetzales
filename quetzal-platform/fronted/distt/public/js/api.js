@@ -6,11 +6,11 @@ import config from './config.js';
 const API_BASE_URL = config.api.baseUrl;
 
 function getAuthToken() {
-  return localStorage.getItem('token');
+  return localStorage.getItem('quetzal_token');
 }
 
 function setAuthToken(token) {
-  if (token) localStorage.setItem('token', token); else localStorage.removeItem('token');
+  if (token) localStorage.setItem('quetzal_token', token); else localStorage.removeItem('quetzal_token');
 }
 
 function getCurrentUser() {
