@@ -19,58 +19,63 @@
      * Maneja el envío del formulario
      */
     async function handleSubmit(e) {
-    e.preventDefault();
-    
-    clearFormErrors();
-    
-    if (!validateForm()) {
-        return;
-    }
+  e.preventDefault();
 
-    const formData = {
-        email: document.getElementById('email').value.trim().toLowerCase(),
-        password: document.getElementById('password').value,
-        remember: document.getElementById('remember').checked
-    };
+  clearFormErrors();
 
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></span> Ingresando...';
+  if (!validateForm()) {
+    return;
+  }
 
-    try {
-        // Llamada a Supabase Auth
-        const result = await SupabaseAuth.signIn(formData.email, formData.password);
-        
-        // Guardar datos de sesión
-        const user = result.user;
-        const userData = {
-            id: user.id,
-            name: user.user_metadata?.full_name || user.email,
-            email: user.email,
-            userType: user.user_metadata?.user_type || 'both',
-            role: 'user', // Puedes ajustar esto según tu lógica
-            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&size=120&background=6366f1&color=fff`
-        };
-        
-        localStorage.setItem('quetzal_token', result.session.access_token);
-        localStorage.setItem('quetzal_user', JSON.stringify(userData));
-        
-        showAlert('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
-        
-        setTimeout(() => {
-            // Redirigir según el rol
-            if (userData.role === 'admin') {
-                window.location.href = 'admin-dashboard.html';
-            } else {
-                window.location.href = 'dashboard.html';
-            }
-        }, 1500);
-        
-    } catch (error) {
-        showAlert(error.message || 'Email o contraseña incorrectos', 'error');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Iniciar Sesión';
-    }
-    }
+  const formData = {
+    email: document.getElementById('email').value.trim().toLowerCase(),
+    password: document.getElementById('password').value,
+    remember: document.getElementById('remember').checked
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></span> Ingresando...';
+
+  try {
+    // 1. Llamada a Supabase Auth (esto solo autentica en Supabase)
+    const result = await SupabaseAuth.signIn(formData.email, formData.password);
+
+    // 2. Llamar a la API del backend para sincronizar el usuario y verificar el token de Supabase
+    // Esta ruta debería recibir el token de Supabase, verificarlo, buscar/crear el usuario en la DB local,
+    // y devolver los datos del usuario local y posiblemente un token de sesión (aunque en tu caso, el token de Supabase es suficiente si está bien verificado por el backend).
+    // Por ejemplo, una ruta como POST /api/auth/sync-with-supabase o POST /api/auth/verify-and-sync
+    const syncResult = await API.syncUserWithSupabase(result.session.access_token); // Asumiendo que creas esta función en api.js
+
+    // 3. Guardar datos de sesión (ahora desde la API del backend)
+    // Asumiendo que syncResult devuelve { success: true, user: { id, name, email, ... }, token: '...' }
+    // Si tu backend no devuelve un token adicional (porque usa el de Supabase), solo guarda el user local.
+    // const userData = syncResult.user; // Datos del usuario desde tu tabla 'users' local
+    // localStorage.setItem('quetzal_token', syncResult.token || result.session.access_token); // Usar token del backend o mantener el de Supabase
+    // localStorage.setItem('quetzal_user', JSON.stringify(userData));
+
+    // O, si decides que el backend no devuelve un token nuevo, pero sí los datos del usuario local:
+    const backendUserData = syncResult.user; // Datos del usuario desde tu tabla 'users' local
+    // El token de Supabase ya está en result.session.access_token
+    localStorage.setItem('quetzal_token', result.session.access_token); // Mantener el token de Supabase
+    localStorage.setItem('quetzal_user', JSON.stringify(backendUserData)); // <-- Guardar los datos del usuario LOCAL
+
+    showAlert('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
+
+    setTimeout(() => {
+      // Redirigir según el rol (ahora usando el rol del usuario local)
+      if (backendUserData.role === 'admin') { // <-- Asumiendo que 'role' viene de tu tabla local
+        window.location.href = 'admin-dashboard.html';
+      } else {
+        window.location.href = 'dashboard.html';
+      }
+    }, 1500);
+
+  } catch (error) {
+    showAlert(error.message || 'Email o contraseña incorrectos', 'error');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Iniciar Sesión';
+  }
+}
 
     /**
      * Valida todo el formulario

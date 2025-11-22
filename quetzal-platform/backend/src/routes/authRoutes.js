@@ -10,7 +10,8 @@
     verifyToken,
     logout,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    syncUserWithSupabase
     } = require('../controllers/authController');
     const { protect } = require('../middleware/auth');
 
@@ -75,6 +76,19 @@
     router.post('/login', loginValidation, login);
     router.post('/forgot-password', forgotPasswordValidation, forgotPassword);
     router.post('/reset-password', resetPasswordValidation, resetPassword);
+
+    // Nueva ruta para sincronizar con Supabase
+    const syncWithSupabaseValidation = [
+        body('token').notEmpty().withMessage('El token de Supabase es requerido')
+    ];
+
+    router.post('/sync-with-supabase', syncWithSupabaseValidation, syncUserWithSupabase); // <-- Nueva ruta
+
+// Rutas protegidas
+router.get('/verify', protect, verifyToken);
+router.post('/logout', protect, logout);
+
+module.exports = router;
 
     // Rutas protegidas
     router.get('/verify', protect, verifyToken);

@@ -2,7 +2,7 @@
     // AUTH CONTROLLER - Controlador de Autenticación
     // ============================================
 
-    const User = require('../models/User');
+    const { User, Wallet } = require('../models');
     const jwt = require('jsonwebtoken');
     const { validationResult } = require('express-validator');
 
@@ -214,3 +214,111 @@
         next(error);
     }
     };
+
+    // @desc    Sincronizar usuario de Supabase con la base de datos local
+// @route   POST /api/auth/sync-with-supabase
+// @access  Public (pero se verifica el token de Supabase)
+exports.syncUserWithSupabase = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    const { token } = req.body; // El access_token de Supabase recibido del frontend
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token de Supabase requerido'
+      });
+    }
+
+    // Verificar el token con el cliente de Supabase (esto lo puedes hacer en el controlador o en un servicio aparte)
+    // Asegúrate de que tienes el cliente de Supabase inicializado en este archivo o importado desde otro lugar
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = new ePayco({ // Reutiliza la configuración de auth.js o crea un cliente aquí
+      apiKey: process.env.EPAYCO_PUBLIC_KEY, // Usar las mismas variables de entorno
+      privateKey: process.env.EPAYCO_PRIVATE_KEY,
+      lang: "ES",
+      test: process.env.EPAYCO_TEST === 'true' || process.env.EPAYCO_TEST === '1'
+    });
+    // NO, no uses ePayco SDK aquí. Usa el SDK de Supabase.
+    const supabaseClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+    const { data, error } = await supabaseClient.auth.getUser(token);
+
+    if (error) {
+      console.error("Error verificando token con Supabase en sync:", error);
+      return res.status(401).json({
+        success: false,
+        message: 'Token de Supabase inválido'
+      });
+    }
+
+    const supabaseUser = data.user;
+
+    // Buscar usuario en la base de datos local usando el ID de Supabase
+    let localUser = await User.findByPk(supabaseUser.id);
+
+    if (!localUser) {
+      // Si no existe, crearlo en la base de datos local
+      console.log(`Usuario ${supabaseUser.email} no encontrado en DB local. Creando...`);
+
+      // Extraer datos de Supabase para crear el usuario local
+      // Asumiendo que tu tabla 'users' puede aceptar estos campos o mapearlos desde user_metadata
+      const userMetadata = supabaseUser.user_metadata || {};
+      const appMetadata = supabaseUser.app_metadata || {};
+
+      localUser = await User.create({
+        id: supabaseUser.id, // Importante: Usar el ID de Supabase como ID local
+        email: supabaseUser.email,
+        // La contraseña no se almacena aquí, ya que se autenticó con Supabase
+        // password: '', // No es ideal dejarla vacía si el modelo la requiere. Quizás un hash genérico o un campo opcional.
+        fullName: userMetadata.full_name || supabaseUser.email.split('@')[0], // Usar metadata o derivar del email
+        phone: userMetadata.phone || '',
+        city: userMetadata.city || '',
+        userType: userMetadata.user_type || 'consumer', // Asumiendo que 'user_type' está en metadata
+        // avatar: userMetadata.avatar || '', // Si manejas avatar localmente
+        // bio: userMetadata.bio || '',
+        // website: userMetadata.website || '',
+        isVerified: supabaseUser.email_confirmed_at ? true : false, // Usar confirmación de Supabase
+        isActive: true, // Puedes manejar activación localmente si es diferente
+        // Otros campos que quieras mapear desde Supabase
+      });
+
+      // Opcional: Crear wallet automáticamente (esto probablemente ya lo haces con un trigger en la DB)
+      // const wallet = await Wallet.create({ userId: localUser.id, balance: 0.00, currency: 'QUETZALES' });
+
+      console.log(`Usuario ${localUser.email} creado en DB local.`);
+    } else {
+      console.log(`Usuario ${localUser.email} ya existe en DB local.`);
+      // Opcional: Actualizar datos del usuario local si han cambiado en Supabase
+      // await localUser.update({
+      //   fullName: userMetadata.full_name || localUser.fullName,
+      //   email: supabaseUser.email, // Actualizar si cambió?
+      //   // ... otros campos ...
+      // });
+    }
+
+    // Devolver datos del usuario local (sin contraseña)
+    res.json({
+      success: true,
+      message: 'Usuario sincronizado correctamente',
+      user: {
+        id: localUser.id,
+        name: localUser.fullName,
+        email: localUser.email,
+        userType: localUser.userType,
+        role: localUser.userType, // o localUser.role si tienes un campo específico
+        avatar: localUser.avatar, // o una URL basada en el email si usas ui-avatars
+      }
+    });
+
+  } catch (error) {
+    console.error("Error en syncUserWithSupabase:", error);
+    next(error); // Pasa el error al middleware de manejo de errores global
+  }
+};
