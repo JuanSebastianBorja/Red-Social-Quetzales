@@ -119,7 +119,7 @@ async function createEpaycoTransaction({ userId, amountCOP, email, ipAddress, us
       key: process.env.EPAYCO_PUBLIC_KEY, // La clave pública de ePayco (debe ser accesible desde el frontend)
       test: process.env.EPAYCO_TEST === 'true' || process.env.EPAYCO_TEST === '1', // Modo sandbox o producción
       // URLs (deben ser accesibles desde el navegador del cliente)
-      response: `${process.env.FRONTEND_URL || 'http://localhost:8080'}/pse-callback.html?ref=${paymentReference}`, // URL a la que vuelve el usuario (puedes incluir la ref)
+      response: `${process.env.FRONTEND_URL || 'http://localhost:8080'}/views/pse-callback.html?ref=${paymentReference}`,// URL a la que vuelve el usuario 
       confirmation: `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/wallet/epayco/confirmation`, // URL de notificación (webhook) - ¡ESTA DEBE SER ACCESIBLE DESDE ePayco!
       // Datos del cliente (opcional pero recomendado)
       customer_doctype: 'CC', // Tipo de documento (opcional, asumiendo CC)
