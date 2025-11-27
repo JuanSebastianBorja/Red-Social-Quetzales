@@ -3,29 +3,31 @@ COMPONENTS.CSS - Estilos de componentes específicos
 ============================================ */
 
 /* Stat Cards */
+
+/* Stat Cards coherentes con dashboard */
 .stat-card {
-    background-color: var(--bg-tertiary);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px 0 rgba(102,126,234,0.09);
+    border: 1px solid #f3f3f3;
+    padding: 1.3rem 1.5rem;
     text-align: center;
-    transition: all var(--transition-base);
+    transition: box-shadow 0.18s, transform 0.13s, border-color 0.13s;
 }
-
 .stat-card:hover {
-    transform: translateY(-2px);
-    background-color: var(--bg-card-hover);
+    box-shadow: 0 8px 28px 0 rgba(139,92,246,0.13);
+    border-color: #8b5cf6;
+    transform: translateY(-2px) scale(1.03);
 }
-
 .stat-card-value {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--primary-color);
-    margin-bottom: var(--spacing-sm);
+    font-size: 2rem;
+    font-weight: 800;
+    color: #8b5cf6;
+    margin-bottom: 0.5rem;
 }
-
 .stat-card-label {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
+    color: #8f98a9;
+    font-size: 1rem;
 }
 
 /* Transaction List */

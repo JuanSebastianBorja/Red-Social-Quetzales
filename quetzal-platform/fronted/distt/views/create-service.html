@@ -4,126 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Servicio - Quetzal Platform</title>
-    <link rel="stylesheet" href="/public/css/main.css">
-    <link rel="stylesheet" href="/public/css/user.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/user.css">
 </head>
-<body>
-    <div class="user-layout">
-        <!-- Sidebar -->
-        <aside class="user-sidebar" id="userSidebar">
-            <!-- Header -->
-            <div class="user-sidebar-header">
-                <div class="user-sidebar-brand">
-                    <span class="user-sidebar-brand-icon">🦜</span>
-                    <span>Quetzal</span>
+    <body class="light-mode">
+        <div class="dashboard-layout">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <span class="sidebar-logo"><i class="fas fa-feather-alt">Quetzal Platform</i></span>
                 </div>
-            </div>
-
-            <!-- User Profile -->
-            <div class="user-sidebar-profile">
-                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
-                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
-                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
-                <div class="user-sidebar-balance">
-                    <div class="user-sidebar-balance-label">Balance Disponible</div>
-                    <div class="user-sidebar-balance-amount">
-                        <span>💰</span>
-                        <span id="sidebar-balance">Q 0.00</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="user-sidebar-nav">
-                <div class="user-sidebar-nav-title">Menú Principal</div>
-                <a href="dashboard.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">📊</span>
-                    <span class="user-sidebar-nav-text">Dashboard</span>
-                </a>
-                <a href="services.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">⚡</span>
-                    <span class="user-sidebar-nav-text">Servicios</span>
-                </a>
-                <a href="messages.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💬</span>
-                    <span class="user-sidebar-nav-text">Mensajes</span>
-                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
-                </a>
-                <a href="wallet.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💰</span>
-                    <span class="user-sidebar-nav-text">Billetera</span>
-                </a>
-                <a href="my-contracts.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">📄</span>
-                    <span class="user-sidebar-nav-text">Mis Contrataciones</span>
-                </a>
-                <a href="my-sales.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💼</span>
-                    <span class="user-sidebar-nav-text">Mis Ventas</span>
-                </a>
-
-                <div class="user-sidebar-nav-title">Mi Cuenta</div>
-                <a href="profile.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">👤</span>
-                    <span class="user-sidebar-nav-text">Perfil</span>
-                </a>
-                <a href="create-service.html" class="user-sidebar-nav-item active">
-                    <span class="user-sidebar-nav-icon">➕</span>
-                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
-                </a>
-            </nav>
-
-            <!-- Footer -->
-            <div class="user-sidebar-footer">
-                <button class="user-sidebar-logout" id="logout-btn">
-                    <span>🚪</span>
-                    <span>Cerrar Sesión</span>
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="user-main">
-            <!-- Top Bar -->
-            <div class="user-topbar">
-                <div class="user-topbar-left">
-                    <button class="user-toggle-btn" id="sidebarToggle">
-                        <span>☰</span>
-                    </button>
-                    <div>
-                        <div class="user-topbar-title">Publicar Nuevo Servicio</div>
-                        <div class="user-topbar-breadcrumb">
-                            <a href="dashboard.html">Inicio</a>
-                            <span>›</span>
-                            <span>Publicar Servicio</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="user-topbar-right">
-                    <a href="services.html" class="btn btn-secondary btn-sm">
-                        ← Volver a Servicios
-                    </a>
-                    <button class="user-topbar-notifications">
-                        <span>🔔</span>
-                        <span class="user-topbar-notifications-badge">5</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Content -->
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" class="sidebar-link"><i class="fas fa-house"></i> Inicio</a>
+                    <a href="services.html" class="sidebar-link"><i class="fas fa-search"></i> Servicios</a>
+                    <a href="my-contracts.html" class="sidebar-link"><i class="fas fa-compass"></i> Contratos</a>
+                    <a href="my-sales.html" class="sidebar-link"><i class="fas fa-film"></i> Ventas</a>
+                    <a href="wallet.html" class="sidebar-link"><i class="fas fa-wallet"></i> Billetera</a>
+                    <a href="messages.html" class="sidebar-link"><i class="fas fa-envelope"></i> Mensajes <span class="sidebar-badge" id="messages-badge">3</span></a>
+                    <a href="notifications.html" class="sidebar-link"><i class="fas fa-heart"></i> Notificaciones</a>
+                    <a href="create-service.html" class="sidebar-link"><i class="fas fa-plus"></i> Crear</a>
+                    <a href="profile.html" class="sidebar-link active"><img src="https://ui-avatars.com/api/?name=Usuario&size=32&background=8b5cf6&color=fff" class="sidebar-avatar"> Perfil</a>
+                </nav>
+            </aside>
+            
+        <main class="main-content">
             <div class="user-content">
-                <!-- Page Header -->
-                <div class="user-page-header">
-                    <h1 class="user-page-title">✨ Comparte tu Talento</h1>
-                    <p class="user-page-subtitle">Completa la información de tu servicio para comenzar a recibir solicitudes</p>
+                <div class="filters" style="margin-bottom: 2rem;">
+                    <a href="services.html" class="btn btn-secondary">← Volver a Servicios</a>
                 </div>
-
-                <div class="container-sm">
+                <div class="page-header">
+                    <h1 class="page-title">Comparte tu Talento</h1>
+                    <p class="text-primary">Completa la información de tu servicio para comenzar a recibir solicitudes</p>
+                </div>
+                <div class="form-container">
                     <div class="card">
-                        <div id="alert-container"></div>            <form id="create-service-form">
+                        <div id="alert-container"></div>
+                        <form id="create-service-form">
             <!-- Información Básica -->
             <div class="form-section">
-                <h3 class="form-section-title">Información Básica</h3>
+                <h3 class="form-section-title" style="color: #8b5cf6;">Información Básica</h3>
 
                 <div class="form-group">
                 <label for="title" class="form-label form-label-required">Título del Servicio</label>
@@ -173,11 +92,11 @@
 
             <!-- Precio y Disponibilidad -->
             <div class="form-section">
-                <h3 class="form-section-title">Precio y Disponibilidad</h3>
+                <h3 class="form-section-title" style="color: #8b5cf6;">Precio y Disponibilidad</h3>
 
                 <div class="grid grid-cols-2">
                 <div class="form-group">
-                    <label for="price" class="form-label form-label-required">Precio en Quetzales (Q)</label>
+                    <label for="price" class="form-label form-label-required">Precio en Quetzales (QZ)</label>
                     <input 
                     type="number" 
                     id="price" 
@@ -221,7 +140,7 @@
 
             <!-- Imágenes -->
             <div class="form-section">
-                <h3 class="form-section-title">Imágenes del Servicio</h3>
+                <h3 class="form-section-title" style="color: #8b5cf6;">Imágenes del Servicio</h3>
 
                 <div class="form-group">
                 <label for="images" class="form-label">Subir Imágenes (Máx. 5)</label>
@@ -241,7 +160,7 @@
 
             <!-- Requisitos del Cliente -->
             <div class="form-section">
-                <h3 class="form-section-title">Requisitos del Cliente</h3>
+                <h3 class="form-section-title" style="color: #8b5cf6;">Requisitos del Cliente</h3>
 
                 <div class="form-group">
                 <label for="requirements" class="form-label">¿Qué necesitas del cliente para comenzar?</label>
@@ -280,19 +199,24 @@
                 </button>
             </div>
             </form>
-                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Overlay para móviles -->
-    <div class="user-sidebar-overlay" id="sidebarOverlay"></div>
-
     <script src="/public/js/utils.js"></script>
     <script src="/public/js/api.js"></script>
-    <script src="/public/js/user-sidebar.js"></script>
     <script src="/public/js/create-service.js"></script>
     <script src="/public/js/app.js"></script>
+</form>
+                    </div>
+</div>
+</main>
+</div>
+
+<script src="/public/js/utils.js"></script>
+<script src="/public/js/api.js"></script>
+<script src="/public/js/create-service.js"></script>
+<script src="/public/js/app.js"></script>
 </body>
 </html>

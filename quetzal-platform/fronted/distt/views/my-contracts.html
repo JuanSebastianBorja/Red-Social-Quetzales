@@ -6,92 +6,31 @@
     <title>Mis Contrataciones - Quetzal Platform</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/public/css/main.css">
-    <link rel="stylesheet" href="/public/css/components.css">
-    <link rel="stylesheet" href="/public/css/user.css">
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/components.css">
+    <link rel="stylesheet" href="../public/css/user.css">
 </head>
-<body>
-    <div class="user-layout">
-        <aside class="user-sidebar" id="userSidebar">
-            <div class="user-sidebar-header">
-                <div class="user-sidebar-brand">
-                    <span class="user-sidebar-brand-icon">🦜</span>
-                    <span>Quetzal</span>
+    <body class="light-mode">
+        <div class="dashboard-layout">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <span class="sidebar-logo"><i class="fas fa-feather-alt">Quetzal Platform</i></span>
                 </div>
-            </div>
-            <div class="user-sidebar-profile">
-                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
-                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
-                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
-                <div class="user-sidebar-balance">
-                    <div class="user-sidebar-balance-label">Balance Disponible</div>
-                    <div class="user-sidebar-balance-amount">
-                        <span>💰</span>
-                        <span id="sidebar-balance">Q 0.00</span>
-                    </div>
-                </div>
-            </div>
-            <nav class="user-sidebar-nav">
-                <div class="user-sidebar-nav-title">Menú Principal</div>
-                <a href="dashboard.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">📊</span>
-                    <span class="user-sidebar-nav-text">Dashboard</span>
-                </a>
-                <a href="services.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">⚡</span>
-                    <span class="user-sidebar-nav-text">Servicios</span>
-                </a>
-                <a href="messages.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💬</span>
-                    <span class="user-sidebar-nav-text">Mensajes</span>
-                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
-                </a>
-                <a href="wallet.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💰</span>
-                    <span class="user-sidebar-nav-text">Billetera</span>
-                </a>
-                <a href="my-contracts.html" class="user-sidebar-nav-item active">
-                    <span class="user-sidebar-nav-icon">🛒</span>
-                    <span class="user-sidebar-nav-text">Mis Contrataciones</span>
-                </a>
-                <a href="my-sales.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💵</span>
-                    <span class="user-sidebar-nav-text">Mis Ventas</span>
-                </a>
-                <div class="user-sidebar-nav-title">Mi Cuenta</div>
-                <a href="profile.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">👤</span>
-                    <span class="user-sidebar-nav-text">Perfil</span>
-                </a>
-                <a href="create-service.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">➕</span>
-                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
-                </a>
-            </nav>
-            <div class="user-sidebar-footer">
-                <button class="user-sidebar-logout" id="logout-btn">
-                    <span>🚪</span>
-                    <span>Cerrar Sesión</span>
-                </button>
-            </div>
-        </aside>
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" class="sidebar-link"><i class="fas fa-house"></i> Inicio</a>
+                    <a href="services.html" class="sidebar-link"><i class="fas fa-search"></i> Servicios</a>
+                    <a href="my-contracts.html" class="sidebar-link"><i class="fas fa-compass"></i> Contratos</a>
+                    <a href="my-sales.html" class="sidebar-link"><i class="fas fa-film"></i> Ventas</a>
+                    <a href="wallet.html" class="sidebar-link"><i class="fas fa-wallet"></i> Billetera</a>
+                    <a href="messages.html" class="sidebar-link"><i class="fas fa-envelope"></i> Mensajes <span class="sidebar-badge" id="messages-badge">3</span></a>
+                    <a href="notifications.html" class="sidebar-link"><i class="fas fa-heart"></i> Notificaciones</a>
+                    <a href="create-service.html" class="sidebar-link"><i class="fas fa-plus"></i> Crear</a>
+                    <a href="profile.html" class="sidebar-link active"><img src="https://ui-avatars.com/api/?name=Usuario&size=32&background=8b5cf6&color=fff" class="sidebar-avatar"> Perfil</a>
+                </nav>
+            </aside>
 
-        <main class="user-main">
-            <div class="user-topbar">
-                <div class="user-topbar-left">
-                    <button class="user-toggle-btn" id="sidebarToggle"><span>☰</span></button>
-                    <div>
-                        <div class="user-topbar-title">Mis Contrataciones</div>
-                        <div class="user-topbar-breadcrumb">
-                            <a href="dashboard.html">Inicio</a>
-                            <span>›</span>
-                            <span>Mis Contrataciones</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="user-content animate-fadeIn">
+        <main class="main-content">
+            <div class="user-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4">
                     <div>
                         <h1 class="h2 fw-bold mb-1 page-title">
@@ -134,39 +73,27 @@
                 <!-- Stats Cards -->
                 <div class="row mb-4 g-3">
                     <div class="col-md-3">
-                        <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <div class="card-body py-4">
-                                <i class="fas fa-file-contract fa-2x mb-2 text-white opacity-75"></i>
-                                <h3 class="mb-1 fw-bold text-white" id="totalContracts">0</h3>
-                                <small class="text-white opacity-90">Total Contrataciones</small>
-                            </div>
+                        <div class="stat-card h-100">
+                            <div class="stat-card-value" id="totalContracts">0</div>
+                            <div class="stat-card-label">Total Contrataciones</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                            <div class="card-body py-4">
-                                <i class="fas fa-clock fa-2x mb-2 text-white opacity-75"></i>
-                                <h3 class="mb-1 fw-bold text-white" id="pendingContracts">0</h3>
-                                <small class="text-white opacity-90">Pendientes</small>
-                            </div>
+                        <div class="stat-card h-100">
+                            <div class="stat-card-value" id="pendingContracts">0</div>
+                            <div class="stat-card-label">Pendientes</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                            <div class="card-body py-4">
-                                <i class="fas fa-spinner fa-2x mb-2 text-white opacity-75"></i>
-                                <h3 class="mb-1 fw-bold text-white" id="activeContracts">0</h3>
-                                <small class="text-white opacity-90">Activos</small>
-                            </div>
+                        <div class="stat-card h-100">
+                            <div class="stat-card-value" id="activeContracts">0</div>
+                            <div class="stat-card-label">Activos</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card text-center border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                            <div class="card-body py-4">
-                                <i class="fas fa-check-circle fa-2x mb-2 text-white opacity-75"></i>
-                                <h3 class="mb-1 fw-bold text-white" id="completedContracts">0</h3>
-                                <small class="text-white opacity-90">Completados</small>
-                            </div>
+                        <div class="stat-card h-100">
+                            <div class="stat-card-value" id="completedContracts">0</div>
+                            <div class="stat-card-label">Completados</div>
                         </div>
                     </div>
                 </div>

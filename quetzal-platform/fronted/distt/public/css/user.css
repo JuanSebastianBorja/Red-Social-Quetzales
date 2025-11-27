@@ -1,3 +1,130 @@
+.user-topnav-profile.large-avatar, .user-topnav-profile .large-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+}
+.large-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+}
+.profile-text {
+    font-size: 1.1rem;
+    color: #6d28d9;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.profile-text:hover {
+    color: #4c1d95;
+    text-decoration: underline;
+}
+/* --- Barra superior horizontal (topnav) --- */
+/* --- Barra superior horizontal (topnav) --- */
+.user-topnav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.5rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 2rem;
+}
+.user-topnav-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 270px;
+}
+.user-topnav-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: #8b5cf6;
+}
+.user-topnav-center {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex: 1;
+    justify-content: center;
+}
+.user-topnav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 170px;
+    justify-content: flex-end;
+}
+.user-topnav .user-sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    font-size: 1rem;
+}
+.user-topnav .user-sidebar-nav-item.active,
+.user-topnav .user-sidebar-nav-item:hover {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+.user-topnav .user-sidebar-nav-badge {
+    background: #6d28d9;
+    color: #fff;
+    border-radius: 999px;
+    padding: 0 0.5em;
+    font-size: 0.8em;
+    margin-left: 0.2em;
+}
+.user-topnav .user-sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ede9fe;
+}
+.user-topnav .user-sidebar-logout {
+    background: #f3f4f6;
+    border: none;
+    color: #6d28d9;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.user-topnav .user-sidebar-logout:hover {
+    background: #ede9fe;
+}
+
+/* Layout principal: centrar y limitar ancho */
+.user-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f9fafb;
+}
+.user-main {
+    flex: 1;
+    margin-top: 80px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 1rem 2rem 1rem;
+    background: transparent;
+}
 /* ==================================
    USER PANEL LAYOUT - Sidebar Desplegable
    ================================== */
@@ -38,10 +165,6 @@
 .user-sidebar-brand {
     font-size: 1.5rem;
     font-weight: 700;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
     display: flex;
     align-items: center;
     gap: 0.5rem;

@@ -5,134 +5,69 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Mensajes - Quetzal Platform</title>
-	<link rel="stylesheet" href="/public/css/main.css">
-	<link rel="stylesheet" href="/public/css/components.css">
-	<link rel="stylesheet" href="/public/css/user.css">
-	<link rel="stylesheet" href="/public/css/messages.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="../public/css/main.css">
+	<link rel="stylesheet" href="../public/css/components.css">
+	<link rel="stylesheet" href="../public/css/user.css">
+	<link rel="stylesheet" href="../public/css/messages.css">
 </head>
-<body>
-	<div class="user-layout">
-		<!-- Sidebar -->
-		<aside class="user-sidebar" id="userSidebar">
-			<!-- Header -->
-			<div class="user-sidebar-header">
-				<div class="user-sidebar-brand">
-					<span class="user-sidebar-brand-icon">🦜</span>
-					<span>Quetzal</span>
+	<body class="light-mode">
+		<div class="dashboard-layout">
+			<aside class="sidebar">
+				<div class="sidebar-header">
+					<span class="sidebar-logo"><i class="fas fa-feather-alt">Quetzal Platform</i></span>
+				</div>
+				<nav class="sidebar-nav">
+					<a href="dashboard.html" class="sidebar-link"><i class="fas fa-house"></i> Inicio</a>
+					<a href="services.html" class="sidebar-link"><i class="fas fa-search"></i> Servicios</a>
+					<a href="my-contracts.html" class="sidebar-link"><i class="fas fa-compass"></i> Contratos</a>
+					<a href="my-sales.html" class="sidebar-link"><i class="fas fa-film"></i> Ventas</a>
+					<a href="wallet.html" class="sidebar-link"><i class="fas fa-wallet"></i> Billetera</a>
+					<a href="messages.html" class="sidebar-link"><i class="fas fa-envelope"></i> Mensajes <span class="sidebar-badge" id="messages-badge">3</span></a>
+					<a href="notifications.html" class="sidebar-link"><i class="fas fa-heart"></i> Notificaciones</a>
+					<a href="create-service.html" class="sidebar-link"><i class="fas fa-plus"></i> Crear</a>
+					<a href="profile.html" class="sidebar-link active"><img src="https://ui-avatars.com/api/?name=Usuario&size=32&background=8b5cf6&color=fff" class="sidebar-avatar"> Perfil</a>
+				</nav>
+			</aside>
+
+	<main class="main-content">
+		<div class="user-content">
+			<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4">
+				<div>
+					<h1 class="h2 fw-bold mb-1 page-title">
+						<i class="fas fa-envelope me-2 text-primary"></i> Mensajes
+					</h1>
+					<p class="text-primary mb-0">Gestiona tus conversaciones y mensajes</p>
 				</div>
 			</div>
-
-			<!-- User Profile -->
-			<div class="user-sidebar-profile">
-				<img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
-				<div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
-				<div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
-				<div class="user-sidebar-balance">
-					<div class="user-sidebar-balance-label">Balance Disponible</div>
-					<div class="user-sidebar-balance-amount">
-						<span>💰</span>
-						<span id="sidebar-balance">Q 0.00</span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Navigation -->
-			<nav class="user-sidebar-nav">
-				<div class="user-sidebar-nav-title">Menú Principal</div>
-				<a href="dashboard.html" class="user-sidebar-nav-item">
-					<span class="user-sidebar-nav-icon">📊</span>
-					<span class="user-sidebar-nav-text">Dashboard</span>
-				</a>
-				<a href="services.html" class="user-sidebar-nav-item">
-					<span class="user-sidebar-nav-icon">⚡</span>
-					<span class="user-sidebar-nav-text">Servicios</span>
-				</a>
-				<a href="messages.html" class="user-sidebar-nav-item active">
-					<span class="user-sidebar-nav-icon">💬</span>
-					<span class="user-sidebar-nav-text">Mensajes</span>
-					<span class="user-sidebar-nav-badge" id="messages-badge">3</span>
-				</a>
-				<a href="wallet.html" class="user-sidebar-nav-item">
-					<span class="user-sidebar-nav-icon">💰</span>
-					<span class="user-sidebar-nav-text">Billetera</span>
-				</a>
-
-				<div class="user-sidebar-nav-title">Mi Cuenta</div>
-				<a href="profile.html" class="user-sidebar-nav-item">
-					<span class="user-sidebar-nav-icon">👤</span>
-					<span class="user-sidebar-nav-text">Perfil</span>
-				</a>
-				<a href="create-service.html" class="user-sidebar-nav-item">
-					<span class="user-sidebar-nav-icon">➕</span>
-					<span class="user-sidebar-nav-text">Publicar Servicio</span>
-				</a>
-			</nav>
-
-			<!-- Footer -->
-			<div class="user-sidebar-footer">
-				<button class="user-sidebar-logout" id="logout-btn">
-					<span>🚪</span>
-					<span>Cerrar Sesión</span>
-				</button>
-			</div>
-		</aside>
-
-		<!-- Main Content -->
-		<main class="user-main">
-			<!-- Top Bar -->
-			<div class="user-topbar">
-				<div class="user-topbar-left">
-					<button class="user-toggle-btn" id="sidebarToggle">
-						<span>☰</span>
-					</button>
-					<div>
-						<div class="user-topbar-title">Mensajes</div>
-						<div class="user-topbar-breadcrumb">
-							<a href="dashboard.html">Inicio</a>
-							<span>›</span>
-							<span>Mensajes</span>
+			<div class="card mb-4">
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-4">
+							<h3>Conversaciones</h3>
+							<ul id="conversations-list">Cargando...</ul>
+						</div>
+						<div class="col-md-8">
+							<div id="chat-header">Selecciona una conversación</div>
+							<div id="messages-container" class="messages-container"></div>
+							<form id="message-form" class="message-form mt-3" style="display:none;">
+								<div class="input-group">
+									<input type="text" id="message-input" class="form-control" placeholder="Escribe un mensaje..." autocomplete="off" required />
+									<button type="submit" class="btn btn-primary">Enviar</button>
+								</div>
+							</form>
 						</div>
 					</div>
 				</div>
-				<div class="user-topbar-right">
-					<div class="user-topbar-search">
-						<span class="user-topbar-search-icon">🔍</span>
-						<input type="text" placeholder="Buscar conversaciones...">
-					</div>
-					<button class="user-topbar-notifications">
-						<span>🔔</span>
-						<span class="user-topbar-notifications-badge">5</span>
-					</button>
-				</div>
 			</div>
-
-			<!-- Content -->
-			<div class="user-content animate-fadeIn">
-				<div class="messages-layout animate-slideInUp">
-					<aside class="conversations">
-						<h3>Conversaciones</h3>
-						<ul id="conversations-list">Cargando...</ul>
-					</aside>
-
-					<section class="chat">
-						<div id="chat-header">Selecciona una conversación</div>
-						<div id="messages-container" class="messages-container"></div>
-						<form id="message-form" class="message-form" style="display:none;">
-							<input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off" required />
-							<button type="submit">Enviar</button>
-						</form>
-					</section>
-				</div>
-			</div>
-		</main>
-	</div>
-
-	<!-- Overlay para móviles -->
-	<div class="user-sidebar-overlay" id="sidebarOverlay"></div>
-
-	<script src="/public/js/utils.js"></script>
-	<script src="/public/js/user-sidebar.js"></script>
-	<script type="module" src="/public/js/messages.js"></script>
-	<script src="/public/js/app.js"></script>
+		</div>
+		<!-- Overlay para móviles -->
+		<div class="user-sidebar-overlay" id="sidebarOverlay"></div>
+		<!-- Scripts -->
+		<script src="/public/js/utils.js"></script>
+		<script src="/public/js/user-sidebar.js"></script>
+		<script type="module" src="/public/js/messages.js"></script>
+		<script src="/public/js/app.js"></script>
+	</main>
 </body>
 </html>

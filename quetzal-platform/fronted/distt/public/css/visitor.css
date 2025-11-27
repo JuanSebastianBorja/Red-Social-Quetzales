@@ -108,7 +108,6 @@ VISITOR.CSS - Estilos para vistas de visitantes
 
 /* Search Section */
 .search-section {
-    background: var(--primary-gradient);
     color: white;
     padding: var(--spacing-3xl) var(--spacing-xl);
     text-align: center;
@@ -126,7 +125,7 @@ VISITOR.CSS - Estilos para vistas de visitantes
 
 .search-box {
     max-width: 600px;
-    margin: var(--spacing-xl) auto;
+    margin: 0 auto;
     position: relative;
 }
 
@@ -415,10 +414,8 @@ VISITOR.CSS - Estilos para vistas de visitantes
 
 /* Footer */
 footer {
-    background: var(--bg-secondary);
     border-top: 1px solid var(--border-color);
     color: var(--text-secondary);
-    padding: var(--spacing-2xl);
     text-align: center;
 }
 
@@ -426,10 +423,6 @@ footer a {
     color: var(--text-secondary);
     margin: 0 var(--spacing-md);
     transition: color var(--transition-fast);
-}
-
-footer a:hover {
-    color: var(--primary-light);
 }
 
 /* Responsive */

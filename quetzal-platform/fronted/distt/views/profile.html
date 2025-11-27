@@ -4,286 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Quetzal Platform</title>
-    <link rel="stylesheet" href="/public/css/main.css">
-    <link rel="stylesheet" href="/public/css/user.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/user.css">
 </head>
-<body>
-    <div class="user-layout">
-        <!-- Sidebar -->
-        <aside class="user-sidebar" id="userSidebar">
-            <!-- Header -->
-            <div class="user-sidebar-header">
-                <div class="user-sidebar-brand">
-                    <span class="user-sidebar-brand-icon">🦜</span>
-                    <span>Quetzal</span>
-                </div>
+<body class="light-mode">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo"><i class="fas fa-feather-alt">Quetzal Platform</i></span>
             </div>
-
-            <!-- User Profile -->
-            <div class="user-sidebar-profile">
-                <img id="sidebar-avatar" class="user-sidebar-avatar" src="https://ui-avatars.com/api/?name=Usuario&size=128&background=8b5cf6&color=fff" alt="Avatar">
-                <div class="user-sidebar-name" id="sidebar-user-name">Cargando...</div>
-                <div class="user-sidebar-email" id="sidebar-user-email">usuario@email.com</div>
-                <div class="user-sidebar-balance">
-                    <div class="user-sidebar-balance-label">Balance Disponible</div>
-                    <div class="user-sidebar-balance-amount">
-                        <span>💰</span>
-                        <span id="sidebar-balance">Q 0.00</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="user-sidebar-nav">
-                <div class="user-sidebar-nav-title">Menú Principal</div>
-                <a href="dashboard.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">📊</span>
-                    <span class="user-sidebar-nav-text">Dashboard</span>
-                </a>
-                <a href="services.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">⚡</span>
-                    <span class="user-sidebar-nav-text">Servicios</span>
-                </a>
-                <a href="messages.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💬</span>
-                    <span class="user-sidebar-nav-text">Mensajes</span>
-                    <span class="user-sidebar-nav-badge" id="messages-badge">3</span>
-                </a>
-                <a href="wallet.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💰</span>
-                    <span class="user-sidebar-nav-text">Billetera</span>
-                </a>
-                <a href="my-contracts.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">📄</span>
-                    <span class="user-sidebar-nav-text">Mis Contrataciones</span>
-                </a>
-                <a href="my-sales.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">💼</span>
-                    <span class="user-sidebar-nav-text">Mis Ventas</span>
-                </a>
-
-                <div class="user-sidebar-nav-title">Mi Cuenta</div>
-                <a href="profile.html" class="user-sidebar-nav-item active">
-                    <span class="user-sidebar-nav-icon">👤</span>
-                    <span class="user-sidebar-nav-text">Perfil</span>
-                </a>
-                <a href="create-service.html" class="user-sidebar-nav-item">
-                    <span class="user-sidebar-nav-icon">➕</span>
-                    <span class="user-sidebar-nav-text">Publicar Servicio</span>
-                </a>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link"><i class="fas fa-house"></i> Inicio</a>
+                <a href="services.html" class="sidebar-link"><i class="fas fa-search"></i> Servicios</a>
+                <a href="my-contracts.html" class="sidebar-link"><i class="fas fa-compass"></i> Contratos</a>
+                <a href="my-sales.html" class="sidebar-link"><i class="fas fa-film"></i> Ventas</a>
+                <a href="wallet.html" class="sidebar-link"><i class="fas fa-wallet"></i> Billetera</a>
+                <a href="messages.html" class="sidebar-link"><i class="fas fa-envelope"></i> Mensajes <span class="sidebar-badge" id="messages-badge">3</span></a>
+                <a href="notifications.html" class="sidebar-link"><i class="fas fa-heart"></i> Notificaciones</a>
+                <a href="create-service.html" class="sidebar-link"><i class="fas fa-plus"></i> Crear</a>
+                <a href="profile.html" class="sidebar-link active"><img src="https://ui-avatars.com/api/?name=Usuario&size=32&background=8b5cf6&color=fff" class="sidebar-avatar"> Perfil</a>
             </nav>
-
-            <!-- Footer -->
-            <div class="user-sidebar-footer">
-                <button class="user-sidebar-logout" id="logout-btn">
-                    <span>🚪</span>
-                    <span>Cerrar Sesión</span>
-                </button>
+            <div class="sidebar-bottom" style="margin-top:auto;">
             </div>
         </aside>
-
-        <!-- Main Content -->
-        <main class="user-main">
-            <!-- Top Bar -->
-            <div class="user-topbar">
-                <div class="user-topbar-left">
-                    <button class="user-toggle-btn" id="sidebarToggle">
-                        <span>☰</span>
-                    </button>
-                    <div>
-                        <div class="user-topbar-title">Mi Perfil</div>
-                        <div class="user-topbar-breadcrumb">
-                            <a href="dashboard.html">Inicio</a>
-                            <span>›</span>
-                            <span>Perfil</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="user-topbar-right">
-                    <button class="btn btn-primary btn-sm" id="save-profile-btn">
-                        💾 Guardar Cambios
-                    </button>
-                    <button class="user-topbar-notifications">
-                        <span>🔔</span>
-                        <span class="user-topbar-notifications-badge">5</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Content -->
+        <main class="main-content">
             <div class="user-content">
-                <!-- Page Header -->
-                <div class="user-page-header">
-                    <h1 class="user-page-title">Gestiona tu Perfil</h1>
-                    <p class="user-page-subtitle">Actualiza tu información personal y preferencias</p>
+                <div class="page-header">
+                    <h1 class="page-title">Gestiona tu Perfil</h1>
+                    <p class="text-primary">Actualiza tu información personal y preferencias</p>
                 </div>
-
-                <!-- Profile Content -->
-                <div class="grid" style="grid-template-columns: 300px 1fr; gap: 2rem;">
-                    <!-- Sidebar -->
-                    <aside class="profile-sidebar">
-                        <div class="card">
-                            <div class="profile-avatar-wrapper">
-                                <img 
-                                    src="https://ui-avatars.com/api/?name=Usuario+Demo&size=120&background=8b5cf6&color=fff" 
-                                    alt="Avatar" 
-                                    class="avatar avatar-xl mb-3"
-                                    id="profile-avatar">
-                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('avatar-input').click()">
-                                    Cambiar Foto
-                                </button>
-                                <input type="file" id="avatar-input" accept="image/*" class="profile-avatar-upload">
-                            </div>
-                            
-                            <hr class="my-4 border-top">
-                            
-                            <div class="profile-stats">
-                                <div class="profile-stat">
-                                    <div class="profile-stat-value">4.8</div>
-                                    <div class="profile-stat-label">Rating</div>
+                <div class="profile-content">
+                  <div class="profile-layout">
+                    <nav class="profile-menu-vertical">
+                        <button class="profile-menu-btn active" data-section="info-personal">Información Personal</button>
+                        <button class="profile-menu-btn" data-section="seguridad">Seguridad</button>
+                        <button class="profile-menu-btn" data-section="notificaciones">Notificaciones</button>
+                        <hr style="margin:1.2em 0; border:none; border-top:1.5px solid #e5e7eb;">
+                        <button class="profile-menu-btn" id="logout-profile-btn" style="color:#b91c1c;font-weight:600;gap:0.6em;"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+                    </nav>
+                    <div class="profile-sections-container">
+                        <!-- Tab: Información Personal -->
+                        <div class="profile-section" id="info-personal" style="display:block;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Información Personal</h2>
+                                    <p class="card-subtitle">Actualiza tus datos de contacto y perfil</p>
                                 </div>
-                                <div class="profile-stat">
-                                    <div class="profile-stat-value">127</div>
-                                    <div class="profile-stat-label">Servicios</div>
-                                </div>
+                                <form id="profile-form">
+                                    <div class="grid grid-cols-2">
+                                        <div class="form-group">
+                                            <label for="fullName" class="form-label form-label-required">Nombre Completo</label>
+                                            <input type="text" id="fullName" class="form-input" value="Juan Pérez García" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="phone" class="form-label form-label-required">Teléfono</label>
+                                            <input type="tel" id="phone" class="form-input" value="+57 300 123 4567" required>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2">
+                                        <div class="form-group">
+                                            <label for="city" class="form-label">Ciudad</label>
+                                            <select id="city" class="form-select">
+                                                <option value="bogota" selected>Bogotá</option>
+                                                <option value="medellin">Medellín</option>
+                                                <option value="cali">Cali</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="userType" class="form-label">Tipo de Cuenta</label>
+                                            <select id="userType" class="form-select">
+                                                <option value="provider">Proveedor</option>
+                                                <option value="consumer">Consumidor</option>
+                                                <option value="both" selected>Ambos</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bio" class="form-label">Biografía</label>
+                                        <textarea id="bio" class="form-textarea" placeholder="Cuéntanos sobre ti, tu experiencia y servicios...">Desarrollador Full Stack con 5 años de experiencia en Node.js, React y bases de datos SQL/NoSQL. Especializado en crear aplicaciones web escalables y eficientes.</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="website" class="form-label">Sitio Web</label>
+                                        <input type="url" id="website" class="form-input" placeholder="https://tu-sitio.com">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                </form>
                             </div>
                         </div>
-
-                        <!-- Navigation Menu -->
-                        <div class="card mt-3 p-0">
-                            <nav class="profile-nav">
-                                <a href="#info-personal" class="profile-nav-link active" data-tab="info-personal">
-                                    📋 Información Personal
-                                </a>
-                                <a href="#seguridad" class="profile-nav-link" data-tab="seguridad">
-                                    🔒 Seguridad
-                                </a>
-                                <a href="#habilidades" class="profile-nav-link" data-tab="habilidades">
-                                    ⚡ Habilidades
-                                </a>
-                                <a href="#actividad" class="profile-nav-link" data-tab="actividad">
-                                    🧾 Mi Actividad
-                                </a>
-                                <a href="#notificaciones" class="profile-nav-link" data-tab="notificaciones">
-                                    🔔 Notificaciones
-                                </a>
-                            </nav>
-                        </div>
-                    </aside>
-
-                    <!-- Content Area -->
-                    <main>
-            <!-- Tab: Información Personal -->
-            <div class="tab-content active" id="info-personal">
-            <div class="card">
-                <div class="card-header">
-                <h2 class="card-title">Información Personal</h2>
-                <p class="card-subtitle">Actualiza tus datos de contacto y perfil</p>
-                </div>
-
-                <form id="profile-form">
-                <div class="grid grid-cols-2">
-                    <div class="form-group">
-                    <label for="fullName" class="form-label form-label-required">Nombre Completo</label>
-                    <input 
-                        type="text" 
-                        id="fullName" 
-                        class="form-input" 
-                        value="Juan Pérez García"
-                        required>
-                    </div>
-
-                    <div class="form-group">
-                    <label for="phone" class="form-label form-label-required">Teléfono</label>
-                    <input 
-                        type="tel" 
-                        id="phone" 
-                        class="form-input" 
-                        value="+57 300 123 4567"
-                        required>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2">
-                    <div class="form-group">
-                    <label for="city" class="form-label">Ciudad</label>
-                    <select id="city" class="form-select">
-                        <option value="bogota" selected>Bogotá</option>
-                        <option value="medellin">Medellín</option>
-                        <option value="cali">Cali</option>
-                    </select>
-                    </div>
-
-                    <div class="form-group">
-                    <label for="userType" class="form-label">Tipo de Cuenta</label>
-                    <select id="userType" class="form-select">
-                        <option value="provider">Proveedor</option>
-                        <option value="consumer">Consumidor</option>
-                        <option value="both" selected>Ambos</option>
-                    </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="bio" class="form-label">Biografía</label>
-                    <textarea 
-                    id="bio" 
-                    class="form-textarea" 
-                    placeholder="Cuéntanos sobre ti, tu experiencia y servicios...">Desarrollador Full Stack con 5 años de experiencia en Node.js, React y bases de datos SQL/NoSQL. Especializado en crear aplicaciones web escalables y eficientes.</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="website" class="form-label">Sitio Web</label>
-                    <input 
-                    type="url" 
-                    id="website" 
-                    class="form-input" 
-                    placeholder="https://tu-sitio.com">
-                </div>
-
-                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                </form>
-            </div>
-            </div>
-
-            <!-- Tab: Seguridad -->
-            <div class="tab-content" id="seguridad">
-            <div class="card">
-                <div class="card-header">
-                <h2 class="card-title">Seguridad de la Cuenta</h2>
-                <p class="card-subtitle">Actualiza tu contraseña y configura la seguridad</p>
-                </div>
-
-                <form id="security-form">
-                <div class="form-group">
-                    <label for="currentPassword" class="form-label form-label-required">Contraseña Actual</label> 
-                    type="password" 
-                    id="currentPassword" 
-                    class="form-input" 
-                    placeholder="Tu contraseña actual"
-                    required>
-                </div>
-
-                <div class="form-group">
-                    <label for="newPassword" class="form-label form-label-required">Nueva Contraseña</label>
-                    <input 
-                    type="password" 
-                    id="newPassword" 
-                    class="form-input" 
-                    placeholder="Mínimo 8 caracteres"
-                    required>
-                    <span class="form-help">Debe contener al menos 8 caracteres, una mayúscula y un número</span>
-                </div>
-
-                <div class="form-group">
-                    <label for="confirmNewPassword" class="form-label form-label-required">Confirmar Nueva Contraseña</label>
-                    <input 
-                    type="password" 
-                    id="confirmNewPassword" 
-                    class="form-input" 
-                    placeholder="Repite la nueva contraseña"
-                    required>
-                </div>
+                        <!-- Tab: Seguridad -->
+                        <div class="profile-section" id="seguridad" style="display:none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Seguridad de la Cuenta</h2>
+                                    <p class="card-subtitle">Actualiza tu contraseña y configura la seguridad</p>
+                                </div>
+                                <form id="security-form">
+                                    <div class="form-group">
+                                        <label for="currentPassword" class="form-label form-label-required">Contraseña Actual</label>
+                                        <input type="password" id="currentPassword" class="form-input" placeholder="Tu contraseña actual" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newPassword" class="form-label form-label-required">Nueva Contraseña</label>
+                                        <input type="password" id="newPassword" class="form-input" placeholder="Mínimo 8 caracteres" required>
+                                        <span class="form-help">Debe contener al menos 8 caracteres, una mayúscula y un número</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirmNewPassword" class="form-label form-label-required">Confirmar Nueva Contraseña</label>
+                                        <input type="password" id="confirmNewPassword" class="form-input" placeholder="Repite la nueva contraseña" required>
+                                    </div>
 
                 <button type="submit" class="btn btn-primary">Actualizar Contraseña</button>
                 </form>
@@ -291,7 +120,7 @@
             </div>
 
             <!-- Tab: Habilidades -->
-            <div class="tab-content" id="habilidades">
+            <div class="profile-section" id="habilidades" style="display:none;">
             <div class="card">
                 <div class="card-header">
                 <h2 class="card-title">Habilidades y Experiencia</h2>
@@ -325,7 +154,7 @@
             </div>
 
             <!-- Tab: Notificaciones -->
-            <div class="tab-content" id="notificaciones">
+            <div class="profile-section" id="notificaciones" style="display:none;">
             <div class="card">
                 <div class="card-header">
                 <h2 class="card-title">Preferencias de Notificaciones</h2>
@@ -395,7 +224,7 @@
             </div>
 
             <!-- Tab: Actividad (Wallet, Mis Servicios, Transacciones) -->
-            <div class="tab-content" id="actividad">
+            <div class="profile-section" id="actividad" style="display:none;">
             <div class="card">
                 <div class="card-header">
                 <h2 class="card-title">Mi Actividad</h2>
@@ -441,13 +270,32 @@
         </main>
     </div>
 
-    <!-- Overlay para móviles -->
-    <div class="user-sidebar-overlay" id="sidebarOverlay"></div>
-
-    <script src="/public/js/utils.js"></script>
-    <script src="/public/js/api.js"></script>
-    <script src="/public/js/user-sidebar.js"></script>
-    <script src="/public/js/profile.js"></script>
-    <script src="/public/js/app.js"></script>
+        <script src="/public/js/utils.js"></script>
+        <script src="/public/js/api.js"></script>
+        <script src="/public/js/user-sidebar.js"></script>
+        <script src="/public/js/profile.js"></script>
+        <script src="/public/js/app.js"></script>
+        <script>
+        // Navegación de secciones de perfil
+        document.querySelectorAll('.profile-menu-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // No activar el botón de cerrar sesión como tab
+                if(this.id === 'logout-profile-btn') return;
+                document.querySelectorAll('.profile-menu-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const section = this.getAttribute('data-section');
+                document.querySelectorAll('.profile-section').forEach(sec => {
+                    sec.style.display = (sec.id === section) ? 'block' : 'none';
+                });
+            });
+        });
+        // Acción de cerrar sesión desde el menú de perfil
+        document.getElementById('logout-profile-btn').addEventListener('click', function() {
+            if(confirm('¿Seguro que deseas cerrar sesión?')) {
+                // Aquí puedes agregar lógica de cierre de sesión si es necesario
+                window.location.href = 'landing-page.html';
+            }
+        });
+        </script>
 </body>
 </html>
