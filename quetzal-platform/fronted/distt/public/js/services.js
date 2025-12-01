@@ -30,14 +30,27 @@
     };
 
     // Event Listeners
-    searchInput.addEventListener('input', debounce(handleSearch, 300));
-    categorySelect.addEventListener('change', handleCategoryChange);
-    sortSelect.addEventListener('change', handleSortChange);
-    clearFiltersBtn.addEventListener('click', clearFilters);
-    logoutBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    logout();
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
+    } else {
+        console.warn("Elemento '#search' no encontrado en services.html");
+    }
+
+    if (categorySelect) {
+        categorySelect.addEventListener('change', handleCategoryChange); // <-- Línea 37 aprox
+    } else {
+        console.warn("Elemento '#category' no encontrado en services.html");
+    }
+    if (sortSelect) {
+        sortSelect.addEventListener('change', handleSortChange); // <-- Otra línea susceptible
+    } else {
+        console.warn("Elemento '#sort' no encontrado en services.html");
+    }
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', clearFilters);
+    } else {
+        console.warn("Elemento '#clear-filters-btn' no encontrado en services.html");
+    }
 
     // Filtros rápidos
     filterButtons.forEach(btn => {
@@ -69,141 +82,31 @@
      */
     async function loadServices() {
     try {
+        console.log("services.js: Iniciando carga de servicios...");
         loadingState.style.display = 'flex';
         servicesGrid.style.display = 'none';
         emptyState.style.display = 'none';
         
         // Llamada a la API
-        // const response = await API.getServices();
+        const response = await API.getServices();
+        console.log("services.js: Respuesta de API.getServices recibida:", response);
         
-        // Simulación con datos de ejemplo
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        allServices = [
-        {
-            id: '1',
-            title: 'Desarrollo de Sitio Web Profesional',
-            category: 'desarrollo',
-            description: 'Creo sitios web profesionales y modernos con las últimas tecnologías. Diseño responsivo, optimización SEO, panel de administración.',
-            price: 15.5,
-            deliveryTime: '7 días',
-            rating: 4.9,
-            reviews: 127,
-            image: 'https://via.placeholder.com/400x300/6366f1/ffffff?text=Web+Dev',
-            provider: { name: 'Carlos Méndez', avatar: 'https://ui-avatars.com/api/?name=Carlos+Mendez' },
-            status: 'active'
-        },
-        {
-            id: '2',
-            title: 'Diseño de Logotipo y Marca',
-            category: 'diseno',
-            description: 'Diseño profesional de logotipos y marca completa. Incluye manual de marca, papelería y archivos en todos los formatos.',
-            price: 8.0,
-            deliveryTime: '3 días',
-            rating: 4.8,
-            reviews: 89,
-            image: 'https://via.placeholder.com/400x300/10b981/ffffff?text=Logo+Design',
-            provider: { name: 'Ana García', avatar: 'https://ui-avatars.com/api/?name=Ana+Garcia' },
-            status: 'active'
-        },
-        {
-            id: '3',
-            title: 'Consultoría en Marketing Digital',
-            category: 'marketing',
-            description: 'Estrategias de marketing digital personalizadas para tu negocio. Análisis, planificación y ejecución de campañas.',
-            price: 25.0,
-            deliveryTime: '14 días',
-            rating: 4.7,
-            reviews: 56,
-            image: 'https://via.placeholder.com/400x300/f59e0b/ffffff?text=Marketing',
-            provider: { name: 'Luis Rodríguez', avatar: 'https://ui-avatars.com/api/?name=Luis+Rodriguez' },
-            status: 'active'
-        },
-        {
-            id: '4',
-            title: 'Edición de Video Profesional',
-            category: 'video',
-            description: 'Edición de videos para YouTube, redes sociales o eventos. Incluye corrección de color, efectos y música.',
-            price: 12.0,
-            deliveryTime: '5 días',
-            rating: 4.9,
-            reviews: 103,
-            image: 'https://via.placeholder.com/400x300/ef4444/ffffff?text=Video+Edit',
-            provider: { name: 'María Torres', avatar: 'https://ui-avatars.com/api/?name=Maria+Torres' },
-            status: 'active'
-        },
-        {
-            id: '5',
-            title: 'Traducción Español-Inglés',
-            category: 'escritura',
-            description: 'Traducciones profesionales de documentos, sitios web y contenido. Nativo bilingüe con experiencia.',
-            price: 4.5,
-            deliveryTime: '2 días',
-            rating: 4.6,
-            reviews: 78,
-            image: 'https://via.placeholder.com/400x300/8b5cf6/ffffff?text=Translation',
-            provider: { name: 'Jorge Silva', avatar: 'https://ui-avatars.com/api/?name=Jorge+Silva' },
-            status: 'active'
-        },
-        {
-            id: '6',
-            title: 'Desarrollo de App Móvil',
-            category: 'desarrollo',
-            description: 'Desarrollo de aplicaciones móviles nativas para iOS y Android. UI/UX moderno y funcional.',
-            price: 45.0,
-            deliveryTime: '30 días',
-            rating: 4.8,
-            reviews: 34,
-            image: 'https://via.placeholder.com/400x300/3b82f6/ffffff?text=Mobile+App',
-            provider: { name: 'Roberto Castro', avatar: 'https://ui-avatars.com/api/?name=Roberto+Castro' },
-            status: 'active'
-        },
-        {
-            id: '7',
-            title: 'Ilustraciones Digitales',
-            category: 'diseno',
-            description: 'Ilustraciones digitales personalizadas para libros, proyectos o redes sociales. Estilo único.',
-            price: 10.0,
-            deliveryTime: '5 días',
-            rating: 5.0,
-            reviews: 91,
-            image: 'https://via.placeholder.com/400x300/ec4899/ffffff?text=Illustration',
-            provider: { name: 'Laura Ramírez', avatar: 'https://ui-avatars.com/api/?name=Laura+Ramirez' },
-            status: 'active'
-        },
-        {
-            id: '8',
-            title: 'Tutorías de Programación',
-            category: 'educacion',
-            description: 'Clases personalizadas de programación en JavaScript, Python, React. Aprende a tu ritmo.',
-            price: 6.0,
-            deliveryTime: '1 día',
-            rating: 4.7,
-            reviews: 67,
-            image: 'https://via.placeholder.com/400x300/14b8a6/ffffff?text=Tutoring',
-            provider: { name: 'Pedro Hernández', avatar: 'https://ui-avatars.com/api/?name=Pedro+Hernandez' },
-            status: 'active'
-        },
-        {
-            id: '9',
-            title: 'Composición Musical Original',
-            category: 'musica',
-            description: 'Composición de música original para videos, podcasts o proyectos. Diferentes géneros disponibles.',
-            price: 18.0,
-            deliveryTime: '7 días',
-            rating: 4.9,
-            reviews: 45,
-            image: 'https://via.placeholder.com/400x300/f97316/ffffff?text=Music',
-            provider: { name: 'Andrea Morales', avatar: 'https://ui-avatars.com/api/?name=Andrea+Morales' },
-            status: 'active'
+        if (!response.success) {
+            throw new Error(response.message || 'Error al cargar servicios');
         }
-        ];
-        
+
+        allServices = response.data || []; 
         filteredServices = [...allServices];
+
+        console.log("services.js: Servicios cargados (allServices):", allServices);
+        console.log("services.js: Servicios filtrados (filteredServices):", filteredServices);
+
         displayServices();
         
     } catch (error) {
+        console.error("services.js: Error en loadServices:", error);
         showAlert('Error al cargar los servicios', 'error');
+        
     }
     }
 
@@ -211,33 +114,45 @@
      * Muestra los servicios en el grid
      */
     function displayServices() {
-    loadingState.style.display = 'none';
+        console.log("services.js: Iniciando displayServices...");
+        console.log("services.js: filteredServices.length:", filteredServices.length);
+
+        loadingState.style.display = 'none';
     
-    if (filteredServices.length === 0) {
-        servicesGrid.style.display = 'none';
-        emptyState.style.display = 'block';
-        return;
-    }
+        if (filteredServices.length === 0) {
+            console.log("services.js: No hay servicios para mostrar, mostrando empty state.");
+
+            servicesGrid.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+        console.log("services.js: Hay servicios para mostrar, ocultando empty state y renderizando.");
+        emptyState.style.display = 'none';
+        servicesGrid.style.display = 'grid';
+        servicesGrid.innerHTML = '';
     
-    emptyState.style.display = 'none';
-    servicesGrid.style.display = 'grid';
-    servicesGrid.innerHTML = '';
-    
-    // Calcular paginación
-    const startIndex = (currentPage - 1) * servicesPerPage;
-    const endIndex = startIndex + servicesPerPage;
-    const paginatedServices = filteredServices.slice(startIndex, endIndex);
+        // Calcular paginación
+        const startIndex = (currentPage - 1) * servicesPerPage;
+        const endIndex = startIndex + servicesPerPage;
+        const paginatedServices = filteredServices.slice(startIndex, endIndex);
+
+        console.log("services.js: Servicios paginados a renderizar:", paginatedServices);
     
     paginatedServices.forEach(service => {
+        console.log("services.js: Renderizando servicio:", service);
+
         const serviceCard = createServiceCard(service);
         servicesGrid.appendChild(serviceCard);
     });
     
     // Actualizar paginación
     updatePagination();
+
+    console.log("services.js: Display completado.");
     }
 
-    /**
+    
+      /**
      * Crea una tarjeta de servicio
      */
     function createServiceCard(service) {
@@ -245,7 +160,7 @@
     card.className = 'card service-card';
     card.innerHTML = `
         <img 
-        src="${service.image}" 
+        src="${service.images?.[0]?.imageUrl || '/public/images/service-placeholder.png'}"
         alt="${service.title}"
         class="service-card-image">
         
@@ -268,7 +183,8 @@
             </div>
         </div>
         <div class="service-card-price">
-            ${formatQuetzales(service.price)}
+            <!-- CORREGIDO: Convertir service.price a número antes de llamar a formatQuetzales -->
+            ${formatQuetzales(parseFloat(service.price))}
         </div>
         </div>
         

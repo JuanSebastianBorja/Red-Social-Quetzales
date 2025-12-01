@@ -25,15 +25,16 @@ const ServiceImage = sequelize.define('ServiceImage', {
       isUUID: { args: 4, msg: 'El ID del servicio debe tener formato UUID válido.' },
     },
   },
+
   imageUrl: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    field: 'image_url',
-    validate: {
-      notEmpty: { msg: 'La URL de la imagen es obligatoria.' },
-      isUrl: { msg: 'La URL de la imagen debe ser válida.' },
-    },
+  type: DataTypes.TEXT,
+  allowNull: false,
+  field: 'image_url',
+  validate: {
+    notEmpty: { msg: 'La URL de la imagen es obligatoria.' }
   },
+  },
+  
   isPrimary: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,

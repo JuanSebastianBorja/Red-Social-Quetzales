@@ -45,8 +45,8 @@ Transaction.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 // Service
 Service.hasMany(Rating, { foreignKey: 'service_id', as: 'ratings', onDelete: 'CASCADE' });
-Service.hasMany(ServiceImage, { foreignKey: 'serviceId', as: 'images', onDelete: 'CASCADE' });
-ServiceImage.belongsTo(Service, { foreignKey: 'serviceId', as: 'imageService', onDelete: 'CASCADE' });
+Service.hasMany(ServiceImage, {foreignKey: 'serviceId',as: 'images',onDelete: 'CASCADE' });
+ServiceImage.belongsTo(Service, {foreignKey: 'serviceId',as: 'imageService',onDelete: 'CASCADE' });
 
 
 // ServiceRequest

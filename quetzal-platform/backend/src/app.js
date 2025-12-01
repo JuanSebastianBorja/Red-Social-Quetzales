@@ -23,6 +23,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const contractRoutes = require('./routes/contractRoutes');
 const healthRoutes = require('./routes/healthRoutes');
+const serviceImageRoutes = require('./routes/serviceImageRoutes');
 
 const app = express();
 
@@ -67,6 +68,8 @@ app.use(compression());
 // Body Parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Servir carpeta uploads (imagenes de servicios)
+app.use('/uploads', express.static('uploads'));
 
 // Logging
 if (process.env.NODE_ENV !== 'production') {
@@ -110,6 +113,8 @@ app.use('/api/ratings', ratingRoutes);
 app.use('/api/contracts', require('./routes/contractRoutes'));
 app.use('/api/messages', messageRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/services', serviceImageRoutes);
 
 // Ruta raíz
 app.get('/', (req, res) => {

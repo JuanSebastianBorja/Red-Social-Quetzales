@@ -1,6 +1,6 @@
 [build]
-  publish = "."
-  command = "echo 'No build needed for static site'"
+  publish = "distt"
+  command = "echo 'Frontend listo'"
 
 [[redirects]]
   from = "/"

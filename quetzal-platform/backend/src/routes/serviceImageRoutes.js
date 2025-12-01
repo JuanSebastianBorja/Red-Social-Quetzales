@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const { body } = require('express-validator');
-const { uploadImage, getImagesByService, getImageById, updateImage, deleteImage } = require('../controllers/ServiceImageController');
+const {upload, uploadServiceImages, getImagesByService} = require('../controllers/ServiceImageController');
 
 // Validaciones
 const validateImage = [
@@ -19,23 +19,14 @@ const validateImage = [
 // RUTAS PROTEGIDAS (requieren autenticación)
 // ============================================
 
-// POST /api/services/:serviceId/images - Subir imagen para un servicio
-router.post('/services/:serviceId/images', auth, validateImage, uploadImage);
+// Subir imágenes usando Multer
+router.post('/services/:serviceId/images/upload', auth, uploadServiceImages);
 
-// PUT /api/service-images/:id - Actualizar imagen
-router.put('/service-images/:id', auth, validateImage, updateImage);
-
-// DELETE /api/service-images/:id - Eliminar imagen
-router.delete('/service-images/:id', auth, deleteImage);
 
 // ============================================
 // RUTAS PÚBLICAS
 // ============================================
 
-// GET /api/services/:serviceId/images - Obtener imágenes de un servicio
 router.get('/services/:serviceId/images', getImagesByService);
-
-// GET /api/service-images/:id - Obtener imagen por ID
-router.get('/service-images/:id', getImageById);
 
 module.exports = router;

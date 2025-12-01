@@ -83,6 +83,7 @@ const API = {
   async getServices(filters = {}) { const q = new URLSearchParams(filters).toString(); return request(`/services?${q}`); },
   async getService(id) { return request(`/services/${id}`); },
   async createService(data) { return request('/services', { method: 'POST', body: data }); },
+  async uploadServiceImages(formData) { return request('/services/upload-images', { method: 'POST', body: formData }); },
   async updateService(id, data) { return request(`/services/${id}`, { method: 'PUT', body: data }); },
   async deleteService(id) { return request(`/services/${id}`, { method: 'DELETE' }); },
   async getMyServices() { return request('/services/my-services'); },
