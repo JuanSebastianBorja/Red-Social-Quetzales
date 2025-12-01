@@ -9,13 +9,23 @@ const { sequelize } = require("../config/database");
 const { QZ_TO_COP, copToQZ } = require("../utils/currency");
 const ePayco = require('epayco-sdk-node');
 
-// Inicializar el SDK con las credenciales desde las variables de entorno
-const epayco = new ePayco({
-  apiKey: process.env.EPAYCO_PUBLIC_KEY,
-  privateKey: process.env.EPAYCO_PRIVATE_KEY,
-  lang: "ES", // Idioma
-  test: process.env.EPAYCO_TEST === 'true' || process.env.EPAYCO_TEST === '1' // Booleano para sandbox
-});
+// Inicializar el SDK solo si hay credenciales válidas configuradas
+let epayco = null;
+if (process.env.EPAYCO_PUBLIC_KEY && process.env.EPAYCO_PRIVATE_KEY) {
+  try {
+    epayco = new ePayco({
+      apiKey: process.env.EPAYCO_PUBLIC_KEY,
+      privateKey: process.env.EPAYCO_PRIVATE_KEY,
+      lang: "ES",
+      test: process.env.EPAYCO_TEST === 'true' || process.env.EPAYCO_TEST === '1'
+    });
+  } catch (e) {
+    console.warn('⚠️ ePayco no se inicializó (credenciales inválidas o faltantes). Continuando en modo local.');
+    epayco = null;
+  }
+} else {
+  console.log('ℹ️ ePayco deshabilitado en desarrollo: EPAYCO_PUBLIC_KEY/PRIVATE_KEY no definidos');
+}
 
 // ============================================
 // Utilidades internas

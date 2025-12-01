@@ -96,8 +96,7 @@ async function createContract(req, res) {
         buyerId: buyerId,
         sellerId: service.userId,
         amount: servicePrice,
-        status: 'created',
-        releaseCondition: 'buyer_approval'
+        status: 'pending'
       }, { transaction: t });
 
       // Crear contrato
@@ -132,9 +131,12 @@ async function createContract(req, res) {
       // Registrar transacción en wallet
       await Transaction.create({
         userId: buyerId,
+        walletId: buyerWallet.id,
+        type: 'purchase',
+        paymentMethod: 'wallet',
+        status: 'completed',
+        amount: totalAmount,
         amountQZ: totalAmount,
-        kind: 'debit',
-        category: 'contract',
         description: `Contrato ${contractNumber} - ${service.title}`
       }, { transaction: t });
 
@@ -320,9 +322,12 @@ async function updateContractStatus(req, res) {
           // Registrar transacción
           await Transaction.create({
             userId: seller.id,
+            walletId: sellerWallet.id,
+            type: 'payment',
+            paymentMethod: 'wallet',
+            status: 'completed',
+            amount: parseFloat(escrow.amount),
             amountQZ: parseFloat(escrow.amount),
-            kind: 'credit',
-            category: 'contract_payment',
             description: `Pago recibido - Contrato ${contract.contractNumber}`
           }, { transaction: t });
 
@@ -355,9 +360,12 @@ async function updateContractStatus(req, res) {
 
             await Transaction.create({
               userId: buyer.id,
+              walletId: buyerWalletCancel.id,
+              type: 'refund',
+              paymentMethod: 'wallet',
+              status: 'completed',
+              amount: refundAmount,
               amountQZ: refundAmount,
-              kind: 'credit',
-              category: 'refund',
               description: `Reembolso - Contrato ${contract.contractNumber} cancelado`
             }, { transaction: t });
 

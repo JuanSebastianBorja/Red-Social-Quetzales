@@ -48,10 +48,10 @@
     submitBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></span> Creando cuenta...';
 
     try {
-        // Llamada a Supabase Auth
-        const result = await SupabaseAuth.signUp(formData);
+            // Llamada a API del backend (registro con JWT)
+            const result = await API.register(formData);
         
-        showAlert('¡Cuenta creada exitosamente! Revisa tu email para confirmar.', 'success');
+            showAlert('¡Cuenta creada exitosamente! Redirigiendo al login...', 'success');
         
         // Redireccionar después de 2 segundos
         setTimeout(() => {

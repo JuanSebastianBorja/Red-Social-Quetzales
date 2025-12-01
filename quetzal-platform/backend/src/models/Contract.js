@@ -19,6 +19,7 @@ const Contract = sequelize.define('Contract', {
     type: DataTypes.STRING(50),
     allowNull: false,
     unique: true,
+    field: 'contract_number',
     comment: 'Número único del contrato (ej: CTR-2025-001234)'
   },
   
@@ -26,6 +27,7 @@ const Contract = sequelize.define('Contract', {
   serviceId: {
     type: DataTypes.UUID,
     allowNull: false,
+    field: 'service_id',
     references: {
       model: 'services',
       key: 'id'
@@ -36,6 +38,7 @@ const Contract = sequelize.define('Contract', {
   buyerId: {
     type: DataTypes.UUID,
     allowNull: false,
+    field: 'buyer_id',
     references: {
       model: 'users',
       key: 'id'
@@ -46,6 +49,7 @@ const Contract = sequelize.define('Contract', {
   sellerId: {
     type: DataTypes.UUID,
     allowNull: false,
+    field: 'seller_id',
     references: {
       model: 'users',
       key: 'id'
@@ -56,6 +60,7 @@ const Contract = sequelize.define('Contract', {
   escrowId: {
     type: DataTypes.UUID,
     allowNull: true,
+    field: 'escrow_id',
     references: {
       model: 'escrow_accounts',
       key: 'id'
@@ -101,6 +106,7 @@ const Contract = sequelize.define('Contract', {
   servicePrice: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
+    field: 'service_price',
     comment: 'Precio del servicio en Quetzales'
   },
   
@@ -108,12 +114,14 @@ const Contract = sequelize.define('Contract', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
     defaultValue: 0,
+    field: 'platform_fee',
     comment: 'Comisión de la plataforma'
   },
   
   totalAmount: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
+    field: 'total_amount',
     comment: 'Monto total (servicio + comisión)'
   },
   
@@ -121,24 +129,28 @@ const Contract = sequelize.define('Contract', {
   deliveryDays: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    field: 'delivery_days',
     comment: 'Días de entrega acordados'
   },
   
   startedAt: {
     type: DataTypes.DATE,
     allowNull: true,
+    field: 'started_at',
     comment: 'Fecha en que el vendedor comenzó a trabajar'
   },
   
   deliveredAt: {
     type: DataTypes.DATE,
     allowNull: true,
+    field: 'delivered_at',
     comment: 'Fecha en que el vendedor entregó el trabajo'
   },
   
   completedAt: {
     type: DataTypes.DATE,
     allowNull: true,
+    field: 'completed_at',
     comment: 'Fecha en que el comprador confirmó y aceptó'
   },
   
@@ -153,6 +165,7 @@ const Contract = sequelize.define('Contract', {
     type: DataTypes.JSONB,
     allowNull: true,
     defaultValue: [],
+    field: 'delivery_files',
     comment: 'URLs de archivos entregados por el vendedor'
   },
   
@@ -175,6 +188,7 @@ const Contract = sequelize.define('Contract', {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 2,
+    field: 'max_revisions',
     comment: 'Máximo de revisiones permitidas'
   },
   
@@ -182,8 +196,9 @@ const Contract = sequelize.define('Contract', {
   conversationId: {
     type: DataTypes.UUID,
     allowNull: true,
+    field: 'conversation_id',
     references: {
-      model: 'Conversations',
+      model: 'conversations',
       key: 'id'
     },
     comment: 'Conversación asociada al contrato'
@@ -193,6 +208,7 @@ const Contract = sequelize.define('Contract', {
   ratingId: {
     type: DataTypes.UUID,
     allowNull: true,
+    field: 'rating_id',
     references: {
       model: 'ratings',
       key: 'id'
@@ -204,30 +220,35 @@ const Contract = sequelize.define('Contract', {
   buyerNotes: {
     type: DataTypes.TEXT,
     allowNull: true,
+    field: 'buyer_notes',
     comment: 'Notas privadas del comprador'
   },
   
   sellerNotes: {
     type: DataTypes.TEXT,
     allowNull: true,
+    field: 'seller_notes',
     comment: 'Notas privadas del vendedor'
   },
   
   adminNotes: {
     type: DataTypes.TEXT,
     allowNull: true,
+    field: 'admin_notes',
     comment: 'Notas del administrador (en caso de disputa)'
   },
   
   // Razón de cancelación o disputa
   cancellationReason: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: true,
+    field: 'cancellation_reason'
   },
   
   disputeReason: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: true,
+    field: 'dispute_reason'
   },
   
   // Metadata adicional
@@ -240,16 +261,18 @@ const Contract = sequelize.define('Contract', {
 }, {
   tableName: 'contracts',
   timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
   indexes: [
-    { fields: ['contractNumber'], unique: true },
-    { fields: ['serviceId'] },
-    { fields: ['buyerId'] },
-    { fields: ['sellerId'] },
+    { fields: ['contract_number'], unique: true },
+    { fields: ['service_id'] },
+    { fields: ['buyer_id'] },
+    { fields: ['seller_id'] },
     { fields: ['status'] },
-    { fields: ['escrowId'] },
-    { fields: ['createdAt'] },
-    { fields: ['buyerId', 'status'] },
-    { fields: ['sellerId', 'status'] }
+    { fields: ['escrow_id'] },
+    { fields: ['created_at'] },
+    { fields: ['buyer_id', 'status'] },
+    { fields: ['seller_id', 'status'] }
   ]
 });
 

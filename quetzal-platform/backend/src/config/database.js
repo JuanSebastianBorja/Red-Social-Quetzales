@@ -2,10 +2,8 @@
 // DATABASE.JS - Configuración de Sequelize
 // ============================================
 const { Sequelize } = require('sequelize');
-const path = require('path');
-
-// Cargar variables de entorno desde .env
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+// Las variables de entorno ya se cargan en server.js con dotenv
+// Aquí solo usamos process.env directamente
 
 // Configuración de Sequelize
 let sequelize;
@@ -27,7 +25,7 @@ if (process.env.DATABASE_URL) {
             underscored: true,
             freezeTableName: true
         },
-        dialectOptions: process.env.DB_SSL === 'true' || /sslmode=require/i.test(process.env.DATABASE_URL) ? {
+        dialectOptions: process.env.DB_SSL === 'true' || /sslmode=require/i.test(process.env.DATABASE_URL || '') ? {
             ssl: {
                 require: true,
                 rejectUnauthorized: false
@@ -56,12 +54,12 @@ if (process.env.DATABASE_URL) {
                 underscored: true,
                 freezeTableName: true
             },
-            dialectOptions: {
-                ssl: process.env.DB_SSL === 'true' ? {
+            dialectOptions: process.env.DB_SSL === 'true' ? {
+                ssl: {
                     require: true,
                     rejectUnauthorized: false
-                } : false
-            }
+                }
+            } : {}
         }
     );
 }

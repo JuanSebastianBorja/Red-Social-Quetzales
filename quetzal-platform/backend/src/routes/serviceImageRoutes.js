@@ -20,7 +20,7 @@ const validateImage = [
 // ============================================
 
 // Subir imágenes usando Multer
-router.post('/services/:serviceId/images/upload', auth, uploadServiceImages);
+router.post('/services/:serviceId/images/upload', auth.protect, uploadServiceImages);
 
 
 // ============================================

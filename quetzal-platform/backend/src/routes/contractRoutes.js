@@ -14,6 +14,13 @@ router.use(protect);
 // RUTAS DE CONTRATOS
 // ============================================
 
+// GET /api/contracts/my/purchases - Mis compras (como comprador)
+// IMPORTANTE: Rutas específicas ANTES de rutas con parámetros
+router.get('/my/purchases', contractController.getMyPurchases);
+
+// GET /api/contracts/my/sales - Mis ventas (como vendedor)
+router.get('/my/sales', contractController.getMySales);
+
 // POST /api/contracts - Crear nuevo contrato (contratar servicio)
 router.post('/', 
   contractController.createContractValidators,
@@ -28,11 +35,5 @@ router.put('/:id/status',
   contractController.updateStatusValidators,
   contractController.updateContractStatus
 );
-
-// GET /api/contracts/my/purchases - Mis compras (como comprador)
-router.get('/my/purchases', contractController.getMyPurchases);
-
-// GET /api/contracts/my/sales - Mis ventas (como vendedor)
-router.get('/my/sales', contractController.getMySales);
 
 module.exports = router;

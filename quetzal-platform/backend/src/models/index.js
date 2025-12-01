@@ -3,7 +3,7 @@
 // ============================================
 
 const Sequelize = require("sequelize");
-const sequelize = require("../config/database"); 
+const { sequelize } = require("../config/database");
 const User = require('./User');
 const Service = require('./Service');
 const AdminRole = require('./AdminRole');
