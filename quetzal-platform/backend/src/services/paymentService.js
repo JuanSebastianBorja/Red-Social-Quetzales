@@ -7,15 +7,22 @@ const { Transaction: SequelizeTransaction } = require("sequelize");
 const { Transaction, Wallet } = require("../models");
 const { sequelize } = require("../config/database");
 const { QZ_TO_COP, copToQZ } = require("../utils/currency");
-const ePayco = require('epayco-sdk-node');
+const Epayco = require('epayco-sdk-node');
 
-// Inicializar el SDK con las credenciales desde las variables de entorno
-const epayco = new ePayco({
-  apiKey: process.env.EPAYCO_PUBLIC_KEY,
-  privateKey: process.env.EPAYCO_PRIVATE_KEY,
-  lang: "ES", // Idioma
-  test: process.env.EPAYCO_TEST === 'true' || process.env.EPAYCO_TEST === '1' // Booleano para sandbox
-});
+// Inicialización perezosa (solo si se requiere y existen credenciales)
+let epayco = null;
+function getEpayco() {
+  if (epayco) return epayco;
+  const apiKey = process.env.EPAYCO_PUBLIC_KEY;
+  const privateKey = process.env.EPAYCO_PRIVATE_KEY;
+  const isTest = process.env.EPAYCO_TEST === 'true' || process.env.EPAYCO_TEST === '1';
+  if (!apiKey || !privateKey) {
+    console.warn('[payment] EPAYCO_PUBLIC_KEY/EPAYCO_PRIVATE_KEY no configurados. Evitando inicializar SDK.');
+    return null;
+  }
+  epayco = new Epayco({ apiKey, privateKey, lang: 'ES', test: isTest });
+  return epayco;
+}
 
 // ============================================
 // Utilidades internas

@@ -105,6 +105,57 @@ CREATE TABLE service_images (
 );
 
 -- ============================================
+-- TABLA: RATINGS 
+-- ============================================
+CREATE TABLE ratings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(service_id, user_id)
+);
+
+-- ============================================
+-- TABLA: CONVERSATIONS 
+-- ============================================
+CREATE TABLE conversations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user1_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user2_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    service_id UUID REFERENCES services(id) ON DELETE SET NULL,
+    last_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_message_preview TEXT,
+    unread_count_user1 INTEGER DEFAULT 0,
+    unread_count_user2 INTEGER DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'archived', 'blocked')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CHECK (user1_id < user2_id),
+    UNIQUE(user1_id, user2_id, service_id)
+);
+
+-- ============================================
+-- TABLA: ESCROW_ACCOUNTS 
+-- ============================================
+CREATE TABLE escrow_accounts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    service_id UUID NOT NULL REFERENCES services(id) ON DELETE RESTRICT,
+    buyer_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    seller_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0),
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'funded', 'released', 'refunded', 'disputed')),
+    funded_at TIMESTAMP,
+    release_date TIMESTAMP,
+    released_at TIMESTAMP,
+    dispute_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
 -- TABLA: TRANSACTIONS (Actualizada con campos para PSE)
 -- ============================================
 DO $$ BEGIN
@@ -198,7 +249,7 @@ CREATE TYPE contract_status AS ENUM (
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE TABLE contracts (
-id SERIAL PRIMARY KEY,
+id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 contract_number VARCHAR(50) NOT NULL UNIQUE,
 
 service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
@@ -245,25 +296,6 @@ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
-
--- ============================================
--- TABLA: ESCROW_ACCOUNTS 
--- ============================================
-CREATE TABLE escrow_accounts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    service_id UUID NOT NULL REFERENCES services(id) ON DELETE RESTRICT,
-    buyer_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-    seller_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-    amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0),
-    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'funded', 'released', 'refunded', 'disputed')),
-    funded_at TIMESTAMP,
-    release_date TIMESTAMP,
-    released_at TIMESTAMP,
-    dispute_reason TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- ============================================
 -- TABLA: SERVICE_REQUESTS 
 -- ============================================
@@ -285,39 +317,6 @@ CREATE TABLE service_requests (
     negotiated_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- ============================================
--- TABLA: RATINGS 
--- ============================================
-CREATE TABLE ratings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-    comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(service_id, user_id)
-);
-
--- ============================================
--- TABLA: CONVERSATIONS 
--- ============================================
-CREATE TABLE conversations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user1_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    user2_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    service_id UUID REFERENCES services(id) ON DELETE SET NULL,
-    last_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_message_preview TEXT,
-    unread_count_user1 INTEGER DEFAULT 0,
-    unread_count_user2 INTEGER DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'archived', 'blocked')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    CHECK (user1_id < user2_id),
-    UNIQUE(user1_id, user2_id, service_id)
 );
 
 -- ============================================
@@ -457,8 +456,6 @@ CREATE INDEX idx_services_created_at ON services(created_at DESC);
 
 CREATE INDEX idx_service_images_service_id ON service_images(service_id);
 
-CREATE INDEX idx_transactions_reference_id ON transactions(reference_id);
-
 CREATE INDEX idx_escrow_service_id ON escrow_accounts(service_id);
 CREATE INDEX idx_escrow_buyer_id ON escrow_accounts(buyer_id);
 CREATE INDEX idx_escrow_seller_id ON escrow_accounts(seller_id);
@@ -589,15 +586,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Crear función para actualizar updated_at automáticamente
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
 -- ============================================
 -- TRIGGERS
 -- ============================================
@@ -657,19 +645,6 @@ CREATE TRIGGER update_transactions_updated_at
     BEFORE UPDATE ON transactions
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
-
-    CREATE OR REPLACE FUNCTION update_contracts_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-NEW.updated_at = CURRENT_TIMESTAMP;
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_contracts_updated_at
-BEFORE UPDATE ON contracts
-FOR EACH ROW
-EXECUTE FUNCTION update_contracts_updated_at();
 
 CREATE TRIGGER update_contracts_updated_at 
     BEFORE UPDATE ON contracts

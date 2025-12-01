@@ -2,18 +2,22 @@
     // AUTH MIDDLEWARE - Middleware de Autenticación
     // ============================================
 
-    const { createClient } = require('@supabase/supabase-js');
-    const jwt = require('jsonwebtoken');
-    const User = require('../models/User');
+        const { createClient } = require('@supabase/supabase-js');
+        const jwt = require('jsonwebtoken');
+        const User = require('../models/User');
 
-    // Inicializar cliente de Supabase usando las mismas credenciales que el frontend
-const supabase = createClient(
-  process.env.SUPABASE_URL, // Asegúrate de tener esta variable de entorno en Render
-  process.env.SUPABASE_ANON_KEY  // Asegúrate de tener esta variable de entorno en Render
-);
+        // Inicializar cliente de Supabase solo si hay variables de entorno presentes
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+let supabase = null;
+if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} else {
+    console.warn('[auth] SUPABASE_URL/SUPABASE_ANON_KEY no configurados. Usando verificación JWT local.');
+}
 
 
-    // Proteger rutas - Verificar JWT
+    // Proteger rutas - Verificar autenticación (Supabase o JWT local)
     exports.protect = async (req, res, next) => {
     try {
         let token;
@@ -31,46 +35,48 @@ const supabase = createClient(
         });
         }
 
-        try {
-      // Verificar token usando el cliente de Supabase Auth
-      const { data, error } = await supabase.auth.getUser(token);
+                try {
+            let userId = null;
 
-      if (error) {
-        console.error("Error verificando token con Supabase:", error);
-        throw error; // Lanzar el error para que lo maneje el catch
-      }
+            if (supabase) {
+                // Verificar token usando Supabase Auth si está configurado
+                const { data, error } = await supabase.auth.getUser(token);
+                if (error) {
+                    console.error('Error verificando token con Supabase:', error);
+                    throw error;
+                }
+                userId = data.user?.id;
+            } else {
+                // Fallback: verificar JWT local
+                const decoded = jwt.verify(token, process.env.JWT_SECRET || 'quetzal_secret_key_2024');
+                userId = decoded.id;
+            }
 
-      const supabaseUser = data.user;
+            if (!userId) {
+                return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
+            }
 
-        // Buscar usuario
-        const user = await User.findByPk(supabaseUser.id,{
-            attributes: { exclude: ['password'] }
-        });
+            // Buscar usuario local
+            const user = await User.findByPk(userId, { attributes: { exclude: ['password'] } });
 
-        if (!user) {
-            return res.status(401).json({
-            success: false,
-            message: 'Usuario no encontrado'
-            });
-        }
+            if (!user) {
+                return res.status(401).json({ success: false, message: 'Usuario no encontrado' });
+            }
 
-        if (!user.isActive) {
-            return res.status(403).json({
-            success: false,
-            message: 'Tu cuenta ha sido desactivada'
-            });
-        }
+            if (!user.isActive) {
+                return res.status(403).json({ success: false, message: 'Tu cuenta ha sido desactivada' });
+            }
 
-        // Agregar usuario al request
-        req.user = user;
-        next();
+            // Agregar usuario al request
+            req.user = user;
+            next();
 
-        } catch (error) {
-        return res.status(401).json({
-            success: false,
-            message: 'Token inválido o expirado'
-        });
-        }
+                } catch (error) {
+                return res.status(401).json({
+                        success: false,
+                        message: 'Token inválido o expirado'
+                });
+                }
 
     } catch (error) {
         next(error);
@@ -117,7 +123,7 @@ exports.requireAdmin = (req, res, next) => {
     };
     };
 
-    // Opcional: Protección suave (no requiere autenticación pero la usa si existe)
+        // Opcional: Protección suave (no requiere autenticación pero la usa si existe)
     exports.optionalAuth = async (req, res, next) => {
   try {
     let token;
@@ -126,32 +132,36 @@ exports.requireAdmin = (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
     }
 
-    if (token) {
-      try {
-        // CORREGIDO: Usar supabase.auth.getUser en lugar de jwt.verify
-        const { data, error } = await supabase.auth.getUser(token);
+        if (token) {
+            try {
+                let userId = null;
+                if (supabase) {
+                    const { data, error } = await supabase.auth.getUser(token);
+                    if (error) {
+                        console.error('Token opcional inválido (Supabase):', error);
+                    } else {
+                        userId = data.user?.id;
+                    }
+                } else {
+                    try {
+                        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'quetzal_secret_key_2024');
+                        userId = decoded.id;
+                    } catch (e) {
+                        // token inválido, continuar sin usuario
+                    }
+                }
 
-        if (error) {
-            // Token inválido, continuar sin usuario
-            console.error("Token opcional inválido (Supabase):", error);
-        } else {
-            const supabaseUser = data.user;
-
-            // Buscar usuario en tu base de datos local
-            const user = await User.findByPk(supabaseUser.id, { // <-- CORREGIDO: Usar supabaseUser.id
-                attributes: { exclude: ['password'] }
-            });
-
-            if (user && user.isActive) {
-                req.user = user; // <-- Adjuntar usuario local a req
+                if (userId) {
+                    const user = await User.findByPk(userId, { attributes: { exclude: ['password'] } });
+                    if (user && user.isActive) {
+                        req.user = user;
+                    }
+                }
+            } catch (error) {
+                // Error inesperado al verificar token opcional, continuar sin usuario
+                console.error('Error verificando token opcional:', error);
             }
         }
-      } catch (error) {
-        // Error inesperado al verificar token opcional, continuar sin usuario
-        console.error("Error verificando token opcional (Supabase):", error);
-        // No se adjunta req.user, se continúa sin autenticación
-      }
-    }
 
     next();
 

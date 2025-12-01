@@ -6,7 +6,25 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const { body } = require('express-validator');
-const {upload, uploadServiceImages, getImagesByService} = require('../controllers/ServiceImageController');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+const { uploadServiceImages, getImagesByService } = require('../controllers/ServiceImageController');
+
+// Configurar almacenamiento para multer
+const uploadDir = path.join(process.cwd(), 'uploads', 'service_images');
+try { fs.mkdirSync(uploadDir, { recursive: true }); } catch (_) {}
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    cb(null, unique + '-' + safeName);
+  }
+});
+const upload = multer({ storage });
 
 // Validaciones
 const validateImage = [
@@ -20,7 +38,7 @@ const validateImage = [
 // ============================================
 
 // Subir imágenes usando Multer
-router.post('/services/:serviceId/images/upload', auth, uploadServiceImages);
+router.post('/services/:serviceId/images/upload', auth.protect, upload.array('images', 10), uploadServiceImages);
 
 
 // ============================================
