@@ -20,7 +20,12 @@ function getEpayco() {
     console.warn('[payment] EPAYCO_PUBLIC_KEY/EPAYCO_PRIVATE_KEY no configurados. Evitando inicializar SDK.');
     return null;
   }
-  epayco = new Epayco({ apiKey, privateKey, lang: 'ES', test: isTest });
+  try {
+    epayco = new Epayco({ apiKey, privateKey, lang: 'ES', test: isTest });
+  } catch (e) {
+    console.warn('⚠️ No se pudo inicializar ePayco SDK:', e?.message || e);
+    epayco = null;
+  }
   return epayco;
 }
 

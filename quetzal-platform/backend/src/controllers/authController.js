@@ -239,10 +239,14 @@
 
     // Verificar el token con el cliente de Supabase (esto lo puedes hacer en el controlador o en un servicio aparte)
     // Asegúrate de que tienes el cliente de Supabase inicializado en este archivo o importado desde otro lugar
-    const { createClient } = require('@supabase/supabase-js'); 
-
-    // Crear cliente de Supabase
-    const supabaseClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+        const { createClient } = require('@supabase/supabase-js'); 
+        if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+            return res.status(503).json({
+                success: false,
+                message: 'Supabase no está configurado en el backend. Define SUPABASE_URL y SUPABASE_ANON_KEY.'
+            });
+        }
+        const supabaseClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
     // Usar el cliente de Supabase para verificar el token
     const { data, error } = await supabaseClient.auth.getUser(token);

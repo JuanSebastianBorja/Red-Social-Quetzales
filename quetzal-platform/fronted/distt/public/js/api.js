@@ -50,26 +50,23 @@ async function request(endpoint, options = {}) {
 
 const API = {
   // Auth
-  async register(userData) { return request('/auth/register', { method: 'POST', body: userData }); },
+  async register(userData) {
+    const result = await request('/auth/register', { method: 'POST', body: userData });
+    const token = result?.data?.token || result?.token;
+    const user = result?.data?.user || result?.user;
+    if (token) setAuthToken(token);
+    if (user) setCurrentUser(user);
+    return result;
+  },
   async login(credentials) {
-    //const result = await request('/auth/login', { method: 'POST', body: credentials });
-    //if (result?.token) setAuthToken(result.token);
-    //if (result?.user) setCurrentUser(result.user);
-    //return result;
-    // Nueva función para sincronizar con Supabase
-    const result = await SupabaseAuth.signIn(credentials.email, credentials.password);
-    // Llama a la API del backend para sincronizar el usuario
-    const syncResult = await request('/auth/sync-with-supabase', { method: 'POST', body: { token: result.session.access_token } });
-    // Guarda el token de Supabase (o el del backend si aplica) y los datos del usuario local
-    localStorage.setItem('quetzal_token', result.session.access_token);
-    localStorage.setItem('quetzal_user', JSON.stringify(syncResult.user));
-    setCurrentUser(syncResult.user);
-    return syncResult;
+    const result = await request('/auth/login', { method: 'POST', body: credentials });
+    const token = result?.data?.token || result?.token;
+    const user = result?.data?.user || result?.user;
+    if (token) setAuthToken(token);
+    if (user) setCurrentUser(user);
+    return result;
   },
-  // Nueva función para sincronizar
-  async syncUserWithSupabase(token) {
-    return request('/auth/sync-with-supabase', { method: 'POST', body: { token } });
-  },
+  // Eliminado: flujo de Supabase ya no se usa
   
   async logout() { await request('/auth/logout', { method: 'POST' }); setAuthToken(null); setCurrentUser(null); },
   async verifyToken() { return request('/auth/verify'); },

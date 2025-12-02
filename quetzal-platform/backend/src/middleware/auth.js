@@ -6,15 +6,14 @@
         const jwt = require('jsonwebtoken');
         const User = require('../models/User');
 
-        // Inicializar cliente de Supabase solo si hay variables de entorno presentes
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-let supabase = null;
-if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} else {
-    console.warn('[auth] SUPABASE_URL/SUPABASE_ANON_KEY no configurados. Usando verificación JWT local.');
-}
+        // Inicializar Supabase SOLO si hay credenciales
+        const hasSupabase = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
+        const supabase = hasSupabase
+            ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+            : null;
+        if (!hasSupabase) {
+            console.warn('[auth] SUPABASE_URL/SUPABASE_ANON_KEY no configurados. Usando verificación JWT local.');
+        }
 
 
     // Proteger rutas - Verificar autenticación (Supabase o JWT local)
@@ -36,28 +35,33 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY) {
         }
 
                 try {
-            let userId = null;
+            let user = null;
 
             if (supabase) {
-                // Verificar token usando Supabase Auth si está configurado
+                // Verificar token usando el cliente de Supabase Auth
                 const { data, error } = await supabase.auth.getUser(token);
+
                 if (error) {
-                    console.error('Error verificando token con Supabase:', error);
-                    throw error;
+                    console.error("Error verificando token con Supabase:", error);
+                    throw error; // Lanzar el error para que lo maneje el catch
                 }
-                userId = data.user?.id;
+
+                const supabaseUser = data.user;
+                user = await User.findByPk(supabaseUser.id, {
+                    attributes: { exclude: ['password'] }
+                });
             } else {
-                // Fallback: verificar JWT local
+                // Fallback local: verificar JWT con secreto
                 const decoded = jwt.verify(token, process.env.JWT_SECRET || 'quetzal_secret_key_2024');
-                userId = decoded.id;
+                // Intentar varias propiedades comunes
+                const candidateId = decoded.id || decoded.userId || decoded.sub;
+                if (candidateId) {
+                    user = await User.findByPk(candidateId, { attributes: { exclude: ['password'] } });
+                }
+                if (!user && decoded.email) {
+                    user = await User.findOne({ where: { email: decoded.email }, attributes: { exclude: ['password'] } });
+                }
             }
-
-            if (!userId) {
-                return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
-            }
-
-            // Buscar usuario local
-            const user = await User.findByPk(userId, { attributes: { exclude: ['password'] } });
 
             if (!user) {
                 return res.status(401).json({ success: false, message: 'Usuario no encontrado' });
@@ -123,8 +127,8 @@ exports.requireAdmin = (req, res, next) => {
     };
     };
 
-        // Opcional: Protección suave (no requiere autenticación pero la usa si existe)
-    exports.optionalAuth = async (req, res, next) => {
+    // Opcional: Protección suave (no requiere autenticación pero la usa si existe)
+        exports.optionalAuth = async (req, res, next) => {
   try {
     let token;
 
@@ -132,36 +136,37 @@ exports.requireAdmin = (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
     }
 
-        if (token) {
-            try {
-                let userId = null;
+    if (token) {
+      try {
                 if (supabase) {
                     const { data, error } = await supabase.auth.getUser(token);
-                    if (error) {
-                        console.error('Token opcional inválido (Supabase):', error);
-                    } else {
-                        userId = data.user?.id;
+                    if (!error && data?.user) {
+                        const supabaseUser = data.user;
+                        const user = await User.findByPk(supabaseUser.id, { attributes: { exclude: ['password'] } });
+                        if (user && user.isActive) req.user = user;
                     }
                 } else {
                     try {
                         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'quetzal_secret_key_2024');
-                        userId = decoded.id;
+                        const candidateId = decoded.id || decoded.userId || decoded.sub;
+                        let user = null;
+                        if (candidateId) {
+                            user = await User.findByPk(candidateId, { attributes: { exclude: ['password'] } });
+                        }
+                        if (!user && decoded.email) {
+                            user = await User.findOne({ where: { email: decoded.email }, attributes: { exclude: ['password'] } });
+                        }
+                        if (user && user.isActive) req.user = user;
                     } catch (e) {
-                        // token inválido, continuar sin usuario
+                        // ignore optional auth errors
                     }
                 }
-
-                if (userId) {
-                    const user = await User.findByPk(userId, { attributes: { exclude: ['password'] } });
-                    if (user && user.isActive) {
-                        req.user = user;
-                    }
-                }
-            } catch (error) {
-                // Error inesperado al verificar token opcional, continuar sin usuario
-                console.error('Error verificando token opcional:', error);
-            }
-        }
+      } catch (error) {
+        // Error inesperado al verificar token opcional, continuar sin usuario
+        console.error("Error verificando token opcional (Supabase):", error);
+        // No se adjunta req.user, se continúa sin autenticación
+      }
+    }
 
     next();
 

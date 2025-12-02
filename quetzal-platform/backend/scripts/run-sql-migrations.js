@@ -19,9 +19,11 @@ async function run() {
 
   const migrationsDir = path.join(__dirname, '..', 'migrations');
   const files = [
+    '001_base_schema.sql',
     '002_create_transactions_table.sql',
     '003_create_contracts_table.sql',
-    '004_create_messaging_tables.sql'
+    '004_create_messaging_tables.sql',
+    '005_migrate_wallet_balance.sql'
   ];
 
   try {
