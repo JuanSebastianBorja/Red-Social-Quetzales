@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quetzal — Buscar Servicios</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1 class="logo">Quetzal</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/vistas/index.html" class="nav-item">
+          <i class="nav-icon fas fa-home"></i>
+          <span>Inicio</span>
+        </a>
+        <a href="/vistas/publicar-servicio.html" class="nav-item">
+          <i class="nav-icon fas fa-plus-circle"></i>
+          <span>Publicar Servicio</span>
+        </a>
+        <a href="/vistas/mis-servicios.html" class="nav-item">
+          <i class="nav-icon fas fa-briefcase"></i>
+          <span>Mis Servicios</span>
+        </a>
+        <a href="/vistas/buscar-servicios.html" class="nav-item active">
+          <i class="nav-icon fas fa-search"></i>
+          <span>Buscar Servicios</span>
+        </a>
+        <a href="/vistas/contratos.html" class="nav-item">
+          <i class="fas fa-file-contract"></i>
+          <span>Contratos</span>
+        </a>
+        <a href="/vistas/mensajes.html" class="nav-item" data-page="messages">
+          <i class="nav-icon fas fa-comments"></i>
+          <span>Mensajes</span>
+        </a>
+        <a href="/vistas/cartera.html" class="nav-item" data-page="wallet">
+          <i class="nav-icon fas fa-wallet"></i>
+          <span>Cartera</span>
+        </a>
+        <a href="/vistas/perfil.html" class="nav-item">
+          <i class="nav-icon fas fa-user"></i>
+          <span>Perfil</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="#" class="nav-item" id="logout-btn">
+          <i class="nav-icon fas fa-sign-out-alt"></i>
+          <span>Cerrar Sesión</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h2 class="page-title">Buscar Servicios</h2>
+        </div>
+        <div class="header-right">
+          <button class="icon-btn" id="notifications-btn">
+            <i class="fas fa-bell"></i>
+            <span class="badge" id="notifications-count" style="display:none;">0</span>
+          </button>
+          <div class="user-menu">
+            <img src="https://ui-avatars.com/api/?name=Usuario+Demo&background=6366f1&color=fff" alt="Usuario" class="avatar" id="user-avatar">
+            <span class="user-role" id="user-role-badge"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Search & Filters -->
+      <div style="padding: 24px 32px;">
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-body">
+            <!-- Fila 1: Búsqueda y Categoría -->
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
+              <input id="searchInput" type="text" class="input" placeholder="Buscar por título o descripción..." style="flex: 1; min-width: 280px;" />
+              <select id="categoryFilter" class="select" style="min-width: 200px;">
+                <option value="">Todas las categorías</option>
+                <option value="desarrollo">Desarrollo y Programación</option>
+                <option value="diseno">Diseño Gráfico</option>
+                <option value="marketing">Marketing Digital</option>
+                <option value="redaccion">Redacción y Traducción</option>
+                <option value="video">Video y Animación</option>
+                <option value="musica">Música y Audio</option>
+                <option value="consultoria">Consultoría</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            
+            <!-- Fila 2: Filtros Avanzados -->
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
+              <!-- Precio -->
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <label style="font-size: 14px; color: #64748b; white-space: nowrap;">Precio (QZ):</label>
+                <input id="priceMinFilter" type="number" class="input" placeholder="Mín" min="0" step="0.5" style="width: 100px;" />
+                <span style="color: #94a3b8;">-</span>
+                <input id="priceMaxFilter" type="number" class="input" placeholder="Máx" min="0" step="0.5" style="width: 100px;" />
+              </div>
+              
+              <!-- Calificación -->
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <label style="font-size: 14px; color: #64748b; white-space: nowrap;">Calificación mín:</label>
+                <select id="ratingFilter" class="select" style="width: 120px;">
+                  <option value="">Todas</option>
+                  <option value="4.5">⭐ 4.5+</option>
+                  <option value="4.0">⭐ 4.0+</option>
+                  <option value="3.5">⭐ 3.5+</option>
+                  <option value="3.0">⭐ 3.0+</option>
+                </select>
+              </div>
+              
+              <!-- Ciudad -->
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <label style="font-size: 14px; color: #64748b; white-space: nowrap;">Ciudad:</label>
+                <input id="cityFilter" type="text" class="input" placeholder="Ej. Bogotá" style="width: 150px;" />
+              </div>
+            </div>
+            
+            <!-- Fila 3: Ordenamiento y Acciones -->
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <label style="font-size: 14px; color: #64748b; white-space: nowrap;">Ordenar por:</label>
+                <select id="sortByFilter" class="select" style="width: 160px;">
+                  <option value="created_at">Más recientes</option>
+                  <option value="price_qz_halves">Precio</option>
+                  <option value="rating">Mejor calificados</option>
+                  <option value="title">Nombre (A-Z)</option>
+                </select>
+                <select id="sortOrderFilter" class="select" style="width: 100px;">
+                  <option value="DESC">↓ Desc</option>
+                  <option value="ASC">↑ Asc</option>
+                </select>
+              </div>
+              
+              <div style="flex: 1;"></div>
+              
+              <button id="clearFiltersBtn" class="btn-secondary" style="white-space: nowrap;">
+                <i class="fas fa-times"></i> Limpiar filtros
+              </button>
+              <button id="searchBtn" class="btn-primary" style="white-space: nowrap;">
+                <i class="fas fa-search"></i> Buscar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Info & Pagination -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div id="resultsInfo" style="font-size: 14px; color: #64748b;"></div>
+          <div id="paginationControls" style="display: flex; gap: 8px; align-items: center;"></div>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="resultsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;"></div>
+        <div id="resultsMessage" class="helper" style="display:none; margin-top: 16px; text-align: center;"></div>
+      </div>
+    </main>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script type="module" src="/js/notifications.js"></script>
+    <script type="module" src="/js/buscar-servicios.js"></script>
+  </body>
+</html>

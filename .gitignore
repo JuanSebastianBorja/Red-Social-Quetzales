@@ -1,56 +1,52 @@
 # Dependencies
 node_modules/
-.pnp/
-.pnp.js
+*/node_modules/
+
+# Build outputs
+server/dist/
+server/build/
 
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.production
+server/.env
+server/.env.local
 
 # Logs
-logs
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+logs/
+*.log.*
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Testing
-coverage/
-
-# Production build
-build/
-dist/
-out/
-
-# Misc
+# OS files
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-*.pem
-.vercel
+Thumbs.db
+desktop.ini
 
 # IDE
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
+*~
+
+# Uploads (archivos subidos por usuarios)
+web/uploads/*
+!web/uploads/.gitkeep
 
 # Database
+*.db
 *.sqlite
 *.sqlite3
 
-# Temporary files
+# Temporal files
 *.tmp
 *.temp
 .cache/
+
+# PM2
+.pm2/
+
+# TypeScript
+*.tsbuildinfo
