@@ -1,6 +1,6 @@
 // Buscar Servicios: obtiene servicios activos y permite filtrar con paginación
 import { CONFIG } from './config.js';
-import { NotificationUI } from './notifications-ui.js';
+
 
 const searchInput = document.getElementById('searchInput');
 const categoryFilter = document.getElementById('categoryFilter');
@@ -335,32 +335,3 @@ if (categoryFilter) categoryFilter.addEventListener('change', searchWithFilters)
 if (ratingFilter) ratingFilter.addEventListener('change', searchWithFilters);
 if (sortByFilter) sortByFilter.addEventListener('change', searchWithFilters);
 if (sortOrderFilter) sortOrderFilter.addEventListener('change', searchWithFilters);
-
-// WebSocket y notificaciones (actualizado)
-let socket = null;
-
-async function initWebsocketAndNotifications() {
-  const token = localStorage.getItem(CONFIG.STORAGE_KEYS.TOKEN);
-  if (!token) return;
-
-  try {
-    const res = await fetch(`${CONFIG.API_BASE_URL}/users/me`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!res.ok) return;
-
-    const user = await res.json();
-    // Conectar al WebSocket del backend
-    socket = io(`${CONFIG.API_BASE_URL}`, { auth: { token } });
-
-    // ✅ Inicializar notificaciones globales solo si la UI está presente
-    if (document.getElementById('notifications-btn')) {
-      const notifUI = new NotificationUI();
-      notifUI.init(socket);
-    }
-  } catch (err) {
-    console.error('No se pudo inicializar WebSocket y notificaciones:', err);
-  }
-}
-
-initWebsocketAndNotifications();
