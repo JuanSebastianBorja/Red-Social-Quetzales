@@ -8,6 +8,7 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 import { promisify } from 'util';
 import fs from 'fs';
+import { notificationService } from '../notifications/service';
 const readFile = promisify(fs.readFile);
 
 export const contractsRouter = Router();
@@ -105,6 +106,15 @@ contractsRouter.post('/', authenticate, async (req: AuthRequest, res) => {
        RETURNING *`,
       [contract_number, buyer_id, seller_id, service_id, service.title, service.description, service.price_qz_halves, delivery_days]
     );
+    // Notificar al proveedor
+    await notificationService.createNotification({
+      userId: seller_id,
+      type: 'contract_updated',
+      title: 'Nuevo contrato recibido',
+      message: `Nuevo contrato para el servicio: "${result.rows[0].title}"`,
+      referenceId: result.rows[0].id,
+      actionUrl: '/vistas/contratos.html?role=provider'
+  });
 
     res.status(201).json(result.rows[0]);
   } catch (e: any) {
@@ -264,6 +274,15 @@ contractsRouter.post('/:id/deliver-files', authenticate, upload.array('files', 8
 
       await client.query('COMMIT');
       client.release();
+      // Notificar al cliente
+      await notificationService.createNotification({
+      userId: c.buyer_id,
+      type: 'contract_updated',
+      title: 'Entregables listos',
+      message: `El proveedor subió los entregables para: "${c.title}"`,
+      referenceId: id,
+      actionUrl: '/vistas/contratos.html?role=client'
+    });
       return res.json(up.rows[0]);
     } catch (err) {
       await (client.query('ROLLBACK').catch(() => {}));
@@ -529,6 +548,16 @@ contractsRouter.patch('/:id/status', authenticate, async (req: AuthRequest, res)
 
         await client.query('COMMIT');
         client.release();
+        // Notificar al proveedor
+        await notificationService.createNotification({
+        userId: c.seller_id,
+        type: 'transaction_completed',
+        title: 'Pago liberado',
+        message: `¡Pago liberado! ${(amount / 2).toFixed(1)} QZ acreditados por: "${c.title}"`,
+        referenceId: c.id,
+        actionUrl: '/vistas/cartera.html'
+      });
+
         return res.json(up.rows[0]);
       } catch (err) {
         await (client.query('ROLLBACK').catch(() => {}));
@@ -595,18 +624,64 @@ contractsRouter.patch('/:id/status', authenticate, async (req: AuthRequest, res)
 
     // Actualizaciones simples con timestamps coherentes
     let simpleSql = `UPDATE contracts SET status=$1, updated_at=NOW() WHERE id=$2 RETURNING *`;
-    const params: any[] = [status, id];
-    if (status === 'accepted') {
-      simpleSql = `UPDATE contracts SET status=$1, accepted_at=NOW(), updated_at=NOW() WHERE id=$2 RETURNING *`;
-    } else if (status === 'in_progress') {
-      simpleSql = `UPDATE contracts SET status=$1, started_at=NOW(), updated_at=NOW() WHERE id=$2 RETURNING *`;
-    } else if (status === 'delivered') {
-      simpleSql = `UPDATE contracts SET status=$1, delivered_at=NOW(), updated_at=NOW() WHERE id=$2 RETURNING *`;
-    }
-    const result = await pool.query(simpleSql, params);
+const params: any[] = [status, id];
 
-    res.json(result.rows[0]);
-  } catch (e: any) {
+if (status === 'accepted') {
+  const { rows } = await pool.query(
+    `SELECT c.buyer_id, c.seller_id, c.title, u.full_name as seller_name
+     FROM contracts c
+     JOIN users u ON c.seller_id = u.id
+     WHERE c.id = $1`,
+    [id]
+  );
+
+  if (rows.length > 0) {
+    const c = rows[0];
+    await notificationService.createNotification({
+      userId: c.buyer_id,
+      type: 'contract_updated',
+      title: '¡Tu contrato fue aceptado!',
+      message: `El proveedor **${c.seller_name}** aceptó tu contrato para: "${c.title}"`,
+      referenceId: id,
+      actionUrl: '/vistas/contratos.html?role=client'
+    });
+  }
+
+  simpleSql = `UPDATE contracts SET status=$1, accepted_at=NOW(), updated_at=NOW() WHERE id=$2 RETURNING *`;
+} 
+else if (status === 'rejected') {
+  const { rows } = await pool.query(
+    `SELECT c.buyer_id, c.seller_id, c.title, u.full_name as seller_name
+     FROM contracts c
+     JOIN users u ON c.seller_id = u.id
+     WHERE c.id = $1`,
+    [id]
+  );
+
+  if (rows.length > 0) {
+    const c = rows[0];
+    await notificationService.createNotification({
+      userId: c.buyer_id,
+      type: 'contract_updated',
+      title: 'Tu contrato fue rechazado',
+      message: `El proveedor **${c.seller_name}** rechazó tu contrato para: "${c.title}"`,
+      referenceId: id,
+      actionUrl: '/vistas/contratos.html?role=client'
+    });
+  }
+
+  simpleSql = `UPDATE contracts SET status=$1, updated_at=NOW() WHERE id=$2 RETURNING *`;
+} 
+else if (status === 'in_progress') {
+  simpleSql = `UPDATE contracts SET status=$1, started_at=NOW(), updated_at=NOW() WHERE id=$2 RETURNING *`;
+} 
+else if (status === 'delivered') {
+  simpleSql = `UPDATE contracts SET status=$1, delivered_at=NOW(), updated_at=NOW() WHERE id=$2 RETURNING *`;
+}
+const result = await pool.query(simpleSql, params);
+
+res.json(result.rows[0]);
+} catch (e: any) {
     console.error('Update contract status error:', e);
     res.status(500).json({ error: 'Server error', details: e.message });
   }
