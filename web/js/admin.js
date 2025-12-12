@@ -1,506 +1,392 @@
-/* Landing page styles for visitors */
-
-/* Header */
-.landing-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border);
-  padding: 20px 0;
-  z-index: 1000;
-  box-shadow: var(--shadow-sm);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  color: var(--primary);
-}
-
-.nav-links {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.btn-secondary {
-  padding: 10px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background: var(--bg-secondary);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.btn-lg {
-  padding: 14px 28px;
-  font-size: 16px;
-}
-
-/* Hero Section */
-.hero {
-  margin-top: 80px;
-  padding: 80px 0;
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-}
-
-.hero-content {
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.hero-title {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 20px;
-  line-height: 1.2;
-}
-
-.hero-subtitle {
-  font-size: 20px;
-  color: var(--text-secondary);
-  margin-bottom: 40px;
-  line-height: 1.6;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-bottom: 60px;
-}
-
-.hero-stats {
-  display: flex;
-  justify-content: center;
-  gap: 60px;
-  padding-top: 40px;
-  border-top: 1px solid var(--border);
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.stat-number {
-  font-size: 32px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-/* Features Section */
-.features {
-  padding: 80px 0;
-  background: var(--bg-primary);
-}
-
-.section-title {
-  font-size: 36px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-}
-
-.section-subtitle {
-  font-size: 18px;
-  text-align: center;
-  color: var(--text-secondary);
-  margin-bottom: 60px;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 30px;
-}
-
-.feature-card {
-  padding: 30px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary);
-}
-
-.feature-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  color: white;
-  margin-bottom: 20px;
-}
-
-.feature-icon.blue {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-}
-
-.feature-icon.green {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.feature-icon.purple {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-}
-
-.feature-icon.orange {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-}
-
-.feature-icon.pink {
-  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
-}
-
-.feature-icon.teal {
-  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-}
-
-.feature-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-}
-
-.feature-text {
-  font-size: 15px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* Services Showcase */
-.services-showcase {
-  padding: 80px 0;
-  background: var(--bg-secondary);
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-}
-
-.service-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.service-image {
-  height: 200px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 64px;
-  color: white;
-}
-
-.service-content {
-  padding: 24px;
-}
-
-.service-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-}
-
-.service-description {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-
-.service-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.service-price {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.service-rating {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--warning);
-  font-weight: 600;
-}
-
-/* How it Works */
-.how-it-works {
-  padding: 80px 0;
-  background: var(--bg-primary);
-}
-
-.steps-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 40px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.step-card {
-  text-align: center;
-  position: relative;
-}
-
-.step-number {
-  position: absolute;
-  top: -10px;
-  right: calc(50% - 20px);
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 20px;
-  box-shadow: var(--shadow-md);
-}
-
-.step-icon {
-  width: 100px;
-  height: 100px;
-  margin: 30px auto 20px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 3px solid var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  color: var(--primary);
-}
-
-.step-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-}
-
-.step-text {
-  font-size: 15px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* CTA Section */
-.cta-section {
-  padding: 80px 0;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  color: white;
-}
-
-.cta-content {
-  text-align: center;
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.cta-title {
-  font-size: 40px;
-  font-weight: 700;
-  margin-bottom: 16px;
-}
-
-.cta-text {
-  font-size: 18px;
-  margin-bottom: 40px;
-  opacity: 0.95;
-}
-
-.cta-actions .btn-primary {
-  background: white;
-  color: var(--primary);
-}
-
-.cta-actions .btn-primary:hover {
-  background: var(--bg-secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Footer */
-.landing-footer {
-  background: var(--text-primary);
-  color: white;
-  padding: 60px 0 20px;
-}
-
-.footer-content {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 60px;
-  margin-bottom: 40px;
-}
-
-.footer-brand {
-  max-width: 350px;
-}
-
-.footer-brand .logo-section {
-  color: white;
-  margin-bottom: 16px;
-}
-
-.footer-description {
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.6;
-}
-
-.footer-links {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-}
-
-.footer-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: white;
-}
-
-.footer-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.footer-list a {
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-list a:hover {
-  color: white;
-}
-
-.footer-list li {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-}
-
-.footer-list i {
-  margin-right: 8px;
-  color: var(--primary);
-}
-
-.footer-bottom {
-  padding-top: 30px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 32px;
+import { API } from './api.js';
+
+const tabs = document.querySelectorAll('.tab-btn');
+const contents = {
+  users: document.getElementById('tab-users'),
+  services: document.getElementById('tab-services'),
+  reports: document.getElementById('tab-reports'),
+  disputes: document.getElementById('tab-disputes'),
+  metrics: document.getElementById('tab-metrics')
+};
+
+const adminLoginBtn = document.getElementById('adminLoginBtn');
+const adminEmail = document.getElementById('adminEmail');
+const adminPassword = document.getElementById('adminPassword');
+const adminLoginMsg = document.getElementById('adminLoginMsg');
+
+const createAdminBtn = document.getElementById('createAdminBtn');
+const newAdminEmail = document.getElementById('newAdminEmail');
+const newAdminPassword = document.getElementById('newAdminPassword');
+const newAdminName = document.getElementById('newAdminName');
+const newAdminRole = document.getElementById('newAdminRole');
+const createAdminMsg = document.getElementById('createAdminMsg');
+const adminUsersList = document.getElementById('adminUsersList');
+const adminMetrics = document.getElementById('adminMetrics');
+
+let adminToken = localStorage.getItem('token') || null;
+
+function showMsg(el, text, isError = false) {
+  if (!el) return;
+  el.textContent = text;
+  el.style.display = 'block';
+  el.style.color = isError ? 'var(--danger)' : 'var(--text-secondary)';
+}
+
+function hideMsg(el) {
+  if (!el) return;
+  el.style.display = 'none';
+}
+
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    console.log('[admin] Tab click:', btn.dataset.tab);
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    Object.entries(contents).forEach(([key, el]) => {
+      el.style.display = key === tab ? 'block' : 'none';
+    });
+    if (tab === 'users') loadAdminUsers();
+    if (tab === 'metrics') loadMetrics();
+    if (tab === 'services') loadServices();
+    if (tab === 'reports') loadReports('pending');
+  });
+});
+
+adminLoginBtn?.addEventListener('click', async () => {
+  const email = adminEmail.value.trim();
+  const password = adminPassword.value.trim();
+  if (!email || !password) return showMsg(adminLoginMsg, 'Email y contraseña requeridos', true);
+  if (password.length < 8) return showMsg(adminLoginMsg, 'La contraseña debe tener mínimo 8 caracteres', true);
+  try {
+    const res = await API.post('/admin/login', { email, password });
+    adminToken = res?.token || null;
+    if (adminToken) {
+      try { localStorage.setItem('token', adminToken); } catch {}
+    }
+    if (!adminToken) return showMsg(adminLoginMsg, 'No se recibió token', true);
+    hideMsg(adminLoginMsg);
+    showMsg(adminLoginMsg, `Sesión iniciada como ${res.role}`);
+    // Cargar usuarios por defecto
+    loadAdminUsers();
+  } catch (e) {
+    showMsg(adminLoginMsg, e.message || 'Error al iniciar sesión', true);
   }
-  
-  .hero-subtitle {
-    font-size: 16px;
+});
+
+createAdminBtn?.addEventListener('click', async () => {
+  if (!adminToken) return showMsg(createAdminMsg, 'Primero inicia sesión como admin', true);
+  const email = newAdminEmail.value.trim();
+  const password = newAdminPassword.value.trim();
+  const full_name = newAdminName.value.trim();
+  const role_name = newAdminRole.value;
+  if (!email || !password || !full_name || !role_name) return showMsg(createAdminMsg, 'Todos los campos son obligatorios', true);
+  if (password.length < 8) return showMsg(createAdminMsg, 'La contraseña debe tener mínimo 8 caracteres', true);
+  try {
+    const res = await fetch('/admin/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({ email, password, full_name, role_name })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Error' }));
+      return showMsg(createAdminMsg, err.error || 'Error al crear admin', true);
+    }
+    hideMsg(createAdminMsg);
+    showMsg(createAdminMsg, 'Admin creado exitosamente');
+    newAdminEmail.value = '';
+    newAdminPassword.value = '';
+    newAdminName.value = '';
+    loadAdminUsers();
+  } catch (e) {
+    showMsg(createAdminMsg, e.message || 'Error de red', true);
   }
-  
-  .hero-actions {
-    flex-direction: column;
-  }
-  
-  .hero-stats {
-    flex-direction: column;
-    gap: 30px;
-  }
-  
-  .section-title {
-    font-size: 28px;
-  }
-  
-  .footer-content {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-  
-  .footer-links {
-    grid-template-columns: 1fr;
-  }
-  
-  .nav-links {
-    gap: 8px;
-  }
-  
-  .btn-secondary {
-    padding: 8px 16px;
-    font-size: 14px;
+});
+
+async function loadAdminUsers() {
+  if (!adminToken) return;
+  try {
+    const res = await fetch('/admin/users', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    const data = await res.json();
+    const rows = Array.isArray(data) ? data : [];
+    adminUsersList.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Activo</th>
+            <th>Creado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${r.email}</td>
+              <td>${r.full_name}</td>
+              <td>${r.role_name}</td>
+              <td>${r.is_active ? 'Sí' : 'No'}</td>
+              <td>${new Date(r.created_at).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    adminUsersList.innerHTML = '<p class="helper">No se pudo cargar la lista de admins.</p>';
   }
 }
+
+async function loadMetrics() {
+  if (!adminToken) {
+    adminMetrics.innerHTML = `
+      <div class="admin-empty-state">
+        <i class="fas fa-chart-line"></i>
+        <p>Inicia sesión para ver las métricas</p>
+      </div>
+    `;
+    return;
+  }
+  try {
+    const res = await fetch('/admin/metrics', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    if (!res.ok) throw new Error('No autorizado');
+    const data = await res.json();
+    adminMetrics.innerHTML = `
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon blue">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="admin-metric-label">Usuarios Activos</div>
+        <div class="admin-metric-value">${data.active_users || 0}</div>
+      </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon green">
+          <i class="fas fa-briefcase"></i>
+        </div>
+        <div class="admin-metric-label">Servicios Activos</div>
+        <div class="admin-metric-value">${data.active_services || 0}</div>
+      </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon purple">
+          <i class="fas fa-file-contract"></i>
+        </div>
+        <div class="admin-metric-label">Contratos Activos</div>
+        <div class="admin-metric-value">${data.active_contracts || 0}</div>
+      </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon orange">
+          <i class="fas fa-handshake"></i>
+        </div>
+        <div class="admin-metric-label">Contratos Completados</div>
+        <div class="admin-metric-value">${data.completed_contracts || 0}</div>
+      </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon red">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="admin-metric-label">Disputas Abiertas</div>
+        <div class="admin-metric-value">${data.open_disputes || 0}</div>
+      </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon green">
+          <i class="fas fa-coins"></i>
+        </div>
+        <div class="admin-metric-label">QZ en Circulación</div>
+        <div class="admin-metric-value">${((data.total_qz_balance || 0) / 100).toFixed(0)}</div>
+      </div>
+    `;
+  } catch (e) {
+    adminMetrics.innerHTML = `
+      <div class="admin-empty-state">
+        <i class="fas fa-chart-line"></i>
+        <p>No se pudieron cargar las métricas</p>
+        <small class="helper">${e.message}</small>
+      </div>
+    `;
+  }
+}
+
+// Estado inicial: pestaña usuarios
+loadAdminUsers();
+// Cargar servicios y reportes si ya hay token almacenado
+if (adminToken) {
+  try { loadServices(); } catch {}
+  try { loadReports('pending'); } catch {}
+}
+
+// Servicios: listar y actualizar estado
+const servicesContainer = document.getElementById('adminServicesList');
+const svcFilter = document.getElementById('svcFilter');
+const svcReload = document.getElementById('svcReload');
+async function loadServices(status) {
+  if (!adminToken) return;
+  const filter = status ?? (svcFilter ? svcFilter.value : '');
+  const url = filter ? `/admin/services?status=${encodeURIComponent(filter)}` : '/admin/services';
+  try {
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    if (!res.ok) throw new Error('Error al cargar servicios');
+    const services = await res.json();
+    renderServices(services);
+  } catch (e) {
+    if (servicesContainer) servicesContainer.innerHTML = '<p class="helper">No se pudo cargar servicios.</p>';
+  }
+}
+function renderServices(services) {
+  if (!servicesContainer) return;
+  const rows = Array.isArray(services) ? services : [];
+  if (rows.length === 0) {
+    servicesContainer.innerHTML = `
+      <div class="admin-empty-state">
+        <i class="fas fa-briefcase"></i>
+        <p>No hay servicios para mostrar</p>
+      </div>
+    `;
+    return;
+  }
+  servicesContainer.innerHTML = `
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Categoría</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(s => `
+          <tr>
+            <td>${s.id}</td>
+            <td>${s.title}</td>
+            <td>${s.category || '-'}</td>
+            <td><span class="status-badge ${s.status}">${s.status}</span></td>
+            <td class="table-action-cell">
+              <select data-id="${s.id}" class="svc-status input">
+                <option value="active" ${s.status==='active'?'selected':''}>Activo</option>
+                <option value="paused" ${s.status==='paused'?'selected':''}>Pausado</option>
+                <option value="inactive" ${s.status==='inactive'?'selected':''}>Inactivo</option>
+              </select>
+              <button data-id="${s.id}" class="svc-save btn-primary">
+                <i class="fas fa-save"></i> Guardar
+              </button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+document.addEventListener('click', async (e) => {
+  const t = e.target;
+  if (t && t.classList && t.classList.contains('svc-save')) {
+    const id = t.getAttribute('data-id');
+    const select = document.querySelector(`select.svc-status[data-id="${id}"]`);
+    const status = select ? select.value : null;
+    if (!status) return;
+    const res = await fetch(`/admin/services/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({ status })
+    });
+    if (res.ok) {
+      loadServices();
+    } else {
+      alert('No se pudo actualizar el estado del servicio');
+    }
+  }
+});
+svcReload?.addEventListener('click', () => loadServices());
+svcFilter?.addEventListener('change', () => loadServices());
+
+// Reports: listar y moderar
+const reportsContainer = document.getElementById('adminReportsList');
+const repFilter = document.getElementById('repFilter');
+const repReload = document.getElementById('repReload');
+async function loadReports(status) {
+  if (!adminToken) return;
+  const filter = status ?? (repFilter ? repFilter.value : 'pending');
+  const url = filter ? `/admin/reports?status=${encodeURIComponent(filter)}` : '/admin/reports';
+  try {
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    if (!res.ok) throw new Error('Error al cargar reports');
+    const reports = await res.json();
+    renderReports(reports);
+  } catch (e) {
+    if (reportsContainer) reportsContainer.innerHTML = '<p class="helper">No se pudo cargar reports.</p>';
+  }
+}
+function renderReports(reports) {
+  if (!reportsContainer) return;
+  const rows = Array.isArray(reports) ? reports : [];
+  if (rows.length === 0) {
+    reportsContainer.innerHTML = `
+      <div class="admin-empty-state">
+        <i class="fas fa-flag"></i>
+        <p>No hay reportes para mostrar</p>
+      </div>
+    `;
+    return;
+  }
+  reportsContainer.innerHTML = `
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Servicio</th>
+          <th>Razón</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(r => `
+          <tr>
+            <td>${r.id}</td>
+            <td>${r.service_id}</td>
+            <td>${r.reason}</td>
+            <td><span class="status-badge ${r.status}">${r.status}</span></td>
+            <td class="table-action-cell">
+              <select data-id="${r.id}" class="rep-status input">
+                <option value="reviewed">Revisado</option>
+                <option value="dismissed">Desestimado</option>
+                <option value="action_taken">Acción Tomada</option>
+              </select>
+              <input type="text" class="rep-notes input" data-id="${r.id}" placeholder="Notas admin" style="min-width:150px;" />
+              <button data-id="${r.id}" class="rep-save btn-primary">
+                <i class="fas fa-check"></i> Guardar
+              </button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+document.addEventListener('click', async (e) => {
+  const t = e.target;
+  if (t && t.classList && t.classList.contains('rep-save')) {
+    const id = t.getAttribute('data-id');
+    const select = document.querySelector(`select.rep-status[data-id="${id}"]`);
+    const notesInput = document.querySelector(`input.rep-notes[data-id="${id}"]`);
+    const status = select ? select.value : null;
+    const admin_notes = notesInput ? notesInput.value : undefined;
+    if (!status) return;
+    const res = await fetch(`/admin/reports/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({ status, admin_notes })
+    });
+    if (res.ok) {
+      loadReports();
+    } else {
+      alert('No se pudo actualizar el reporte');
+    }
+  }
+});
+repReload?.addEventListener('click', () => loadReports());
+repFilter?.addEventListener('change', () => loadReports());
