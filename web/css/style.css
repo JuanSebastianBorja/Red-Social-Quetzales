@@ -1184,3 +1184,147 @@ textarea.input:focus {
         font-size: 24px;
     }
 }
+
+/* === Tema claro / oscuro y responsive === */
+html {
+  color-scheme: light dark;
+}
+
+html.light-theme {
+  color-scheme: light;
+}
+
+html.dark-theme {
+  color-scheme: dark;
+}
+
+/* Botón flotante para cambio de tema */
+.theme-toggle {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 60;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary, #0f172a);
+  color: var(--text-primary, #0f172a);
+  box-shadow: var(--shadow-md, 0 10px 30px rgba(15, 23, 42, 0.32));
+  padding: 0.4rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  font-size: 0.85rem;
+  line-height: 1;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.theme-toggle__icon {
+  font-size: 1.05rem;
+}
+
+.theme-toggle:hover {
+  background: var(--primary, #6366f1);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.38);
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm, 0 4px 12px rgba(15, 23, 42, 0.32));
+}
+
+.theme-toggle--floating {
+  /* separado por si algún día quieres otro estilo de botón */
+}
+
+/* Modo oscuro: redefinimos solo tokens visuales, nada de funcionalidad */
+html.dark-theme {
+  --bg-primary: #020617;
+  --bg-secondary: #020617;
+  --bg-tertiary: #020617;
+  --text-primary: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --border: rgba(148, 163, 184, 0.55);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.75);
+  --shadow-md: 0 18px 50px rgba(15, 23, 42, 0.9);
+}
+
+/* Preferencia del SO cuando el usuario no ha elegido manualmente */
+@media (prefers-color-scheme: dark) {
+  html:not(.light-theme):not(.dark-theme) {
+    --bg-primary: #020617;
+    --bg-secondary: #020617;
+    --bg-tertiary: #020617;
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --text-tertiary: #6b7280;
+    --border: rgba(148, 163, 184, 0.55);
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.75);
+    --shadow-md: 0 18px 50px rgba(15, 23, 42, 0.9);
+  }
+}
+
+/* Ajustes responsive globales básicos */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 1024px) {
+  .admin-container {
+    padding-inline: 1.5rem;
+  }
+
+  .admin-metrics-grid,
+  .stats-grid,
+  .content-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+
+  .admin-container {
+    padding-inline: 1rem;
+  }
+
+  .header,
+  .admin-header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .admin-metrics-grid,
+  .stats-grid,
+  .content-grid,
+  .form-grid,
+  .admin-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .admin-table-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
