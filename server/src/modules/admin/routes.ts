@@ -60,7 +60,7 @@ adminRouter.post('/users', authenticateAdmin, requireAdminRole(['superadmin']), 
   }
 });
 
-// Moderation: list services with optional status filter (moderator or superadmin)
+// Moderation: list services (moderator or superadmin)
 adminRouter.get('/services', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req, res) => {
   try {
     const { status } = req.query as { status?: string };
@@ -70,9 +70,15 @@ adminRouter.get('/services', authenticateAdmin, requireAdminRole(['moderator','s
       sql += ` WHERE status=$1`; params.push(status);
     }
     sql += ` ORDER BY created_at DESC`;
+
+    console.log('[ADMIN] Ejecutando consulta:', sql, params);
+
     const r = await pool.query(sql, params);
+    console.log('[ADMIN] Servicios encontrados:', r.rowCount);
+
     res.json(r.rows);
   } catch (e: any) {
+    console.error('[ADMIN] Error al cargar servicios:', e);
     res.status(500).json({ error: 'Server error', details: e.message });
   }
 });
