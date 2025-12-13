@@ -130,27 +130,22 @@ createAdminBtn?.addEventListener('click', async () => {
   if (!email || !password || !full_name || !role_name) return showMsg(createAdminMsg, 'Todos los campos son obligatorios', true);
   if (password.length < 8) return showMsg(createAdminMsg, 'La contraseña debe tener mínimo 8 caracteres', true);
   try {
-    const res = await API.post('/admin/users', { email, password, full_name, role_name });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: 'Error' }));
-      return showMsg(createAdminMsg, err.error || 'Error al crear admin', true);
-    }
-    hideMsg(createAdminMsg);
-    showMsg(createAdminMsg, 'Admin creado exitosamente');
-    newAdminEmail.value = '';
-    newAdminPassword.value = '';
-    newAdminName.value = '';
-    loadAdminUsers();
-  } catch (e) {
-    showMsg(createAdminMsg, e.message || 'Error de red', true);
-  }
+  const data = await API.post('/admin/users', { email, password, full_name, role_name });
+  hideMsg(createAdminMsg);
+  showMsg(createAdminMsg, 'Admin creado exitosamente');
+  newAdminEmail.value = '';
+  newAdminPassword.value = '';
+  newAdminName.value = '';
+  loadAdminUsers();
+} catch (e) {
+  showMsg(createAdminMsg, e.message || 'Error al crear admin', true);
+}
 });
 
 async function loadAdminUsers() {
   if (!getAdminToken()) return;
   try {
-    const res = await API.get('/admin/users');
-    const data = await res.json();
+    const data = await API.get('/admin/users'); 
     const rows = Array.isArray(data) ? data : [];
     adminUsersList.innerHTML = `
       <table class="table">
@@ -192,9 +187,7 @@ async function loadMetrics() {
     return;
   }
   try {
-    const res = await API.get('/admin/metrics');
-    if (!res.ok) throw new Error('No autorizado');
-    const data = await res.json();
+    const data = await API.get('/admin/metrics'); // ✅
     adminMetrics.innerHTML = `
       <div class="admin-metric-card">
         <div class="admin-metric-icon blue">
@@ -211,18 +204,11 @@ async function loadMetrics() {
         <div class="admin-metric-value">${data.active_services || 0}</div>
       </div>
       <div class="admin-metric-card">
-        <div class="admin-metric-icon purple">
-          <i class="fas fa-file-contract"></i>
-        </div>
-        <div class="admin-metric-label">Contratos Activos</div>
-        <div class="admin-metric-value">${data.active_contracts || 0}</div>
-      </div>
-      <div class="admin-metric-card">
         <div class="admin-metric-icon orange">
           <i class="fas fa-handshake"></i>
         </div>
-        <div class="admin-metric-label">Contratos Completados</div>
-        <div class="admin-metric-value">${data.completed_contracts || 0}</div>
+        <div class="admin-metric-label">Transacciones Completadas</div>
+        <div class="admin-metric-value">${data.completed_transactions || 0}</div>
       </div>
       <div class="admin-metric-card">
         <div class="admin-metric-icon red">
@@ -232,11 +218,18 @@ async function loadMetrics() {
         <div class="admin-metric-value">${data.open_disputes || 0}</div>
       </div>
       <div class="admin-metric-card">
-        <div class="admin-metric-icon green">
-          <i class="fas fa-coins"></i>
+        <div class="admin-metric-icon purple">
+          <i class="fas fa-flag"></i>
         </div>
-        <div class="admin-metric-label">QZ en Circulación</div>
-        <div class="admin-metric-value">${((data.total_qz_balance || 0) / 100).toFixed(0)}</div>
+        <div class="admin-metric-label">Reportes Pendientes</div>
+        <div class="admin-metric-value">${data.pending_reports || 0}</div>
+      </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon gold">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="admin-metric-label">Calificación Plataforma</div>
+        <div class="admin-metric-value">${(data.platform_rating || 0).toFixed(1)}</div>
       </div>
     `;
   } catch (e) {
@@ -273,13 +266,14 @@ document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
   if (usersTab) usersTab.classList.add('active');
 });
 
-// Estado inicial: pestaña usuarios
-loadAdminUsers();
-// Cargar servicios y reportes si ya hay token almacenado
-if (getAdminToken()) {
-  try { loadServices(); } catch {}
-  try { loadReports('pending'); } catch {}
-}
+// Inicialización segura: esperar a que todo esté definido
+document.addEventListener('DOMContentLoaded', () => {
+  if (getAdminToken()) {
+    loadAdminUsers();
+    try { loadServices(); } catch (e) { console.error('Error loading services:', e); }
+    try { loadReports('pending'); } catch (e) { console.error('Error loading reports:', e); }
+  }
+});
 
 // Servicios: listar y actualizar estado
 const servicesContainer = document.getElementById('adminServicesList');
@@ -291,8 +285,6 @@ async function loadServices(status) {
   const url = filter ? `/admin/services?status=${encodeURIComponent(filter)}` : '/admin/services';
   try {
     const res = await API.get(url);
-    if (!res.ok) throw new Error('Error al cargar servicios');
-    const services = await res.json();
     renderServices(services);
   } catch (e) {
     if (servicesContainer) servicesContainer.innerHTML = '<p class="helper">No se pudo cargar servicios.</p>';
@@ -372,8 +364,6 @@ async function loadReports(status) {
   const url = filter ? `/admin/reports?status=${encodeURIComponent(filter)}` : '/admin/reports';
   try {
     const res = await API.get(url);
-    if (!res.ok) throw new Error('Error al cargar reports');
-    const reports = await res.json();
     renderReports(reports);
   } catch (e) {
     if (reportsContainer) reportsContainer.innerHTML = '<p class="helper">No se pudo cargar reports.</p>';
