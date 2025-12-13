@@ -203,7 +203,7 @@ async function loadMetrics() {
           <i class="fas fa-star"></i>
         </div>
         <div class="admin-metric-label">Calificación Promedio</div>
-        <div class="admin-metric-value">${(data.platform_rating || 0).toFixed(1)}</div>
+        <div class="admin-metric-value">${Number(data.platform_rating || 0).toFixed(1)}</div>>
       </div>
     `;
   } catch (e) {
