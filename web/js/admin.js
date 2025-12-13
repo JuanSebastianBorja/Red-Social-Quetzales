@@ -1,5 +1,6 @@
 import { API } from './api.js';
 import { AppState } from './state.js';
+import { CONFIG } from './config.js';
 
 const tabs = document.querySelectorAll('.tab-btn');
 const contents = {
@@ -254,17 +255,23 @@ document.addEventListener('DOMContentLoaded', () => {
 const servicesContainer = document.getElementById('adminServicesList');
 const svcFilter = document.getElementById('svcFilter');
 const svcReload = document.getElementById('svcReload');
+
 async function loadServices(status) {
-  if (!getAdminToken())return;
+  if (!getAdminToken()) return;
   const filter = status ?? (svcFilter ? svcFilter.value : '');
   const url = filter ? `/admin/services?status=${encodeURIComponent(filter)}` : '/admin/services';
   try {
-    const res = await API.get(url);
+    // Usar API.get en lugar de fetch manual
+    const services = await API.get(url);
     renderServices(services);
   } catch (e) {
-    if (servicesContainer) servicesContainer.innerHTML = '<p class="helper">No se pudo cargar servicios.</p>';
+    console.error('[FRONTEND] Error al cargar servicios:', e);
+    if (servicesContainer) {
+      servicesContainer.innerHTML = `<p class="helper">Error: ${e.message || 'No se pudo cargar servicios.'}</p>`;
+    }
   }
 }
+
 function renderServices(services) {
   if (!servicesContainer) return;
   const rows = Array.isArray(services) ? services : [];
