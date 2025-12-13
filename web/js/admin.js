@@ -1,4 +1,5 @@
 import { API } from './api.js';
+import { AppState } from './state.js';
 
 const tabs = document.querySelectorAll('.tab-btn');
 const contents = {
@@ -20,7 +21,6 @@ const createAdminMsg = document.getElementById('createAdminMsg');
 const adminUsersList = document.getElementById('adminUsersList');
 const adminMetrics = document.getElementById('adminMetrics');
 
-const savedRole = localStorage.getItem('admin_role') || null;
 
 if (typeof AppState === 'undefined') {
   console.warn('AppState no está definido. Asegúrate de importar state.js.');
@@ -28,13 +28,6 @@ if (typeof AppState === 'undefined') {
 
 function getAdminToken() {
   return localStorage.getItem('quetzal_token');
-}
-
-if (getAdminToken() && savedRole) {
-  updateAdminUI(savedRole); 
-  loadAdminUsers();
-  try { loadServices(); } catch (e) {}
-  try { loadReports('pending'); } catch (e) {}
 }
 
 
@@ -71,7 +64,6 @@ function syncAdminToken() {
   }
 }
 
-syncAdminToken();
 
 tabs.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -234,12 +226,27 @@ document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
   if (usersTab) usersTab.classList.add('active');
 });
 
-// Inicialización segura: esperar a que todo esté definido
+
+//Inicialización segura: sincroniza AppState y carga contenido
 document.addEventListener('DOMContentLoaded', () => {
-  if (getAdminToken()) {
+  const token = localStorage.getItem('quetzal_token');
+  const role = localStorage.getItem('admin_role');
+
+  if (token && role) {
+    // Sincroniza con AppState para que API incluya el token en las peticiones
+    AppState.token = token;
+    AppState.userRole = role;
+
+    // Actualiza UI según rol
+    updateAdminUI(role);
+
+    // Carga datos iniciales
     loadAdminUsers();
     try { loadServices(); } catch (e) { console.error('Error loading services:', e); }
     try { loadReports('pending'); } catch (e) { console.error('Error loading reports:', e); }
+  } else {
+    // Opcional: redirigir o mostrar mensaje si no hay sesión
+    console.warn('No hay sesión de admin válida');
   }
 });
 
