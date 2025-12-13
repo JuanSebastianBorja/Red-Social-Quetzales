@@ -187,7 +187,7 @@ async function loadMetrics() {
           <i class="fas fa-coins"></i>
         </div>
         <div class="admin-metric-label">Volumen en QZ</div>
-        <div class="admin-metric-value">${(data.total_volume_qz || 0).toFixed(2)}</div>
+        <div class="admin-metric-value">${Number(data.total_volume_qz || 0).toFixed(2)}</div>
       </div>
 
       <!-- Calidad y moderación -->
