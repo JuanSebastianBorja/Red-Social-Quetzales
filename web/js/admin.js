@@ -26,7 +26,7 @@ const adminMetrics = document.getElementById('adminMetrics');
 const savedRole = localStorage.getItem('admin_role') || null;
 
 function getAdminToken() {
-  return localStorage.getItem('admin_token');
+  return localStorage.getItem('quetzal_token');
 }
 
 if (getAdminToken() && savedRole) {
@@ -94,7 +94,6 @@ if (!adminToken || !adminRole) {
 }
 
 try {
-  localStorage.setItem('admin_token', adminToken);
   localStorage.setItem('admin_role', adminRole);
 } catch (e) {
   console.warn('No se pudo guardar en localStorage', e);
@@ -246,7 +245,6 @@ async function loadMetrics() {
 }
 
 document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
-  localStorage.removeItem('admin_token');
   localStorage.removeItem('admin_role'); 
 
   // Ocultar botón de logout
