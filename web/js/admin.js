@@ -156,8 +156,9 @@ async function loadMetrics() {
     return;
   }
   try {
-    const data = await API.get('/admin/metrics'); // ✅
+    const data = await API.get('/admin/metrics');
     adminMetrics.innerHTML = `
+      <!-- Usuarios y servicios -->
       <div class="admin-metric-card">
         <div class="admin-metric-icon blue">
           <i class="fas fa-users"></i>
@@ -172,6 +173,8 @@ async function loadMetrics() {
         <div class="admin-metric-label">Servicios Activos</div>
         <div class="admin-metric-value">${data.active_services || 0}</div>
       </div>
+
+      <!-- Transacciones y volumen -->
       <div class="admin-metric-card">
         <div class="admin-metric-icon orange">
           <i class="fas fa-handshake"></i>
@@ -179,6 +182,15 @@ async function loadMetrics() {
         <div class="admin-metric-label">Transacciones Completadas</div>
         <div class="admin-metric-value">${data.completed_transactions || 0}</div>
       </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon gold">
+          <i class="fas fa-coins"></i>
+        </div>
+        <div class="admin-metric-label">Volumen en QZ</div>
+        <div class="admin-metric-value">${(data.total_volume_qz || 0).toFixed(2)}</div>
+      </div>
+
+      <!-- Calidad y moderación -->
       <div class="admin-metric-card">
         <div class="admin-metric-icon red">
           <i class="fas fa-exclamation-triangle"></i>
@@ -188,16 +200,9 @@ async function loadMetrics() {
       </div>
       <div class="admin-metric-card">
         <div class="admin-metric-icon purple">
-          <i class="fas fa-flag"></i>
-        </div>
-        <div class="admin-metric-label">Reportes Pendientes</div>
-        <div class="admin-metric-value">${data.pending_reports || 0}</div>
-      </div>
-      <div class="admin-metric-card">
-        <div class="admin-metric-icon gold">
           <i class="fas fa-star"></i>
         </div>
-        <div class="admin-metric-label">Calificación Plataforma</div>
+        <div class="admin-metric-label">Calificación Promedio</div>
         <div class="admin-metric-value">${(data.platform_rating || 0).toFixed(1)}</div>
       </div>
     `;
@@ -211,6 +216,7 @@ async function loadMetrics() {
     `;
   }
 }
+
 
 document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
   localStorage.removeItem('admin_role'); 
