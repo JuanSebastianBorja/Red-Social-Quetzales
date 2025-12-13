@@ -9,10 +9,7 @@ const contents = {
   metrics: document.getElementById('tab-metrics')
 };
 
-const adminLoginBtn = document.getElementById('adminLoginBtn');
-const adminEmail = document.getElementById('adminEmail');
-const adminPassword = document.getElementById('adminPassword');
-const adminLoginMsg = document.getElementById('adminLoginMsg');
+
 
 const createAdminBtn = document.getElementById('createAdminBtn');
 const newAdminEmail = document.getElementById('newAdminEmail');
@@ -90,35 +87,6 @@ tabs.forEach(btn => {
     if (tab === 'services') loadServices();
     if (tab === 'reports') loadReports('pending');
   });
-});
-
-adminLoginBtn?.addEventListener('click', async () => {
-  const email = adminEmail.value.trim();
-  const password = adminPassword.value.trim();
-  if (!email || !password) return showMsg(adminLoginMsg, 'Email y contraseña requeridos', true);
-  if (password.length < 8) return showMsg(adminLoginMsg, 'La contraseña debe tener mínimo 8 caracteres', true);
-  try {
-    const res = await API.post('/admin/login', { email, password });
-    const adminToken = res?.token || null; 
-    const adminRole = res?.role || null;
-
-if (!adminToken || !adminRole) {
-  return showMsg(adminLoginMsg, 'Credenciales inválidas o sin rol', true);
-}
-
-try {
-  localStorage.setItem('admin_role', adminRole);
-} catch (e) {
-  console.warn('No se pudo guardar en localStorage', e);
-}
-
-hideMsg(adminLoginMsg);
-showMsg(adminLoginMsg, `Sesión iniciada como ${adminRole}`);
-loadAdminUsers();
-updateAdminUI(adminRole);
-  } catch (e) {  // 👈 cierra el try del login
-    showMsg(adminLoginMsg, e.message || 'Error al iniciar sesión', true);
-  }
 });
 
 createAdminBtn?.addEventListener('click', async () => {
