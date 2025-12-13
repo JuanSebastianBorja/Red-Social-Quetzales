@@ -23,11 +23,14 @@ const createAdminMsg = document.getElementById('createAdminMsg');
 const adminUsersList = document.getElementById('adminUsersList');
 const adminMetrics = document.getElementById('adminMetrics');
 
-let adminToken = localStorage.getItem('admin_token') || null;
 const savedRole = localStorage.getItem('admin_role') || null;
 
-if (adminToken && savedRole) {
-  updateAdminUI(savedRole); // 👈 ¡esto es clave!
+function getAdminToken() {
+  return localStorage.getItem('admin_token');
+}
+
+if (getAdminToken() && savedRole) {
+  updateAdminUI(savedRole); 
   loadAdminUsers();
   try { loadServices(); } catch (e) {}
   try { loadReports('pending'); } catch (e) {}
@@ -83,8 +86,8 @@ adminLoginBtn?.addEventListener('click', async () => {
   if (password.length < 8) return showMsg(adminLoginMsg, 'La contraseña debe tener mínimo 8 caracteres', true);
   try {
     const res = await API.post('/admin/login', { email, password });
-adminToken = res?.token || null;
-const adminRole = res?.role || null;
+    const adminToken = res?.token || null; 
+    const adminRole = res?.role || null;
 
 if (!adminToken || !adminRole) {
   return showMsg(adminLoginMsg, 'Credenciales inválidas o sin rol', true);
@@ -107,7 +110,7 @@ updateAdminUI(adminRole);
 });
 
 createAdminBtn?.addEventListener('click', async () => {
-  if (!adminToken) return showMsg(createAdminMsg, 'Primero inicia sesión como admin', true);
+  if (!getAdminToken()) return showMsg(createAdminMsg, 'Primero inicia sesión como admin', true);
   const email = newAdminEmail.value.trim();
   const password = newAdminPassword.value.trim();
   const full_name = newAdminName.value.trim();
@@ -119,7 +122,7 @@ createAdminBtn?.addEventListener('click', async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`
+        'Authorization': `Bearer ${getAdminToken()}`
       },
       body: JSON.stringify({ email, password, full_name, role_name })
     });
@@ -139,9 +142,9 @@ createAdminBtn?.addEventListener('click', async () => {
 });
 
 async function loadAdminUsers() {
-  if (!adminToken) return;
+  if (!getAdminToken()) return;
   try {
-    const res = await fetch('/admin/users', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    const res = await fetch('/admin/users', { headers: { 'Authorization': `Bearer ${getAdminToken()}` } });
     const data = await res.json();
     const rows = Array.isArray(data) ? data : [];
     adminUsersList.innerHTML = `
@@ -174,7 +177,7 @@ async function loadAdminUsers() {
 }
 
 async function loadMetrics() {
-  if (!adminToken) {
+  if (!getAdminToken()) {
     adminMetrics.innerHTML = `
       <div class="admin-empty-state">
         <i class="fas fa-chart-line"></i>
@@ -184,7 +187,7 @@ async function loadMetrics() {
     return;
   }
   try {
-    const res = await fetch('/admin/metrics', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    const res = await fetch('/admin/metrics', { headers: { 'Authorization': `Bearer ${getAdminToken()}` } });
     if (!res.ok) throw new Error('No autorizado');
     const data = await res.json();
     adminMetrics.innerHTML = `
@@ -244,8 +247,7 @@ async function loadMetrics() {
 
 document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
   localStorage.removeItem('admin_token');
-  localStorage.removeItem('admin_role'); // 👈 ¡Importante!
-  adminToken = null;
+  localStorage.removeItem('admin_role'); 
 
   // Ocultar botón de logout
   document.getElementById('adminLogoutBtn').style.display = 'none';
@@ -270,7 +272,7 @@ document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
 // Estado inicial: pestaña usuarios
 loadAdminUsers();
 // Cargar servicios y reportes si ya hay token almacenado
-if (adminToken) {
+if (getAdminToken()) {
   try { loadServices(); } catch {}
   try { loadReports('pending'); } catch {}
 }
@@ -280,11 +282,11 @@ const servicesContainer = document.getElementById('adminServicesList');
 const svcFilter = document.getElementById('svcFilter');
 const svcReload = document.getElementById('svcReload');
 async function loadServices(status) {
-  if (!adminToken) return;
+  if (!getAdminToken())return;
   const filter = status ?? (svcFilter ? svcFilter.value : '');
   const url = filter ? `/admin/services?status=${encodeURIComponent(filter)}` : '/admin/services';
   try {
-    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getAdminToken()}` } });
     if (!res.ok) throw new Error('Error al cargar servicios');
     const services = await res.json();
     renderServices(services);
@@ -347,7 +349,7 @@ document.addEventListener('click', async (e) => {
     if (!status) return;
     const res = await fetch(`/admin/services/${id}/status`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
       body: JSON.stringify({ status })
     });
     if (res.ok) {
@@ -365,11 +367,11 @@ const reportsContainer = document.getElementById('adminReportsList');
 const repFilter = document.getElementById('repFilter');
 const repReload = document.getElementById('repReload');
 async function loadReports(status) {
-  if (!adminToken) return;
+  if (!getAdminToken()) return;
   const filter = status ?? (repFilter ? repFilter.value : 'pending');
   const url = filter ? `/admin/reports?status=${encodeURIComponent(filter)}` : '/admin/reports';
   try {
-    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getAdminToken()}` } });
     if (!res.ok) throw new Error('Error al cargar reports');
     const reports = await res.json();
     renderReports(reports);
@@ -435,7 +437,7 @@ document.addEventListener('click', async (e) => {
     if (!status) return;
     const res = await fetch(`/admin/reports/${id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
       body: JSON.stringify({ status, admin_notes })
     });
     if (res.ok) {
