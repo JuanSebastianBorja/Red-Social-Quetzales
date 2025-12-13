@@ -23,7 +23,16 @@ const createAdminMsg = document.getElementById('createAdminMsg');
 const adminUsersList = document.getElementById('adminUsersList');
 const adminMetrics = document.getElementById('adminMetrics');
 
-let adminToken = localStorage.getItem('token') || null;
+let adminToken = localStorage.getItem('admin_token') || null;
+const savedRole = localStorage.getItem('admin_role') || null;
+
+if (adminToken && savedRole) {
+  updateAdminUI(savedRole); // 👈 ¡esto es clave!
+  loadAdminUsers();
+  try { loadServices(); } catch (e) {}
+  try { loadReports('pending'); } catch (e) {}
+}
+
 
 function showMsg(el, text, isError = false) {
   if (!el) return;
@@ -35,6 +44,20 @@ function showMsg(el, text, isError = false) {
 function hideMsg(el) {
   if (!el) return;
   el.style.display = 'none';
+}
+
+function updateAdminUI(role) {
+  const isAdminSuper = role === 'superadmin';
+
+  // Ocultar/mostrar pestaña "Métricas"
+  const metricsTabBtn = document.querySelector('.tab-btn[data-tab="metrics"]');
+  if (metricsTabBtn) {
+    metricsTabBtn.style.display = isAdminSuper ? 'flex' : 'none';
+  }
+
+  // Mostrar botón de logout
+  const logoutBtn = document.getElementById('adminLogoutBtn');
+  if (logoutBtn) logoutBtn.style.display = 'inline-flex';
 }
 
 tabs.forEach(btn => {
@@ -60,16 +83,25 @@ adminLoginBtn?.addEventListener('click', async () => {
   if (password.length < 8) return showMsg(adminLoginMsg, 'La contraseña debe tener mínimo 8 caracteres', true);
   try {
     const res = await API.post('/admin/login', { email, password });
-    adminToken = res?.token || null;
-    if (adminToken) {
-      try { localStorage.setItem('token', adminToken); } catch {}
-    }
-    if (!adminToken) return showMsg(adminLoginMsg, 'No se recibió token', true);
-    hideMsg(adminLoginMsg);
-    showMsg(adminLoginMsg, `Sesión iniciada como ${res.role}`);
-    // Cargar usuarios por defecto
-    loadAdminUsers();
-  } catch (e) {
+adminToken = res?.token || null;
+const adminRole = res?.role || null;
+
+if (!adminToken || !adminRole) {
+  return showMsg(adminLoginMsg, 'Credenciales inválidas o sin rol', true);
+}
+
+try {
+  localStorage.setItem('admin_token', adminToken);
+  localStorage.setItem('admin_role', adminRole);
+} catch (e) {
+  console.warn('No se pudo guardar en localStorage', e);
+}
+
+hideMsg(adminLoginMsg);
+showMsg(adminLoginMsg, `Sesión iniciada como ${adminRole}`);
+loadAdminUsers();
+updateAdminUI(adminRole);
+  } catch (e) {  // 👈 cierra el try del login
     showMsg(adminLoginMsg, e.message || 'Error al iniciar sesión', true);
   }
 });
@@ -209,6 +241,31 @@ async function loadMetrics() {
     `;
   }
 }
+
+document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('admin_role'); // 👈 ¡Importante!
+  adminToken = null;
+
+  // Ocultar botón de logout
+  document.getElementById('adminLogoutBtn').style.display = 'none';
+
+  // Ocultar pestaña sensible (por seguridad visual)
+  const metricsTabBtn = document.querySelector('.tab-btn[data-tab="metrics"]');
+  if (metricsTabBtn) metricsTabBtn.style.display = 'none';
+
+  // Volver a la vista de login: ocultar contenido, mostrar solo login
+  Object.values(contents).forEach(el => {
+    if (el) el.style.display = 'none';
+  });
+  // Opcional: resetear mensajes
+  hideMsg(adminLoginMsg);
+
+  // Activar visualmente la pestaña "Usuarios" (aunque no se muestre sin login)
+  tabs.forEach(btn => btn.classList.remove('active'));
+  const usersTab = document.querySelector('.tab-btn[data-tab="users"]');
+  if (usersTab) usersTab.classList.add('active');
+});
 
 // Estado inicial: pestaña usuarios
 loadAdminUsers();
