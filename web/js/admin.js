@@ -25,6 +25,10 @@ const adminMetrics = document.getElementById('adminMetrics');
 
 const savedRole = localStorage.getItem('admin_role') || null;
 
+if (typeof AppState === 'undefined') {
+  console.warn('AppState no está definido. Asegúrate de importar state.js.');
+}
+
 function getAdminToken() {
   return localStorage.getItem('quetzal_token');
 }
@@ -62,6 +66,15 @@ function updateAdminUI(role) {
   const logoutBtn = document.getElementById('adminLogoutBtn');
   if (logoutBtn) logoutBtn.style.display = 'inline-flex';
 }
+
+function syncAdminToken() {
+  const token = localStorage.getItem('quetzal_token');
+  if (token && typeof AppState !== 'undefined' && AppState) {
+    AppState.token = token;
+  }
+}
+
+syncAdminToken();
 
 tabs.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -117,14 +130,7 @@ createAdminBtn?.addEventListener('click', async () => {
   if (!email || !password || !full_name || !role_name) return showMsg(createAdminMsg, 'Todos los campos son obligatorios', true);
   if (password.length < 8) return showMsg(createAdminMsg, 'La contraseña debe tener mínimo 8 caracteres', true);
   try {
-    const res = await fetch('/admin/users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getAdminToken()}`
-      },
-      body: JSON.stringify({ email, password, full_name, role_name })
-    });
+    const res = await API.post('/admin/users', { email, password, full_name, role_name });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Error' }));
       return showMsg(createAdminMsg, err.error || 'Error al crear admin', true);
@@ -143,7 +149,7 @@ createAdminBtn?.addEventListener('click', async () => {
 async function loadAdminUsers() {
   if (!getAdminToken()) return;
   try {
-    const res = await fetch('/admin/users', { headers: { 'Authorization': `Bearer ${getAdminToken()}` } });
+    const res = await API.get('/admin/users');
     const data = await res.json();
     const rows = Array.isArray(data) ? data : [];
     adminUsersList.innerHTML = `
@@ -186,7 +192,7 @@ async function loadMetrics() {
     return;
   }
   try {
-    const res = await fetch('/admin/metrics', { headers: { 'Authorization': `Bearer ${getAdminToken()}` } });
+    const res = await API.get('/admin/metrics');
     if (!res.ok) throw new Error('No autorizado');
     const data = await res.json();
     adminMetrics.innerHTML = `
@@ -284,7 +290,7 @@ async function loadServices(status) {
   const filter = status ?? (svcFilter ? svcFilter.value : '');
   const url = filter ? `/admin/services?status=${encodeURIComponent(filter)}` : '/admin/services';
   try {
-    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getAdminToken()}` } });
+    const res = await API.get(url);
     if (!res.ok) throw new Error('Error al cargar servicios');
     const services = await res.json();
     renderServices(services);
@@ -345,11 +351,7 @@ document.addEventListener('click', async (e) => {
     const select = document.querySelector(`select.svc-status[data-id="${id}"]`);
     const status = select ? select.value : null;
     if (!status) return;
-    const res = await fetch(`/admin/services/${id}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
-      body: JSON.stringify({ status })
-    });
+    const res = await API.patch(`/admin/services/${id}/status`, { status });
     if (res.ok) {
       loadServices();
     } else {
@@ -369,7 +371,7 @@ async function loadReports(status) {
   const filter = status ?? (repFilter ? repFilter.value : 'pending');
   const url = filter ? `/admin/reports?status=${encodeURIComponent(filter)}` : '/admin/reports';
   try {
-    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getAdminToken()}` } });
+    const res = await API.get(url);
     if (!res.ok) throw new Error('Error al cargar reports');
     const reports = await res.json();
     renderReports(reports);
@@ -433,11 +435,7 @@ document.addEventListener('click', async (e) => {
     const status = select ? select.value : null;
     const admin_notes = notesInput ? notesInput.value : undefined;
     if (!status) return;
-    const res = await fetch(`/admin/reports/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
-      body: JSON.stringify({ status, admin_notes })
-    });
+    const res = await API.patch(`/admin/reports/${id}`, { status, admin_notes });
     if (res.ok) {
       loadReports();
     } else {
