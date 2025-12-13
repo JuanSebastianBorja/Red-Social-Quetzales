@@ -65,6 +65,14 @@ function syncAdminToken() {
   }
 }
 
+function translateServiceStatus(status) {
+  const translations = {
+    'active': 'Activo',
+    'inactive': 'Inactivo',
+    'paused': 'Pausado'
+  };
+  return translations[status] || status;
+}
 
 tabs.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -301,7 +309,7 @@ function renderServices(services) {
             <td>${s.id}</td>
             <td>${s.title}</td>
             <td>${s.category || '-'}</td>
-            <td><span class="status-badge ${s.status}">${s.status}</span></td>
+            <td><span class="status-badge ${s.status}">${translateServiceStatus(s.status)}</span></td>
             <td class="table-action-cell">
               <select data-id="${s.id}" class="svc-status input">
                 <option value="active" ${s.status==='active'?'selected':''}>Activo</option>
