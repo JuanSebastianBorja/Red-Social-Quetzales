@@ -318,6 +318,7 @@ function renderServices(services) {
     </table>
   `;
 }
+
 document.addEventListener('click', async (e) => {
   const t = e.target;
   if (t && t.classList && t.classList.contains('svc-save')) {
@@ -325,14 +326,18 @@ document.addEventListener('click', async (e) => {
     const select = document.querySelector(`select.svc-status[data-id="${id}"]`);
     const status = select ? select.value : null;
     if (!status) return;
-    const res = await API.patch(`/admin/services/${id}/status`, { status });
-    if (res.ok) {
+
+    try {
+      await API.patch(`/admin/services/${id}/status`, { status });
+      // Recarga la lista para actualizar la UI inmediatamente
       loadServices();
-    } else {
-      alert('No se pudo actualizar el estado del servicio');
+    } catch (error) {
+      console.error('Error al actualizar el estado del servicio:', error);
+      alert(`Error: ${error.message || 'No se pudo actualizar el estado del servicio'}`);
     }
   }
 });
+
 svcReload?.addEventListener('click', () => loadServices());
 svcFilter?.addEventListener('change', () => loadServices());
 
