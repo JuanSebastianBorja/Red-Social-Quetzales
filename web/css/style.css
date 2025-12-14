@@ -1398,3 +1398,76 @@ video {
 .user-role {
   display: none !important;
 }
+/* FIX RESPONSIVE MÓVIL*/
+
+@media (max-width: 768px) {
+
+
+
+  .main-content > div[style*="grid-template-columns: repeat(3, 1fr)"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .main-content > div[style*="grid-template-columns: repeat(3, 1fr)"] .card-body {
+    text-align: center;
+  }
+
+  .main-content > div[style*="grid-template-columns: repeat(3, 1fr)"] .helper,
+  .main-content > div[style*="grid-template-columns: repeat(3, 1fr)"] .stat-value {
+    text-align: center;
+  }
+
+  
+  .input-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px;
+  }
+
+  .input-row .form-group {
+    width: 100%;
+  }
+
+  .main-content div[style*="border-bottom: 2px solid var(--border)"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .main-content div[style*="border-bottom: 2px solid var(--border)"] .tab-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+
+
+
+  .main-content .card-body > div[style*="flex-wrap: wrap"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+
+  .main-content .card-body > div[style*="flex-wrap: wrap"] > div {
+    width: 100% !important;
+  }
+
+
+  .main-content .card-body > div[style*="flex-wrap: wrap"] label {
+    margin-bottom: 4px;
+    white-space: normal !important;
+  }
+
+  
+  .main-content .card-body > div[style*="flex-wrap: wrap"] input,
+  .main-content .card-body > div[style*="flex-wrap: wrap"] select {
+    width: 100% !important;
+  }
+
+
+  .main-content .card-body > div[style*="flex-wrap: wrap"] > button {
+    width: 100%;
+    justify-content: center;
+  }
+}
