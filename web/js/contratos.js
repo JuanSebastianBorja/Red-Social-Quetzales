@@ -101,45 +101,38 @@ function renderContractCard(contract) {
 }
 
 function getActionButtons(contract) {
-  const { status } = contract;
+  const { status, escrow_id } = contract;
   let buttons = '';
+
+  // Disputa: visible para ambos roles si hay escrow y el estado es válido
+  const canDispute = escrow_id && ['paid', 'in_progress', 'delivered'].includes(status);
+  if (canDispute) {
+    buttons += `<button class="btn-secondary" data-action="dispute"><i class="fas fa-exclamation-triangle"></i> Abrir Disputa</button>`;
+  }
 
   if (currentRole === 'provider') {
     if (status === 'pending' || status === 'paid') {
-      buttons = `
+      buttons += `
         <button class="btn-primary" data-action="accept"><i class="fas fa-check"></i> Aceptar</button>
         <button class="btn-danger" data-action="reject"><i class="fas fa-times"></i> Rechazar</button>
       `;
     } else if (status === 'accepted') {
-      // Si ya está pagado (escrow creado), permitir entregar incluso en 'accepted'
-      buttons = `<button class="btn-primary" data-action="start"><i class="fas fa-play"></i> Iniciar Trabajo</button>`;
-      if (contract.escrow_id) {
+      buttons += `<button class="btn-primary" data-action="start"><i class="fas fa-play"></i> Iniciar Trabajo</button>`;
+      if (escrow_id) {
         buttons += ` <button class="btn-success" data-action="deliver"><i class="fas fa-box"></i> Subir Entregables</button>`;
       }
-    } else if (status === 'in_progress') {
-      // Mostrar entrega solo si contrato está pagado (escrow creado)
-      if (contract.escrow_id) {
-        buttons = `<button class="btn-success" data-action="deliver"><i class="fas fa-box"></i> Subir Entregables</button>`;
-      } else {
-        buttons = `<span class="helper">Debe estar pagado para entregar</span>`;
-      }
+    } else if (status === 'in_progress' && escrow_id) {
+      buttons += `<button class="btn-success" data-action="deliver"><i class="fas fa-box"></i> Subir Entregables</button>`;
     }
   }
 
   if (currentRole === 'client') {
-    if (status === 'pending') {
-      // No mostrar pagar en pendiente; el cliente solo puede cancelar.
-    }
-    // No mostrar "Marcar Completado" en ningún estado; la app completa automáticamente al entregar.
-    // Permitir pagar también en accepted / in_progress cuando aún no hay escrow
-    if ((status === 'accepted' || status === 'in_progress') && !contract.escrow_id) {
-      buttons = `<button class="btn-primary" data-action="pay"><i class="fas fa-credit-card"></i> Pagar</button>`;
+    if ((status === 'accepted' || status === 'in_progress') && !escrow_id) {
+      buttons += `<button class="btn-primary" data-action="pay"><i class="fas fa-credit-card"></i> Pagar</button>`;
     }
     if (['pending', 'paid', 'accepted', 'in_progress'].includes(status)) {
       buttons += `<button class="btn-secondary" data-action="cancel"><i class="fas fa-ban"></i> Cancelar</button>`;
     }
-
-     //permitir confirmar si está entregado
     if (status === 'delivered') {
       buttons += `<button class="btn-success" data-action="complete"><i class="fas fa-check-circle"></i> Confirmar y Liberar Pago</button>`;
     }
@@ -321,6 +314,23 @@ if (contractsList) {
       complete: 'completed',
       cancel: 'cancelled'
     };
+    if (action === 'dispute') {
+      const reason = prompt('Motivo de la disputa (mínimo 10 caracteres):');
+      if (!reason || reason.trim().length < 10) {
+          alert('El motivo debe tener al menos 10 caracteres.');
+      return;
+    }
+    (async () => {
+    try {
+      await API.post(`/contracts/${contractId}/dispute`, { reason });
+      alert('Disputa abierta exitosamente.');
+      fetchContracts(); // Recargar para ver estado "En Disputa"
+    } catch (err) {
+      alert('Error al abrir la disputa: ' + (err.message || 'Inténtalo más tarde.'));
+    }
+    })();
+    return;
+  }
     const newStatus = actionMap[action];
     if (action === 'deliver') {
       // Abrir selector de archivos y subir via API.postMultipart
