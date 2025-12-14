@@ -113,6 +113,7 @@ function renderServiceDetail(svc) {
       style="width:100%;height:100px;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-tertiary);color:var(--text-primary);resize:none;font-family:inherit;"
       maxlength="500"
     ></textarea>
+    <div id="reportError" style="margin-top:6px;color:var(--danger);font-size:14px;display:none;"></div>
     <div style="display:flex;gap:8px;margin-top:24px;justify-content:flex-end;">
       <button id="reportCancelBtn" class="btn-secondary" style="min-width:100px;">Cancelar</button>
       <button id="reportSubmitBtn" class="btn-primary" style="min-width:100px;">Enviar Reporte</button>
@@ -178,74 +179,78 @@ if (reportBtn) {
     const input = document.getElementById('reportReasonInput');
     const submitBtn = document.getElementById('reportSubmitBtn');
     const cancelBtn = document.getElementById('reportCancelBtn');
+    const errorElement = document.getElementById('reportError'); 
 
-    // Limpiar el campo
+    // Limpiar
     input.value = '';
+    errorElement.style.display = 'none';
+    submitBtn.disabled = false;
 
-    // Mostrar el modal
+    // Validación en tiempo real
+    const validateInput = () => {
+      const reason = input.value.trim();
+      if (reason && reason.length < 10) {
+        errorElement.textContent = 'El motivo debe tener al menos 10 caracteres.';
+        errorElement.style.display = 'block';
+        submitBtn.disabled = true;
+      } else {
+        errorElement.style.display = 'none';
+        submitBtn.disabled = false;
+      }
+    };
+
+    // Asignar el listener una sola vez
+    input.addEventListener('input', validateInput);
+
+    // Mostrar modal
     modal.style.display = 'flex';
-
-    // Enfocar el input
     input.focus();
 
-    // Manejar el botón "Enviar Reporte"
+    // Manejar envío
     const handleSubmit = async () => {
       const reason = input.value.trim();
-      if (!reason || reason.length < 10) {
-        showMessage('El motivo debe tener al menos 10 caracteres.');
-        return;
-      }
-
       try {
         await API.post(`/services/${svc.id}/report`, { reason });
         showMessage('¡Servicio reportado con éxito! Nuestro equipo lo revisará pronto.');
-        modal.style.display = 'none'; // Cerrar modal
-        reportBtn.style.display = 'none'; // Opcional: ocultar botón tras reportar
+        modal.style.display = 'none';
+        reportBtn.style.display = 'none';
       } catch (err) {
         showMessage(`No se pudo reportar el servicio: ${err.message}`);
       }
     };
 
-    // Manejar el botón "Cancelar"
-    const handleCancel = () => {
+    // Eventos
+    submitBtn.addEventListener('click', handleSubmit);
+    cancelBtn.addEventListener('click', handleCancel);
+    
+    // Función de cancelar (definida aquí para evitar problemas de scope)
+    function handleCancel() {
       modal.style.display = 'none';
-    };
-
-    // Asignar eventos
-    submitBtn.onclick = handleSubmit;
-    cancelBtn.onclick = handleCancel;
+    }
 
     // Cerrar con Escape
     const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        handleCancel();
-      }
+      if (e.key === 'Escape') handleCancel();
     };
     document.addEventListener('keydown', handleEscape);
 
-    // Cerrar al hacer clic fuera del contenido
+    // Cerrar al hacer clic fuera
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        handleCancel();
-      }
+      if (e.target === modal) handleCancel();
     });
 
-    // Limpieza de eventos al cerrar
+    // Limpieza
     const cleanup = () => {
       document.removeEventListener('keydown', handleEscape);
       modal.removeEventListener('click', handleEscape);
-      submitBtn.onclick = null;
-      cancelBtn.onclick = null;
+      input.removeEventListener('input', validateInput);
     };
-
-    // Limpieza automática cuando se cierra
     modal.addEventListener('transitionend', () => {
-      if (modal.style.display === 'none') {
-        cleanup();
-      }
+      if (modal.style.display === 'none') cleanup();
     }, { once: true });
   });
 }
+
 // Mostrar botón de reporte si el usuario está autenticado y no es el dueño
 const token = localStorage.getItem(CONFIG.STORAGE_KEYS.TOKEN);
 if (token && svc.user_id) {
