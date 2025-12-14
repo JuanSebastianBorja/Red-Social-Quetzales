@@ -69,7 +69,8 @@ function translateServiceStatus(status) {
   const translations = {
     'active': 'Activo',
     'inactive': 'Inactivo',
-    'paused': 'Pausado'
+    'paused': 'Pausado',
+    'removed_by_admin': 'Eliminado por admin'
   };
   return translations[status] || status;
 }
@@ -404,7 +405,7 @@ function renderReports(reports) {
               <select data-id="${r.id}" class="rep-status input">
                 <option value="reviewed">Revisado</option>
                 <option value="dismissed">Desestimado</option>
-                <option value="action_taken">Acción Tomada</option>
+                <option value="action_taken">Eliminar Servicio</option>
               </select>
               <input type="text" class="rep-notes input" data-id="${r.id}" placeholder="Notas admin" style="min-width:150px;" />
               <button data-id="${r.id}" class="rep-save btn-primary">

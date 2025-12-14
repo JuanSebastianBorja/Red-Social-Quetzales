@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { pool } from '../../lib/db';
+import { notificationService } from '../notifications/service';
 import { authenticateAdmin, requireAdminRole } from '../../middleware/admin';
 import jwt from 'jsonwebtoken';
 
@@ -66,7 +67,7 @@ adminRouter.get('/services', authenticateAdmin, requireAdminRole(['moderator','s
     const { status } = req.query as { status?: string };
     let sql = `SELECT id, user_id, title, status, category, price_qz_halves, created_at, updated_at FROM services`;
     const params: any[] = [];
-    if (status && ['active','inactive','paused'].includes(status)) {
+    if (status && ['active','inactive','paused',].includes(status)) {
       sql += ` WHERE status=$1`; params.push(status);
     }
     sql += ` ORDER BY created_at DESC`;
@@ -126,15 +127,62 @@ adminRouter.patch('/reports/:id', authenticateAdmin, requireAdminRole(['moderato
   try {
     const { id } = req.params;
     const { status, admin_notes } = req.body;
-    if (!['reviewed','dismissed','action_taken'].includes(status)) return res.status(400).json({ error: 'Invalid status' });
+    
+    if (!['reviewed', 'dismissed', 'action_taken'].includes(status)) {
+      return res.status(400).json({ error: 'Estado inválido' });
+    }
+
+    // Actualizar reporte
     const r = await pool.query(
-      `UPDATE service_reports SET status=$2, admin_notes=COALESCE($3, admin_notes), reviewed_at=NOW() WHERE id=$1 RETURNING *`,
-      [id, status, admin_notes]
+      `UPDATE service_reports 
+       SET status = $1, admin_notes = $2, reviewed_by = $3, reviewed_at = NOW()
+       WHERE id = $4 AND status = 'pending'
+       RETURNING service_id`,
+      [status, admin_notes, (req as any).user.sub, id]
     );
-    if (r.rowCount === 0) return res.status(404).json({ error: 'Report not found' });
-    res.json(r.rows[0]);
+
+    if (r.rowCount === 0) {
+      return res.status(200).json({ 
+        id, 
+        status: 'already_moderated',
+        message: 'Reporte ya fue moderado o no encontrado' 
+      });
+    }
+
+    const serviceId = r.rows[0].service_id;
+
+    // Si el admin elige "Eliminar Servicio", usa "action_taken" para marcar el servicio como eliminado
+    if (status === 'action_taken') {
+      // 1. Obtener al proveedor (user_id del servicio)
+      const svc = await pool.query(
+        'SELECT user_id FROM services WHERE id = $1',
+        [serviceId]
+      ) as { rows: Array<{ user_id: string }> }; 
+
+      if (svc.rows.length > 0) {
+        const providerId = svc.rows[0].user_id;
+
+        // 2. Marcar como "removed_by_admin" (no se elimina físicamente)
+        await pool.query(
+          `UPDATE services SET status = 'removed_by_admin', updated_at = NOW() WHERE id = $1`,
+          [serviceId]
+        );
+
+        // 3. Notificar al proveedor
+        await notificationService.createNotification({
+        userId: providerId,
+        type: 'service_removed',
+        title: 'Servicio eliminado',
+        message: 'Uno de tus servicios fue eliminado por violar las políticas de la plataforma.',
+        actionUrl: '/vistas/mis-servicios.html', // ← URL a la que el usuario puede ir al hacer clic
+    });
+      }
+    }
+
+    res.status(200).json({ id, status, message: 'Reporte moderado exitosamente' });
   } catch (e: any) {
-    res.status(500).json({ error: 'Server error', details: e.message });
+    console.error('Error al moderar reporte:', e);
+    res.status(500).json({ error: 'Error al moderar reporte' });
   }
 });
 

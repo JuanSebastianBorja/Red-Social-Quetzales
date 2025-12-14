@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS services (
     price_qz_halves INTEGER NOT NULL CHECK (price_qz_halves > 0),
     delivery_time VARCHAR(50),
     requirements TEXT,
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'paused')),
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'paused', 'removed_by_admin')),
     views_count INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

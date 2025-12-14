@@ -59,8 +59,8 @@ servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
     // Si el usuario está autenticado y no hay otros filtros, devolver sus servicios (activos e inactivos)
     if (req.userId && !search && !category && !priceMin && !priceMax && !minRating && !city) {
       const r = await pool.query(
-        'SELECT id, user_id, title, category, description, price_qz_halves, delivery_time, requirements, image_url, status FROM services WHERE user_id=$1 ORDER BY created_at DESC',
-        [req.userId]
+        'SELECT id, user_id, title, category, description, price_qz_halves, delivery_time, requirements, image_url, status FROM services WHERE user_id=$1 AND status != $2 ORDER BY created_at DESC',
+        [req.userId, 'removed_by_admin']
       );
       return res.json(r.rows);
     }
