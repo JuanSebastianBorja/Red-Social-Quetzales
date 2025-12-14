@@ -365,7 +365,7 @@ async function loadReports(status) {
   const url = filter ? `/admin/reports?status=${encodeURIComponent(filter)}` : '/admin/reports';
   try {
     const res = await API.get(url);
-    renderReports(reports);
+    renderReports(res);
   } catch (e) {
     if (reportsContainer) reportsContainer.innerHTML = '<p class="helper">No se pudo cargar reports.</p>';
   }
