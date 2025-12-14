@@ -137,14 +137,27 @@
 
       <!-- Tab Content: Disputas -->
       <div id="tab-disputes" class="tab-content" style="display:none;">
-        <div class="admin-empty-state">
-          <i class="fas fa-balance-scale"></i>
-          <p>Gestión de disputas en desarrollo</p>
-          <small class="helper">Esta funcionalidad estará disponible próximamente</small>
-        </div>
-        <div id="adminDisputesList"></div>
+        <div class="admin-filters">
+        <label for="dispFilter">Filtrar por estado:</label>
+          <select id="dispFilter" class="input">
+            <option value="open">Abiertas</option>
+            <option value="in_review">En revisión</option>
+            <option value="resolved">Resueltas</option>
+            <option value="dismissed">Desestimadas</option>
+        </select>
+          <button id="dispReload" class="btn-icon" title="Recargar">
+           <i class="fas fa-rotate"></i>
+       </button>
       </div>
-
+        <div class="table-wrapper">
+          <div id="adminDisputesList">
+            <div class="admin-empty-state">
+          <i class="fas fa-balance-scale"></i>
+          <p>Cargando disputas...</p>
+        </div>
+      </div>
+    </div>
+  </div>
       <!-- Tab Content: Métricas -->
       <div id="tab-metrics" class="tab-content" style="display:none;">
         <div id="adminMetrics" class="admin-metrics-grid">

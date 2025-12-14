@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Disputas - Quetzal</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;">
+      <h1><i class="fas fa-balance-scale"></i> Mis Disputas</h1>
+      <nav>
+        <a href="/"><i class="fas fa-home"></i> Volver al Inicio</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="margin-top: 24px;">
+    <div id="disputesMessage" class="helper" style="display: none;"></div>
+    <div id="disputesList">
+      <div class="admin-empty-state">
+        <i class="fas fa-balance-scale"></i>
+        <p>Cargando disputas...</p>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/js/disputas.js"></script>
+  <button class="theme-toggle theme-toggle--floating" type="button" data-theme-toggle aria-label="Cambiar tema">
+    <span class="theme-toggle__icon">🌓</span>
+  </button>
+  <script src="/js/theme.js"></script>
+</body>
+</html>

@@ -18,6 +18,7 @@ import { walletRouter } from './modules/wallet/routes';
 import webhooksRouter from './modules/webhooks/routes';
 import { ratingsRouter } from './modules/ratings/routes';
 import { notificationsRouter } from './modules/notifications/routes';
+import { disputesRouter } from './modules/disputes/routes';
 
 const app = express();
 const server = http.createServer(app);
@@ -75,6 +76,7 @@ app.use('/webhooks', webhooksRouter);
 app.use('/ratings', ratingsRouter);
 app.use('/messaging', messagingRouter);
 app.use('/notifications', notificationsRouter);
+app.use('/disputes', disputesRouter);
 
 // Sockets
 initMessagingSocket(io, pool);

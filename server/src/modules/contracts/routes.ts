@@ -716,3 +716,101 @@ contractsRouter.get('/:id', authenticate, async (req: AuthRequest, res) => {
     res.status(500).json({ error: 'Server error', details: e.message });
   }
 });
+
+// Abrir disputa en un contrato (cliente o proveedor)
+contractsRouter.post('/:id/dispute', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { reason, evidence_urls = [] } = req.body;
+    const userId = req.userId!;
+
+    if (!reason || reason.trim().length < 10) {
+      return res.status(400).json({ error: 'La razón debe tener al menos 10 caracteres' });
+    }
+
+    // 1. Obtener contrato y verificar que el usuario participe
+    const contractRes = await pool.query(
+      `SELECT c.*, e.status AS escrow_status
+       FROM contracts c
+       LEFT JOIN escrow_accounts e ON c.escrow_id = e.id
+       WHERE c.id = $1`,
+      [id]
+    );
+
+    if (contractRes.rowCount === 0) {
+      return res.status(404).json({ error: 'Contrato no encontrado' });
+    }
+
+    const contract = contractRes.rows[0];
+    const isBuyer = contract.buyer_id === userId;
+    const isSeller = contract.seller_id === userId;
+
+    if (!isBuyer && !isSeller) {
+      return res.status(403).json({ error: 'No tienes permiso para disputar este contrato' });
+    }
+
+    if (!contract.escrow_id) {
+      return res.status(400).json({ error: 'El contrato debe estar pagado para abrir una disputa' });
+    }
+
+    if (!['funded', 'released'].includes(contract.escrow_status)) {
+      return res.status(400).json({ error: 'No se puede disputar este escrow en su estado actual' });
+    }
+
+    // 2. Verificar que no exista ya una disputa para este escrow
+    const existingDispute = await pool.query(
+      'SELECT 1 FROM disputes WHERE escrow_id = $1 AND status != $2',
+      [contract.escrow_id, 'dismissed']
+    ) as { rowCount: number };
+    if (existingDispute.rowCount > 0) {
+      return res.status(400).json({ error: 'Ya existe una disputa abierta para este contrato' });
+    }
+
+    // 3. Crear la disputa
+    const complainantId = userId;
+    const respondentId = isBuyer ? contract.seller_id : contract.buyer_id;
+
+    const disputeRes = await pool.query(
+      `INSERT INTO disputes (escrow_id, complainant_id, respondent_id, reason, evidence_urls, status)
+       VALUES ($1, $2, $3, $4, $5, 'open')
+       RETURNING id`,
+      [contract.escrow_id, complainantId, respondentId, reason.trim(), evidence_urls]
+    );
+
+    // 4. Actualizar escrow y contrato a estado "disputed"
+    await pool.query('UPDATE escrow_accounts SET status = $1 WHERE id = $2', ['disputed', contract.escrow_id]);
+    await pool.query('UPDATE contracts SET status = $1 WHERE id = $2', ['disputed', id]);
+
+    // 5. Notificar a ambas partes
+    const complainantName = isBuyer ? 'Cliente' : 'Proveedor';
+    const message = `Una disputa ha sido iniciada por ${complainantName} en el contrato: "${contract.title}"`;
+
+    await notificationService.createNotification({
+      userId: contract.buyer_id,
+      type: 'dispute_created',
+      title: 'Nueva disputa abierta',
+      message,
+      referenceId: disputeRes.rows[0].id,
+      actionUrl: '/vistas/disputas.html'
+    });
+
+    if (contract.buyer_id !== contract.seller_id) {
+      await notificationService.createNotification({
+        userId: contract.seller_id,
+        type: 'dispute_created',
+        title: 'Nueva disputa abierta',
+        message,
+        referenceId: disputeRes.rows[0].id,
+        actionUrl: '/vistas/disputas.html'
+      });
+    }
+
+    res.status(201).json({ 
+      id: disputeRes.rows[0].id, 
+      message: 'Disputa creada exitosamente' 
+    });
+  } catch (e: any) {
+    console.error('Error al crear disputa:', e);
+    res.status(500).json({ error: 'Error al crear la disputa' });
+  }
+});

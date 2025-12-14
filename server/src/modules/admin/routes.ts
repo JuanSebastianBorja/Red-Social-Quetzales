@@ -203,6 +203,170 @@ adminRouter.get('/metrics', authenticateAdmin, requireAdminRole(['superadmin']),
   }
 });
 
+// Disputas: listar (moderator or superadmin)
+adminRouter.get('/disputes', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req, res) => {
+  try {
+    const { status } = req.query as { status?: string };
+    let sql = `
+      SELECT 
+        d.id,
+        d.escrow_id,
+        d.complainant_id,
+        d.respondent_id,
+        d.reason,
+        d.evidence_urls,
+        d.status AS dispute_status,
+        d.resolution,
+        d.resolved_at,
+        d.created_at,
+        c.title AS contract_title,
+        buyer.full_name AS buyer_name,
+        seller.full_name AS seller_name,
+        s.title AS service_title
+      FROM disputes d
+      JOIN escrow_accounts e ON d.escrow_id = e.id
+      JOIN contracts c ON e.id = c.escrow_id
+      JOIN services s ON c.service_id = s.id
+      JOIN users buyer ON c.buyer_id = buyer.id
+      JOIN users seller ON c.seller_id = seller.id
+    `;
+    const params: any[] = [];
+    if (status && ['open','in_review','resolved','dismissed'].includes(status)) {
+      sql += ` WHERE d.status = $1`;
+      params.push(status);
+    }
+    sql += ` ORDER BY d.created_at DESC`;
+    
+    const r = await pool.query(sql, params);
+    res.json(r.rows);
+  } catch (e: any) {
+    console.error('Error al cargar disputas:', e);
+    res.status(500).json({ error: 'Server error', details: e.message });
+  }
+});
+
+// Disputas: resolver (moderator or superadmin)
+adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req: import('../../middleware/admin').AdminRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { status, resolution } = req.body;
+
+    // Validar estado
+    if (!['resolved', 'dismissed'].includes(status)) {
+      return res.status(400).json({ error: 'Estado de disputa inválido' });
+    }
+
+    // Obtener disputa y escrow
+    const disputeRes = await pool.query(
+      `SELECT d.*, e.amount_qz_halves, e.status AS escrow_status, c.buyer_id, c.seller_id
+       FROM disputes d
+       JOIN escrow_accounts e ON d.escrow_id = e.id
+       JOIN contracts c ON e.id = c.escrow_id
+       WHERE d.id = $1`,
+      [id]
+    );
+
+    if (disputeRes.rowCount === 0) {
+      return res.status(404).json({ error: 'Disputa no encontrada' });
+    }
+
+    const dispute = disputeRes.rows[0];
+
+    // No permitir resolver si ya está resuelta
+    if (['resolved', 'dismissed'].includes(dispute.status)) {
+      return res.status(400).json({ error: 'La disputa ya fue resuelta' });
+    }
+
+    // Solo permitir resolver si el escrow está en estado 'disputed'
+    if (dispute.escrow_status !== 'disputed') {
+      return res.status(400).json({ error: 'El escrow no está en estado disputed' });
+    }
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // 1. Actualizar la disputa
+      await client.query(
+        `UPDATE disputes 
+         SET status = $1, resolution = $2, resolved_by = $3, resolved_at = NOW(), updated_at = NOW()
+         WHERE id = $4`,
+        [status, resolution || '', req.adminId, id]
+      );
+
+      // 2. Actualizar el escrow según la resolución
+      if (status === 'resolved') {
+        // Aquí debes decidir: ¿liberar al vendedor o reembolsar al comprador?
+        // Como no tenemos ese campo en el body, asumimos que "resolved" = liberar al vendedor
+        // (En una versión avanzada, podrías recibir una acción específica)
+        await client.query(
+          `UPDATE escrow_accounts SET status = 'released', released_at = NOW(), updated_at = NOW() WHERE id = $1`,
+          [dispute.escrow_id]
+        );
+
+        // Actualizar contrato a 'completed'
+        await client.query(
+          `UPDATE contracts SET status = 'completed', completed_at = NOW(), updated_at = NOW() WHERE escrow_id = $1`,
+          [dispute.escrow_id]
+        );
+
+        // Notificar al vendedor (liberación de fondos)
+        await notificationService.createNotification({
+          userId: dispute.seller_id,
+          type: 'transaction_completed',
+          title: 'Disputa resuelta a tu favor',
+          message: `La disputa fue resuelta. El pago por "${dispute.contract_title}" ha sido liberado.`,
+          referenceId: id,
+          actionUrl: '/vistas/cartera.html'
+        });
+
+        // Notificar al comprador
+        await notificationService.createNotification({
+          userId: dispute.buyer_id,
+          type: 'dispute_created',
+          title: 'Disputa resuelta',
+          message: `La disputa por "${dispute.contract_title}" fue resuelta a favor del vendedor.`,
+          referenceId: id,
+          actionUrl: '/vistas/disputas.html'
+        });
+      } else if (status === 'dismissed') {
+        // Si se desestima, el escrow permanece en 'disputed' (sin acción financiera)
+        // Pero podrías querer permitir que el flujo continúe manualmente después
+        // Notificación a ambas partes
+        await notificationService.createNotification({
+          userId: dispute.buyer_id,
+          type: 'dispute_created',
+          title: 'Disputa desestimada',
+          message: `La disputa por "${dispute.contract_title}" fue desestimada por el equipo de soporte.`,
+          referenceId: id,
+          actionUrl: '/vistas/disputas.html'
+        });
+
+        await notificationService.createNotification({
+          userId: dispute.seller_id,
+          type: 'dispute_created',
+          title: 'Disputa desestimada',
+          message: `La disputa por "${dispute.contract_title}" fue desestimada por el equipo de soporte.`,
+          actionUrl: '/vistas/disputas.html'
+        });
+      }
+
+      await client.query('COMMIT');
+      client.release();
+
+      res.json({ id, status, message: 'Disputa actualizada exitosamente' });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      client.release();
+      console.error('Error al resolver disputa:', err);
+      res.status(500).json({ error: 'Error al resolver la disputa' });
+    }
+  } catch (e: any) {
+    console.error('Error al resolver disputa:', e);
+    res.status(500).json({ error: 'Server error', details: e.message });
+  }
+});
+
 // Update admin user (superadmin only)
 adminRouter.patch('/users/:id', authenticateAdmin, requireAdminRole(['superadmin']), async (req, res) => {
   try {

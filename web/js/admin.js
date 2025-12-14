@@ -21,6 +21,9 @@ const newAdminRole = document.getElementById('newAdminRole');
 const createAdminMsg = document.getElementById('createAdminMsg');
 const adminUsersList = document.getElementById('adminUsersList');
 const adminMetrics = document.getElementById('adminMetrics');
+const disputesContainer = document.getElementById('adminDisputesList');
+const dispFilter = document.getElementById('dispFilter');
+const dispReload = document.getElementById('dispReload');
 
 
 if (typeof AppState === 'undefined') {
@@ -88,6 +91,7 @@ tabs.forEach(btn => {
     if (tab === 'metrics') loadMetrics();
     if (tab === 'services') loadServices();
     if (tab === 'reports') loadReports('pending');
+    if (tab === 'disputes') loadDisputes('open');
   });
 });
 
@@ -335,9 +339,9 @@ function renderServices(services) {
 }
 
 document.addEventListener('click', async (e) => {
-  const t = e.target;
-  if (t && t.classList && t.classList.contains('rep-save')) {
-    const id = t.getAttribute('data-id');
+  // Manejar reportes
+  if (e.target.classList.contains('rep-save')) {
+    const id = e.target.getAttribute('data-id');
     const select = document.querySelector(`select.rep-status[data-id="${id}"]`);
     const notesInput = document.querySelector(`input.rep-notes[data-id="${id}"]`);
     const status = select ? select.value : null;
@@ -350,6 +354,21 @@ document.addEventListener('click', async (e) => {
       showReportsMsg('Reporte actualizado correctamente');
     } catch (error) {
       showReportsMsg('No se pudo actualizar el reporte', true);
+    }
+  }
+
+  // Manejar disputas
+  if (e.target.matches?.('.disp-resolve')) {
+    const disputeId = e.target.dataset.id;
+    const resolution = prompt('Ingrese la resolución (opcional):');
+    const action = confirm('¿Resolver a favor del vendedor? (Cancelar = Desestimar)');
+    const status = action ? 'resolved' : 'dismissed';
+    
+    try {
+      await API.patch(`/admin/disputes/${disputeId}/status`, { status, resolution });
+      loadDisputes();
+    } catch (err) {
+      alert('Error al resolver la disputa');
     }
   }
 });
@@ -435,3 +454,66 @@ function showReportsMsg(text, isError = false) {
 
 repReload?.addEventListener('click', () => loadReports());
 repFilter?.addEventListener('change', () => loadReports());
+
+//Función para cargar disputas
+async function loadDisputes(status = 'open') {
+  if (!getAdminToken()) return;
+  const url = status ? `/admin/disputes?status=${encodeURIComponent(status)}` : '/admin/disputes';
+  try {
+    const disputes = await API.get(url);
+    renderDisputes(disputes);
+  } catch (e) {
+    if (disputesContainer) {
+      disputesContainer.innerHTML = '<p class="helper">No se pudieron cargar las disputas.</p>';
+    }
+  }
+}
+
+//Función para renderizar disputas
+function renderDisputes(disputes) {
+  if (!disputesContainer) return;
+  const rows = Array.isArray(disputes) ? disputes : [];
+  if (rows.length === 0) {
+    disputesContainer.innerHTML = `
+      <div class="admin-empty-state">
+        <i class="fas fa-balance-scale"></i>
+        <p>No hay disputas para mostrar</p>
+      </div>
+    `;
+    return;
+  }
+  disputesContainer.innerHTML = `
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Contrato</th>
+          <th>Comprador → Vendedor</th>
+          <th>Motivo</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(d => `
+          <tr>
+            <td>${d.id.substring(0, 8)}...</td>
+            <td>${d.contract_title || '-'}</td>
+            <td>${d.buyer_name} → ${d.seller_name}</td>
+            <td>${d.reason.substring(0, 30)}${d.reason.length > 30 ? '...' : ''}</td>
+            <td><span class="status-badge ${d.dispute_status}">${d.dispute_status}</span></td>
+            <td class="table-action-cell">
+              ${d.dispute_status === 'open' ? `
+                <button data-id="${d.id}" class="disp-resolve btn-primary">Resolver</button>
+              ` : '<span>Resuelta</span>'}
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+//Eventos para recargar y filtrar disputas
+dispReload?.addEventListener('click', () => loadDisputes());
+dispFilter?.addEventListener('change', (e) => loadDisputes(e.target.value));
