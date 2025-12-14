@@ -123,7 +123,7 @@ adminRouter.get('/reports', authenticateAdmin, requireAdminRole(['moderator','su
   }
 });
 
-adminRouter.patch('/reports/:id', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req, res) => {
+adminRouter.patch('/reports/:id', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req: import('../../middleware/admin').AdminRequest, res) => {
   try {
     const { id } = req.params;
     const { status, admin_notes } = req.body;
@@ -138,7 +138,7 @@ adminRouter.patch('/reports/:id', authenticateAdmin, requireAdminRole(['moderato
        SET status = $1, admin_notes = $2, reviewed_by = $3, reviewed_at = NOW()
        WHERE id = $4 AND status = 'pending'
        RETURNING service_id`,
-      [status, admin_notes, (req as any).user.sub, id]
+      [status, admin_notes, req.adminId, id]
     );
 
     if (r.rowCount === 0) {
