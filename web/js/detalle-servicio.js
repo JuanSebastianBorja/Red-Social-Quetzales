@@ -1,5 +1,6 @@
 // Detalle Servicio: obtiene y muestra toda la info de un servicio
 import { CONFIG } from './config.js';
+import { API } from './api.js';
 
 const detailContainer = document.getElementById('serviceDetail');
 const detailMessage = document.getElementById('detailMessage');
@@ -9,6 +10,9 @@ function showMessage(text) {
   if (!detailMessage) return;
   detailMessage.textContent = text;
   detailMessage.style.display = 'block';
+
+  // Cerrar automáticamente después de 5 segundos
+  setTimeout(hideMessage, 5000);
 }
 
 function hideMessage() {
@@ -44,11 +48,14 @@ function renderServiceDetail(svc) {
               </span>
             </div>
           </div>
-          <div style="text-align:right;">
-            <div style="font-size:32px;font-weight:700;color:var(--primary);margin-bottom:8px;">${priceQZ} QZ</div>
+          <div style="text-align:right;display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+            <div style="font-size:32px;font-weight:700;color:var(--primary);margin-bottom:4px;">${priceQZ} QZ</div>
             <button class="btn-primary" id="contractBtn" style="width:100%;min-width:180px;">
-              <i class="fas fa-handshake"></i> Contratar Servicio
-            </button>
+            <i class="fas fa-handshake"></i> Contratar Servicio
+          </button>
+          <button class="btn-secondary" id="reportBtn" style="display:none;width:100%;min-width:180px;">
+           <i class="fas fa-flag"></i> Reportar Servicio
+          </button>
           </div>
         </div>
 
@@ -139,6 +146,55 @@ function renderServiceDetail(svc) {
     });
   }
 
+// Listener para reportar servicio (usando API y mensajes integrados)
+const reportBtn = document.getElementById('reportBtn');
+if (reportBtn) {
+  reportBtn.addEventListener('click', async () => {
+    const reason = prompt(
+      'Por favor, describe el motivo del reporte (mínimo 10 caracteres):\n' +
+      '- Contenido inapropiado\n' +
+      '- Información falsa\n' +
+      '- Spam o publicidad no solicitada\n' +
+      '- Otro'
+    );
+    if (!reason || reason.trim().length < 10) {
+      showMessage('El motivo debe tener al menos 10 caracteres.');
+      return;
+    }
+
+    try {
+      await API.post(`/services/${svc.id}/report`, { reason: reason.trim() });
+      showMessage('¡Servicio reportado con éxito! Nuestro equipo lo revisará pronto.');
+      reportBtn.style.display = 'none'; // Opcional: desactiva el botón
+    } catch (err) {
+      showMessage(`No se pudo reportar el servicio: ${err.message}`);
+    }
+  });
+}
+
+// Mostrar botón de reporte si el usuario está autenticado y no es el dueño
+const token = localStorage.getItem(CONFIG.STORAGE_KEYS.TOKEN);
+if (token && svc.user_id) {
+  fetch(`${CONFIG.API_BASE_URL}/users/me`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(res => {
+    if (res.ok) {
+      return res.json();
+    }
+    throw new Error('No autorizado');
+  })
+  .then(me => {
+    const reportBtn = document.getElementById('reportBtn');
+    if (reportBtn && me.id !== svc.user_id) {
+      reportBtn.style.display = 'inline-flex';
+    }
+  })
+  .catch(() => {
+    // Si no se puede verificar identidad, no mostrar botón
+  });
+}
+
   // Cargar reseñas del servicio
   loadServiceRatings(svc.id);
 }
@@ -207,6 +263,7 @@ async function loadProviderInfo(userId) {
     console.error('Error loading provider info:', err);
   }
 }
+
 
 async function fetchServiceDetail(id) {
   if (!id) {

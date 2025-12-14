@@ -395,3 +395,46 @@ servicesRouter.patch('/:id/toggle', authenticate, async (req: AuthRequest, res) 
     res.status(500).json({ error: 'Server error', details: e.message });
   }
 });
+
+// Reportar un servicio
+servicesRouter.post('/:id/report', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { reason } = req.body;
+    const serviceId = req.params.id;
+    const userId = req.userId!;
+
+    // Validar razón
+    if (!reason || reason.trim().length < 10) {
+      return res.status(400).json({ error: 'La razón debe tener al menos 10 caracteres' });
+    }
+
+    // Verificar que el servicio exista y sea activo
+    const service = await pool.query(
+      'SELECT user_id FROM services WHERE id = $1 AND status = $2',
+      [serviceId, 'active']
+    );
+    if (service.rowCount === 0) {
+      return res.status(404).json({ error: 'Servicio no encontrado' });
+    }
+
+    // Verificar que no sea el propio servicio
+    if (service.rows[0].user_id === userId) {
+      return res.status(400).json({ error: 'No puedes reportar tu propio servicio' });
+    }
+
+    // Crear reporte
+    const r = await pool.query(
+      `INSERT INTO service_reports (reporter_id, service_id, reason, status)
+       VALUES ($1, $2, $3, 'pending')
+       RETURNING id`,
+      [userId, serviceId, reason.trim()]
+    );
+
+    // Opcional: aquí podrías llamar a createNotification (si lo implementas después)
+
+    res.status(201).json({ message: 'Servicio reportado exitosamente' });
+  } catch (e: any) {
+    console.error('Error al reportar servicio:', e);
+    res.status(500).json({ error: 'Error al reportar servicio' });
+  }
+});
