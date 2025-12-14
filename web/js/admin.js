@@ -336,19 +336,20 @@ function renderServices(services) {
 
 document.addEventListener('click', async (e) => {
   const t = e.target;
-  if (t && t.classList && t.classList.contains('svc-save')) {
+  if (t && t.classList && t.classList.contains('rep-save')) {
     const id = t.getAttribute('data-id');
-    const select = document.querySelector(`select.svc-status[data-id="${id}"]`);
+    const select = document.querySelector(`select.rep-status[data-id="${id}"]`);
+    const notesInput = document.querySelector(`input.rep-notes[data-id="${id}"]`);
     const status = select ? select.value : null;
+    const admin_notes = notesInput ? notesInput.value : undefined;
     if (!status) return;
 
     try {
-      await API.patch(`/admin/services/${id}/status`, { status });
-      // Recarga la lista para actualizar la UI inmediatamente
-      loadServices();
+      await API.patch(`/admin/reports/${id}`, { status, admin_notes });
+      loadReports(); 
+      showReportsMsg('Reporte actualizado correctamente');
     } catch (error) {
-      console.error('Error al actualizar el estado del servicio:', error);
-      alert(`Error: ${error.message || 'No se pudo actualizar el estado del servicio'}`);
+      showReportsMsg('No se pudo actualizar el reporte', true);
     }
   }
 });
@@ -398,7 +399,7 @@ function renderReports(reports) {
         ${rows.map(r => `
           <tr>
             <td>${r.id}</td>
-            <td>${r.service_id}</td>
+            <td>${r.service_title || r.service_id}</td>
             <td>${r.reason}</td>
             <td><span class="status-badge ${r.status}">${r.status}</span></td>
             <td class="table-action-cell">
@@ -418,22 +419,19 @@ function renderReports(reports) {
     </table>
   `;
 }
-document.addEventListener('click', async (e) => {
-  const t = e.target;
-  if (t && t.classList && t.classList.contains('rep-save')) {
-    const id = t.getAttribute('data-id');
-    const select = document.querySelector(`select.rep-status[data-id="${id}"]`);
-    const notesInput = document.querySelector(`input.rep-notes[data-id="${id}"]`);
-    const status = select ? select.value : null;
-    const admin_notes = notesInput ? notesInput.value : undefined;
-    if (!status) return;
-    const res = await API.patch(`/admin/reports/${id}`, { status, admin_notes });
-    if (res.ok) {
-      loadReports();
-    } else {
-      alert('No se pudo actualizar el reporte');
-    }
-  }
-});
+
+const reportsMsg = document.getElementById('reportsMessage'); 
+
+function showReportsMsg(text, isError = false) {
+  if (!reportsMsg) return;
+  reportsMsg.textContent = text;
+  reportsMsg.style.display = 'block';
+  reportsMsg.style.color = isError ? 'var(--danger)' : 'var(--success)';
+  setTimeout(() => {
+    reportsMsg.style.display = 'none';
+  }, 3000);
+}
+
+
 repReload?.addEventListener('click', () => loadReports());
 repFilter?.addEventListener('change', () => loadReports());

@@ -108,21 +108,28 @@ adminRouter.patch('/services/:id/status', authenticateAdmin, requireAdminRole(['
   }
 });
 
-// Service reports: list and moderate (superadmin or moderator)
+// Servicios reportados: listar y moderar (superadmin o moderador)
 adminRouter.get('/reports', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req, res) => {
   try {
     const { status } = req.query as { status?: string };
-    let sql = `SELECT id, reporter_id, service_id, reason, status, reviewed_by, reviewed_at, admin_notes, created_at FROM service_reports`;
+    let sql = `
+      SELECT sr.id,sr.reporter_id,sr.service_id,s.title AS service_title,sr.reason,sr.status,sr.reviewed_by,sr.reviewed_at,sr.admin_notes,sr.created_at FROM service_reports sr LEFT JOIN services s ON sr.service_id = s.id`;
     const params: any[] = [];
-    if (status && ['pending','reviewed','dismissed','action_taken'].includes(status)) { sql += ` WHERE status=$1`; params.push(status); }
-    sql += ` ORDER BY created_at DESC`;
+    let paramIndex = 1;
+   
+    if (status && ['pending','reviewed','dismissed','action_taken'].includes(status)) {
+      sql += ` WHERE sr.status = $${paramIndex}`;
+      params.push(status);
+      paramIndex++;
+    }
+
+    sql += ` ORDER BY sr.created_at DESC`;
     const r = await pool.query(sql, params);
     res.json(r.rows);
   } catch (e: any) {
     res.status(500).json({ error: 'Server error', details: e.message });
   }
 });
-
 adminRouter.patch('/reports/:id', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req: import('../../middleware/admin').AdminRequest, res) => {
   try {
     const { id } = req.params;
