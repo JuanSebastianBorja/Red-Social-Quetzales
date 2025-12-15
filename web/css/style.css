@@ -1487,3 +1487,193 @@ video {
     margin-top: 6px;
   }
 }
+/* =======================================
+   DASHBOARD: SERVICIOS RECIENTES & ACTIVIDAD
+   ======================================= */
+
+
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 120px;
+}
+
+
+.service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.service-item:hover {
+  transform: translateY(-1px);
+  background: rgba(148, 163, 184, 0.08);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.14);
+  border-color: rgba(129, 140, 248, 0.55);
+}
+
+
+.service-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.service-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-price {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+
+.service-status {
+  font-size: 11px;
+  text-transform: capitalize;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--text-secondary);
+}
+
+
+.service-status.active,
+.service-status.in_progress {
+  border-color: rgba(16, 185, 129, 0.6);
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+}
+
+.service-status.pending {
+  border-color: rgba(245, 158, 11, 0.7);
+  background: rgba(245, 158, 11, 0.08);
+  color: #b45309;
+}
+
+.service-status.completed {
+  border-color: rgba(37, 99, 235, 0.7);
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+}
+
+.service-status.cancelled,
+.service-status.canceled {
+  border-color: rgba(239, 68, 68, 0.7);
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+}
+
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 120px;
+}
+
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.activity-item:hover {
+  transform: translateY(-1px);
+  background: rgba(148, 163, 184, 0.07);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.14);
+  border-color: rgba(129, 140, 248, 0.55);
+}
+
+
+.activity-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.18);
+  flex-shrink: 0;
+}
+
+
+.activity-icon.payment {
+  background: rgba(16, 185, 129, 0.2);
+}
+
+.activity-icon.contract {
+  background: rgba(37, 99, 235, 0.2);
+}
+
+.activity-icon.rating {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+
+.activity-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.activity-content p {
+  margin: 0;
+}
+
+.activity-message {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.activity-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+
+.activity-item p:first-child {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.activity-item p:last-child {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+
+@media (max-width: 768px) {
+  .service-item {
+    align-items: flex-start;
+  }
+
+  .service-status {
+    align-self: flex-start;
+  }
+
+  .activity-item {
+    align-items: flex-start;
+  }
+}
