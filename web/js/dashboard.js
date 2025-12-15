@@ -71,10 +71,50 @@ export const Dashboard = {
             AppState.services = services;
             this.updateServicesCount(services.length);
             this.renderServices(services);
-            
-            // TODO: Cargar wallet balance cuando esté implementado
-            // const wallet = await API.get('/wallet/balance');
-            // this.updateBalance(wallet.balance_qz_halves);
+
+            // Cargar balance de la cartera
+            const wallet = await API.get('/wallet/balance');
+            if (wallet && typeof wallet.balance_qz_halves === 'number') {
+                this.updateBalance(wallet.balance_qz_halves);
+            }
+
+            // Cargar conversaciones para contar mensajes
+            const conversations = await API.get('/messaging/conversations');
+            this.updateMessagesCount(Array.isArray(conversations) ? conversations.length : 0);
+
+            // Obtener usuario actual y su rating promedio como proveedor
+            let me = null;
+            try {
+                me = await API.get('/users/me');
+            } catch (_) {}
+            if (me && me.id) {
+                const ratingsAgg = await API.get(`/ratings/user/${me.id}`);
+                if (ratingsAgg && typeof ratingsAgg.avg === 'number') {
+                    this.updateRating(ratingsAgg.avg || 0);
+                }
+            }
+
+            // Actividad reciente: combinar transacciones y servicios recientes
+            const txs = await API.get('/wallet/transactions?limit=5');
+            const activity = [];
+            if (Array.isArray(txs)) {
+                for (const t of txs) {
+                    activity.push({
+                        type: 'payment',
+                        message: t.description || `Transacción ${t.status}`,
+                        time: Utils.timeAgo ? Utils.timeAgo(t.created_at) : new Date(t.created_at).toLocaleString()
+                    });
+                }
+            }
+            const recentServices = (services || []).slice(0, 3);
+            for (const s of recentServices) {
+                activity.push({
+                    type: 'service',
+                    message: `Servicio: ${s.title}`,
+                    time: ''
+                });
+            }
+            this.renderActivity(activity);
             
         } catch (error) {
             console.error('Error cargando datos:', error);
@@ -197,17 +237,17 @@ export const Dashboard = {
     },
     
     // Renderizar actividad reciente
-    renderActivity() {
+    renderActivity(items) {
         const container = document.getElementById('recent-activity');
         if (!container) return;
-        
-        const mockActivity = [
-            { type: 'service', message: 'Nuevo servicio publicado', time: '2 horas' },
-            { type: 'message', message: 'Nuevo mensaje recibido', time: '5 horas' },
-            { type: 'payment', message: 'Pago recibido', time: '1 día' }
-        ];
-        
-        container.innerHTML = mockActivity.map(activity => `
+
+        const list = Array.isArray(items) && items.length > 0 ? items : [];
+        if (list.length === 0) {
+            container.innerHTML = '<p class="muted">Sin actividad reciente</p>';
+            return;
+        }
+
+        container.innerHTML = list.map(activity => `
             <div class="activity-item">
                 <div class="activity-icon ${activity.type}"></div>
                 <div class="activity-content">
