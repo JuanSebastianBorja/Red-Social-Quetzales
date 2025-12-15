@@ -87,28 +87,6 @@ Visitante → Registro → Consumer/Provider/Both
                 ↓
          Dashboard según rol
 ```
-
-## Testing de Roles (Dev)
-
-En la consola del navegador:
-
-```javascript
-// Cambiar a proveedor
-testRole('provider');
-
-// Cambiar a consumidor
-testRole('consumer');
-
-// Cambiar a ambos
-testRole('both');
-
-// Cambiar a admin
-testRole('admin');
-
-// Ver rol actual
-console.log(AppState.userRole);
-```
-
 ## Implementación Frontend
 
 ### HTML
