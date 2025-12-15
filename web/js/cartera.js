@@ -5,6 +5,25 @@ const $ = (id) => document.getElementById(id);
 
 const EX_RATE = Number(window.EXCHANGE_RATE_COP_PER_QZ || 10000);
 
+// Mapa de traducciones para tipos y estados de transacciones
+const TRANSACTION_LABELS = {
+  // Tipos
+  purchase: 'Compra de QZ',
+  topup: 'Recarga de QZ',
+  payment: 'Pago de servicio',
+  refund: 'Reembolso',
+  transfer: 'Transferencia enviada',
+  transfer_in: 'Transferencia recibida',
+  
+  // Estados
+  completed: 'Completado',
+  pending: 'Pendiente',
+  processing: 'Procesando',
+  failed: 'Fallido',
+  rejected: 'Rechazado',
+  cancelled: 'Cancelado'
+};
+
 function fmtCOP(n) {
   return (n || 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 }
@@ -27,19 +46,32 @@ function renderTxItem(tx) {
   const qz = tx.amount_qz_halves ? (Number(tx.amount_qz_halves) / 2).toFixed(1) + ' QZ' : '';
   const cop = tx.amount_cop_cents ? fmtCOP(tx.amount_cop_cents / 100) : '';
   const amount = qz || cop || '';
-  const iconMap = { purchase: 'fa-cart-plus', topup: 'fa-plus-circle', payment: 'fa-credit-card', refund: 'fa-rotate-left', transfer: 'fa-arrow-right-arrow-left' };
+
+  // 🌐 Traducir tipo y estado
+  const typeLabel = TRANSACTION_LABELS[tx.type] || tx.type;
+  const statusLabel = TRANSACTION_LABELS[tx.status] || tx.status;
+
+  const iconMap = { 
+    purchase: 'fa-cart-plus', 
+    topup: 'fa-plus-circle', 
+    payment: 'fa-credit-card', 
+    refund: 'fa-rotate-left', 
+    transfer: 'fa-arrow-right-arrow-left',
+    transfer_in: 'fa-arrow-left-arrow-right'
+  };
   const icon = iconMap[tx.type] || 'fa-receipt';
+
   const el = document.createElement('div');
   el.className = 'list-item';
   el.innerHTML = `
     <div class="list-item-body">
       <div>
-        <div style="font-weight:600;"><i class="fas ${icon}"></i> ${tx.type}</div>
+        <div style="font-weight:600;"><i class="fas ${icon}"></i> ${typeLabel}</div>
         <div class="helper" style="font-size:12px;">${new Date(tx.created_at).toLocaleString()}</div>
       </div>
       <div style="text-align:right;">
         <div style="font-weight:700;">${amount}</div>
-        <div class="helper" style="text-transform:capitalize;">${tx.status}</div>
+        <div class="helper" style="text-transform:capitalize;">${statusLabel}</div>
       </div>
     </div>`;
   return el;
@@ -103,6 +135,166 @@ function init() {
   updateTopupCost();
   loadBalance();
   loadTransactions();
+
+  // Conectar autocompletado al input de destinatario
+const recipientInput = $('transferRecipient');
+if (recipientInput) {
+  let searchTimeout;
+  recipientInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      searchRecipients(e.target.value);
+    }, 300);
+  });
+
+  // Cerrar sugerencias al hacer clic fuera
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#transferRecipient') && !e.target.closest('#recipientSuggestions')) {
+      hideSuggestions();
+    }
+  });
+}
 }
 
+
+
 document.addEventListener('DOMContentLoaded', init);
+
+// === Transferencia de Quetzales ===
+async function openTransferModal() {
+  $('transferModal').style.display = 'block';
+  $('transferMessage').textContent = '';
+  $('transferRecipient').value = '';
+  $('transferAmount').value = '';
+  $('transferDescription').value = '';
+}
+
+function closeTransferModal() {
+  $('transferModal').style.display = 'none';
+}
+
+async function handleTransfer() {
+  const msgEl = $('transferMessage');
+  msgEl.textContent = '';
+  msgEl.style.color = 'var(--danger)';
+
+  const recipientId = $('transferRecipientId').value.trim();
+  if (!recipientId) {
+    msgEl.textContent = 'Selecciona un destinatario válido';
+    return;
+  }
+
+  const amountQZ = parseFloat($('transferAmount').value);
+  const description = $('transferDescription').value.trim() || 'Transferencia de Quetzales';
+
+  // Validaciones de monto
+  if (isNaN(amountQZ) || amountQZ < 0.5) {
+    msgEl.textContent = 'Monto mínimo: 0.5 QZ';
+    return;
+  }
+  if (amountQZ > 100) {
+    msgEl.textContent = 'Monto máximo: 100 QZ por transacción';
+    return;
+  }
+
+  const amountHalves = Math.round(amountQZ * 2);
+
+  try {
+    await API.post('/wallet/transfer', {
+      recipient_id: recipientId,
+      amount_qz_halves: amountHalves,
+      description
+    });
+
+    msgEl.style.color = 'var(--success)';
+    msgEl.textContent = '¡Transferencia completada!';
+    await loadBalance();
+    await loadTransactions();
+    setTimeout(() => closeTransferModal(), 2000);
+  } catch (err) {
+  console.error('Transfer error:', err);
+  let errorMsg = 'Error al transferir Quetzales';
+  
+  // Mensajes específicos del backend
+  if (err?.message) {
+    if (err.message.includes('Saldo insuficiente')) {
+      errorMsg = 'No tienes Quetzales suficientes';
+    } else if (err.message.includes('No puedes transferirte a ti mismo')) {
+      errorMsg = 'No puedes hacer transferencias a ti mismo';
+    } else {
+      errorMsg = err.message;
+    }
+  }
+
+  msgEl.textContent = errorMsg;
+}
+}
+
+// Event listeners para el modal
+if ($('openTransferModal')) {
+  $('openTransferModal').addEventListener('click', openTransferModal);
+}
+if ($('cancelTransfer')) {
+  $('cancelTransfer').addEventListener('click', closeTransferModal);
+}
+if ($('confirmTransfer')) {
+  $('confirmTransfer').addEventListener('click', handleTransfer);
+}
+
+// Estado: resultados de búsqueda
+let recipientSearchResults = [];
+
+// Buscar destinatarios en tiempo real
+async function searchRecipients(query) {
+  if (!query.trim() || query.length < 2) {
+    hideSuggestions();
+    return;
+  }
+  try {
+    // Llamar a tu endpoint de búsqueda, pero con límites mínimos
+    const res = await API.get(`/users/search?search=${encodeURIComponent(query)}&limit=5`);
+    recipientSearchResults = res.users || [];
+    showSuggestions(recipientSearchResults);
+  } catch (err) {
+    console.error('Search error:', err);
+    hideSuggestions();
+  }
+}
+
+// Mostrar sugerencias
+function showSuggestions(users) {
+  const container = $('recipientSuggestions');
+  if (users.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  container.innerHTML = '';
+  users.forEach(user => {
+    const el = document.createElement('div');
+    el.className = 'list-item' ;
+    el.style.padding = '8px 12px';
+    el.style.cursor = 'pointer';
+    el.style.borderBottom = '1px solid var(--border)';
+    const avatar = user.avatar 
+      ? `<img src="${user.avatar}" style="width:24px;height:24px;border-radius:50%;margin-right:8px;">`
+      : `<div style="width:24px;height:24px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:8px;"><span style="color:white;font-size:12px;">${(user.full_name || 'U').charAt(0)}</span></div>`;
+    el.innerHTML = `${avatar} <strong>${user.full_name}</strong><br><small style="color:var(--text-tertiary);">${user.city || ''}</small>`;
+    el.addEventListener('click', () => {
+      // Guardar UUID en campo oculto
+      $('transferRecipientId').value = user.id;
+      // Mostrar nombre en el input visible
+      $('transferRecipient').value = user.full_name; // Muestra el nombre
+      hideSuggestions();
+    if ($('selectedRecipientName')) {
+    $('selectedRecipientName').textContent = `→ ${user.full_name}`;
+    $('selectedRecipientName').style.display = 'block';
+  }
+});
+    container.appendChild(el);
+  });
+  container.style.display = 'block';
+}
+
+function hideSuggestions() {
+  $('recipientSuggestions').style.display = 'none';
+}
