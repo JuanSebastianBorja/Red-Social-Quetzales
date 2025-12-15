@@ -1487,9 +1487,6 @@ video {
     margin-top: 6px;
   }
 }
-/* =======================================
-   DASHBOARD: SERVICIOS RECIENTES & ACTIVIDAD
-   ======================================= */
 
 
 .service-list {
@@ -1675,5 +1672,55 @@ video {
 
   .activity-item {
     align-items: flex-start;
+  }
+}
+/* ====== CARTERA====== */
+@media (max-width: 768px) {
+
+
+  .main-content div[style*="grid-template-columns: repeat(3, 1fr)"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+
+  .main-content div[style*="grid-template-columns: repeat(3, 1fr)"] > .card {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+
+  .main-content div[style*="grid-template-columns: repeat(3, 1fr)"] .card-body {
+    text-align: center;
+    padding: 14px 16px;
+  }
+
+  .main-content div[style*="grid-template-columns: repeat(3, 1fr)"] .card-body p,
+  .main-content div[style*="grid-template-columns: repeat(3, 1fr)"] .card-body small {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+
+  .main-content div[style*="grid-template-columns: repeat(3, 1fr)"] .card-body h2,
+  .main-content div[style*="grid-template-columns: repeat(3, 1fr)"] .stat-value {
+    font-size: 24px !important;
+    line-height: 1.15;
+    margin: 8px 0 0;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+
+  .main-content .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .main-content * {
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }
