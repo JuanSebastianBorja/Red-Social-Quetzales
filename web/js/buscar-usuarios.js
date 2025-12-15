@@ -47,12 +47,15 @@ async function renderUserCard(user) {
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || 'U')}&background=6366f1&color=fff`;
 
   // Rating display
-  const ratingDisplay = user.average_rating > 0
-    ? `<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px;">
+    const avgRating = typeof user.average_rating === 'number' ? user.average_rating : 0;
+    const totalRatings = user.total_ratings || 0;
+
+    const ratingDisplay = avgRating > 0
+        ? `<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px;">
         <i class="fas fa-star" style="color:#f59e0b;font-size:14px;"></i>
-        <span style="font-size:13px;color:var(--text-secondary);">${user.average_rating.toFixed(1)} (${user.total_ratings})</span>
-      </div>`
-    : '';
+        <span style="font-size:13px;color:var(--text-secondary);">${avgRating.toFixed(1)} (${totalRatings})</span>
+        </div>`
+        : '';   
 
   card.innerHTML = `
     <div style="display:flex;gap:12px;padding:16px;">
