@@ -27,6 +27,7 @@ function formatStatus(status) {
 }
 
 function renderDispute(dispute) {
+    console.log('Dispute data:', dispute);
     const userId = AppState.userId;
     const container = document.createElement('div');
     container.className = 'card';
