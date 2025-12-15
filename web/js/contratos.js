@@ -105,7 +105,7 @@ function getActionButtons(contract) {
   let buttons = '';
 
   // Disputa: visible para ambos roles si hay escrow y el estado es válido
-  const canDispute = escrow_id && ['paid', 'in_progress', 'delivered'].includes(status);
+  const canDispute = ['paid', 'in_progress', 'delivered'].includes(status);
   if (canDispute) {
     buttons += `<button class="btn-secondary" data-action="dispute"><i class="fas fa-exclamation-triangle"></i> Abrir Disputa</button>`;
   }
