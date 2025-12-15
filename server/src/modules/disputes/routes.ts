@@ -15,7 +15,7 @@ disputesRouter.get('/', authenticate, async (req: any, res) => {
       SELECT 
         d.*,
         buyer.full_name AS complainant_name,
-        seller.full_name AS respondent_name,m
+        seller.full_name AS respondent_name,
         c.title AS contract_title
       FROM disputes d
       JOIN escrow_accounts e ON d.escrow_id = e.id
