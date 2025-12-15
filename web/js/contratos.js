@@ -315,22 +315,81 @@ if (contractsList) {
       cancel: 'cancelled'
     };
     if (action === 'dispute') {
-      const reason = prompt('Motivo de la disputa (mínimo 10 caracteres):');
-      if (!reason || reason.trim().length < 10) {
-          alert('El motivo debe tener al menos 10 caracteres.');
+  const modal = document.getElementById('disputeModal');
+  const input = document.getElementById('disputeReasonInput');
+  const submitBtn = document.getElementById('disputeSubmitBtn');
+  const cancelBtn = document.getElementById('disputeCancelBtn');
+  const errorElement = document.getElementById('disputeError');
+
+  // Limpiar campos y errores
+  input.value = '';
+  errorElement.style.display = 'none';
+  submitBtn.disabled = false;
+
+  // Validación en tiempo real
+  const validateInput = () => {
+    const reason = input.value.trim();
+    if (reason && reason.length < 10) {
+      errorElement.textContent = 'El motivo debe tener al menos 10 caracteres.';
+      errorElement.style.display = 'block';
+      submitBtn.disabled = true;
+    } else {
+      errorElement.style.display = 'none';
+      submitBtn.disabled = false;
+    }
+  };
+
+  input.addEventListener('input', validateInput);
+
+  // Mostrar modal
+  modal.style.display = 'flex';
+  input.focus();
+
+  // Función para cerrar el modal
+  const closeModal = () => {
+    modal.style.display = 'none';
+    document.removeEventListener('keydown', handleEscape);
+    modal.removeEventListener('click', handleModalClick);
+    input.removeEventListener('input', validateInput);
+  };
+
+  // Cerrar al presionar Escape
+  const handleEscape = (e) => {
+    if (e.key === 'Escape') closeModal();
+  };
+  document.addEventListener('keydown', handleEscape);
+
+  // Cerrar al hacer clic fuera del contenido
+  const handleModalClick = (e) => {
+    if (e.target === modal) closeModal();
+  };
+  modal.addEventListener('click', handleModalClick);
+
+  // Manejar envío
+  const handleSubmit = async () => {
+    const reason = input.value.trim();
+    if (reason.length < 10) {
+      errorElement.textContent = 'El motivo debe tener al menos 10 caracteres.';
+      errorElement.style.display = 'block';
       return;
     }
-    (async () => {
+
     try {
       await API.post(`/contracts/${contractId}/dispute`, { reason });
-      alert('Disputa abierta exitosamente.');
-      fetchContracts(); // Recargar para ver estado "En Disputa"
+      showMessage('Disputa abierta exitosamente.');
+      fetchContracts();
+      closeModal();
     } catch (err) {
-      alert('Error al abrir la disputa: ' + (err.message || 'Inténtalo más tarde.'));
+      showMessage('Error al abrir la disputa: ' + (err.message || 'Inténtalo más tarde.'));
     }
-    })();
-    return;
-  }
+  };
+
+  // Eventos de botones
+  submitBtn.addEventListener('click', handleSubmit);
+  cancelBtn.addEventListener('click', closeModal);
+
+  return;
+}
     const newStatus = actionMap[action];
     if (action === 'deliver') {
       // Abrir selector de archivos y subir via API.postMultipart

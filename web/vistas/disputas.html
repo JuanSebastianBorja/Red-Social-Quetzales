@@ -1,36 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mis Disputas - Quetzal</title>
-  <link rel="stylesheet" href="/css/style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-</head>
-<body>
-  <header class="topbar">
-    <div class="container" style="display:flex;justify-content:space-between;align-items:center;">
-      <h1><i class="fas fa-balance-scale"></i> Mis Disputas</h1>
-      <nav>
-        <a href="/"><i class="fas fa-home"></i> Volver al Inicio</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container" style="margin-top: 24px;">
-    <div id="disputesMessage" class="helper" style="display: none;"></div>
-    <div id="disputesList">
-      <div class="admin-empty-state">
-        <i class="fas fa-balance-scale"></i>
-        <p>Cargando disputas...</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quetzal — Mis Disputas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1 class="logo">Quetzal</h1>
       </div>
-    </div>
-  </main>
+      <nav class="sidebar-nav">
+        <a href="/vistas/index.html" class="nav-item">
+          <i class="nav-icon fas fa-home"></i>
+          <span>Inicio</span>
+        </a>
+        <a href="/vistas/publicar-servicio.html" class="nav-item">
+          <i class="nav-icon fas fa-plus-circle"></i>
+          <span>Publicar Servicio</span>
+        </a>
+        <a href="/vistas/mis-servicios.html" class="nav-item">
+          <i class="nav-icon fas fa-briefcase"></i>
+          <span>Mis Servicios</span>
+        </a>
+        <a href="/vistas/buscar-servicios.html" class="nav-item">
+          <i class="nav-icon fas fa-search"></i>
+          <span>Buscar Servicios</span>
+        </a>
+        <a href="/vistas/contratos.html" class="nav-item">
+          <i class="nav-icon fas fa-file-contract"></i>
+          <span>Contratos</span>
+        </a>
+        <a href="/vistas/disputas.html" class="nav-item active">
+          <i class="nav-icon fas fa-balance-scale"></i>
+          <span>Disputas</span>
+        </a>
+        <a href="/vistas/mensajes.html" class="nav-item" data-page="messages">
+          <i class="nav-icon fas fa-comments"></i>
+          <span>Mensajes</span>
+        </a>
+        <a href="/vistas/cartera.html" class="nav-item">
+          <i class="nav-icon fas fa-wallet"></i>
+          <span>Cartera</span>
+        </a>
+        <a href="/vistas/perfil.html" class="nav-item">
+          <i class="nav-icon fas fa-user"></i>
+          <span>Perfil</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="#" class="nav-item" id="logout-btn">
+          <i class="nav-icon fas fa-sign-out-alt"></i>
+          <span>Cerrar Sesión</span>
+        </a>
+      </div>
+    </aside>
 
-  <script type="module" src="/js/disputas.js"></script>
-  <button class="theme-toggle theme-toggle--floating" type="button" data-theme-toggle aria-label="Cambiar tema">
-    <span class="theme-toggle__icon">🌓</span>
-  </button>
-  <script src="/js/theme.js"></script>
-</body>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h2 class="page-title">Mis Disputas</h2>
+        </div>
+        <div class="header-right">
+          <button class="icon-btn" id="notifications-btn">
+            <i class="fas fa-bell"></i>
+            <span class="badge" id="notifications-count">0</span>
+          </button>
+          <div class="user-menu">
+            <img src="https://ui-avatars.com/api/?name=Usuario+Demo&background=6366f1&color=fff" alt="Usuario" class="avatar" id="user-avatar">
+            <span class="user-role" id="user-role-badge"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Disputas List -->
+      <div style="padding: 24px 32px 32px;">
+        <section class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-balance-scale"></i> Historial de Disputas</h3>
+          </div>
+          <div class="card-body">
+            <div id="disputesMessage" class="helper" style="display: none;"></div>
+            <div id="disputesList">
+              <div class="admin-empty-state">
+                <i class="fas fa-balance-scale fa-2x" style="font-size: 48px;"></i>
+                <p>Cargando disputas...</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="/js/disputas.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script type="module" src="/js/app.js"></script>
+
+    <button class="theme-toggle theme-toggle--floating" type="button" data-theme-toggle aria-label="Cambiar tema">
+      <span class="theme-toggle__icon">🌓</span>
+    </button>
+    <script src="/js/theme.js"></script>
+  </body>
 </html>
