@@ -68,6 +68,16 @@ function syncAdminToken() {
   }
 }
 
+function translateDisputeStatus(status) {
+  const translations = {
+    'open': 'Abierta',
+    'in_review': 'En revisión',
+    'resolved': 'Resuelta',
+    'dismissed': 'Desestimada'
+  };
+  return translations[status] || status;
+}
+
 function translateServiceStatus(status) {
   const translations = {
     'active': 'Activo',
@@ -357,21 +367,40 @@ document.addEventListener('click', async (e) => {
     }
   }
 
-  // Manejar disputas
+  // Manejar disputas → SOLO el modal, NUNCA prompt()
   if (e.target.matches?.('.disp-resolve')) {
     const disputeId = e.target.dataset.id;
-    const resolution = prompt('Ingrese la resolución (opcional):');
-    const action = confirm('¿Resolver a favor del vendedor? (Cancelar = Desestimar)');
-    const status = action ? 'resolved' : 'dismissed';
-    
-    try {
-      await API.patch(`/admin/disputes/${disputeId}/status`, { status, resolution });
-      loadDisputes();
-    } catch (err) {
-      alert('Error al resolver la disputa');
-    }
+    const modal = document.getElementById('resolveDisputeModal');
+    const actionSelect = document.getElementById('resolveAction');
+    const resolutionInput = document.getElementById('resolveResolution');
+    const confirmBtn = document.getElementById('resolveConfirmBtn');
+    const cancelBtn = document.getElementById('resolveCancelBtn');
+
+    modal.style.display = 'flex';
+    resolutionInput.value = '';
+
+    const closeModal = () => {
+      modal.style.display = 'none';
+    };
+
+    const handleConfirm = async () => {
+      const status = actionSelect.value;
+      const resolution = resolutionInput.value.trim() || null;
+      try {
+        await API.patch(`/admin/disputes/${disputeId}/status`, { status, resolution });
+        loadDisputes();
+        closeModal();
+      } catch (err) {
+        alert('Error al resolver la disputa');
+      }
+    };
+
+    confirmBtn.onclick = handleConfirm;
+    cancelBtn.onclick = closeModal;
+    modal.onclick = (e) => { if (e.target === modal) closeModal(); };
   }
 });
+
 
 svcReload?.addEventListener('click', () => loadServices());
 svcFilter?.addEventListener('change', () => loadServices());
@@ -501,7 +530,7 @@ function renderDisputes(disputes) {
             <td>${d.contract_title || '-'}</td>
             <td>${d.buyer_name} → ${d.seller_name}</td>
             <td>${d.reason.substring(0, 30)}${d.reason.length > 30 ? '...' : ''}</td>
-            <td><span class="status-badge ${d.dispute_status}">${d.dispute_status}</span></td>
+            <td><span class="status-badge ${d.dispute_status}">${translateDisputeStatus(d.dispute_status)}</span></td>
             <td class="table-action-cell">
               ${d.dispute_status === 'open' ? `
                 <button data-id="${d.id}" class="disp-resolve btn-primary">Resolver</button>

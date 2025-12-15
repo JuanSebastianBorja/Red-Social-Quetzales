@@ -13,24 +13,15 @@ disputesRouter.get('/', authenticate, async (req: any, res) => {
 
     let sql = `
       SELECT 
-        d.id,
-        d.escrow_id,
-        d.complainant_id,
-        d.respondent_id,
-        u1.full_name AS complainant_name,
-        u2.full_name AS respondent_name,
-        d.reason,
-        d.evidence_urls,
-        d.status,
-        d.resolution,
-        d.resolved_at,
-        a.full_name AS resolved_by_name,
-        d.created_at,
-        d.updated_at
+        d.*,
+        buyer.full_name AS buyer_name,
+        seller.full_name AS seller_name,
+        c.title AS contract_title
       FROM disputes d
-      JOIN users u1 ON d.complainant_id = u1.id
-      JOIN users u2 ON d.respondent_id = u2.id
-      LEFT JOIN admin_users a ON d.resolved_by = a.id
+      JOIN escrow_accounts e ON d.escrow_id = e.id
+      JOIN contracts c ON e.id = c.escrow_id
+      JOIN users buyer ON d.complainant_id = buyer.id
+      JOIN users seller ON d.respondent_id = seller.id
       WHERE d.complainant_id = $1 OR d.respondent_id = $1
     `;
     const params: any[] = [userId];
