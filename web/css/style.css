@@ -1471,3 +1471,19 @@ video {
     justify-content: center;
   }
 }
+
+@media (max-width: 768px) {
+
+  .card[data-contract-id] div[style*="background:var(--bg-secondary)"][style*="border-radius:var(--radius-md)"] {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+
+  .card[data-contract-id] button[data-view-profile] {
+    width: 100%;
+    justify-content: center;
+    margin-top: 6px;
+  }
+}
