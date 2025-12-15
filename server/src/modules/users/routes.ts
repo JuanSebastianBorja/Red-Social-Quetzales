@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import type { FileFilterCallback } from 'multer';
 import { createClient } from '@supabase/supabase-js';
 import { pool } from '../../lib/db';
-import { authenticate, AuthRequest } from '../../middleware/auth';
+import { authenticate, optionalAuth, AuthRequest } from '../../middleware/auth';
 import { hash, verify } from 'argon2';
 import multer from 'multer';
 import type { MulterError } from 'multer';
@@ -57,6 +57,84 @@ const avatarUpload = multer({
 });
 
 export const usersRouter = Router();
+
+// Búsqueda pública de usuarios (solo proveedores)
+usersRouter.get('/search', optionalAuth, async (req: AuthRequest, res) => {
+  try {
+    const {
+      search,
+      city,
+      minRating,
+      limit = '20',
+      offset = '0'
+    } = req.query;
+
+    const conditions: string[] = ['u.is_active = true', `u.user_type IN ('provider', 'both')`];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    if (search && typeof search === 'string') {
+      conditions.push(`u.full_name ILIKE $${paramIndex}`);
+      values.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    if (city && typeof city === 'string') {
+      conditions.push(`u.city ILIKE $${paramIndex}`);
+      values.push(`%${city}%`);
+      paramIndex++;
+    }
+
+    if (minRating && typeof minRating === 'string') {
+      const minRatingNum = parseFloat(minRating as string);
+      if (!isNaN(minRatingNum)) {
+        // 👇 CORREGIDO: usar "average_rating", no "avg_rating"
+        conditions.push(`COALESCE(stats.average_rating, 0) >= $${paramIndex}`);
+        values.push(minRatingNum);
+        paramIndex++;
+      }
+    }
+
+    const query = `
+      SELECT 
+        u.id,
+        u.full_name,
+        u.avatar,
+        u.city,
+        u.user_type,
+        u.bio,
+        COALESCE(stats.average_rating, 0) AS average_rating,
+        COALESCE(stats.total_ratings, 0) AS total_ratings
+      FROM users u
+      LEFT JOIN user_service_stats stats ON stats.user_id = u.id
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY u.created_at DESC
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+
+    values.push(parseInt(limit as string), parseInt(offset as string));
+    const result = await pool.query(query, values);
+
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM users u
+      LEFT JOIN user_service_stats stats ON stats.user_id = u.id
+      WHERE ${conditions.join(' AND ')}
+    `;
+    const countResult = await pool.query(countQuery, values.slice(0, -2));
+    const total = parseInt(countResult.rows[0].count);
+
+    res.json({
+      users: result.rows,
+      total,
+      limit: parseInt(limit as string),
+      offset: parseInt(offset as string)
+    });
+  } catch (err) {
+    console.error('Search users error:', err);
+    res.status(500).json({ error: 'Failed to search users' });
+  }
+});
 
 // Obtener perfil del usuario autenticado
 usersRouter.get('/me', authenticate, async (req: AuthRequest, res) => {
