@@ -43,6 +43,7 @@ disputesRouter.get('/', authenticate, async (req: any, res) => {
   }
 });
 
+
 // GET /disputes/:id → ver detalle de una disputa
 disputesRouter.get('/:id', authenticate, async (req: any, res) => {
   try {

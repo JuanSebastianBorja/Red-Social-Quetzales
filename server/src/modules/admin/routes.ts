@@ -258,13 +258,19 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
 
     // Obtener disputa y escrow
     const disputeRes = await pool.query(
-      `SELECT d.*, e.amount_qz_halves, e.status AS escrow_status, c.buyer_id, c.seller_id
-       FROM disputes d
-       JOIN escrow_accounts e ON d.escrow_id = e.id
-       JOIN contracts c ON e.id = c.escrow_id
-       WHERE d.id = $1`,
-      [id]
-    );
+    `SELECT 
+     d.*,
+     e.amount_qz_halves,
+     e.status AS escrow_status,
+     c.buyer_id,
+     c.seller_id,
+     c.title AS contract_title  
+    FROM disputes d
+   JOIN escrow_accounts e ON d.escrow_id = e.id
+   JOIN contracts c ON e.id = c.escrow_id
+   WHERE d.id = $1`,
+  [id]
+);
 
     if (disputeRes.rowCount === 0) {
       return res.status(404).json({ error: 'Disputa no encontrada' });
@@ -323,7 +329,7 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
         // Notificar al comprador
         await notificationService.createNotification({
           userId: dispute.buyer_id,
-          type: 'dispute_created',
+          type: 'dispute_resolved',
           title: 'Disputa resuelta',
           message: `La disputa por "${dispute.contract_title}" fue resuelta a favor del vendedor.`,
           referenceId: id,
@@ -335,7 +341,7 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
         // Notificación a ambas partes
         await notificationService.createNotification({
           userId: dispute.buyer_id,
-          type: 'dispute_created',
+          type: 'dispute_dismissed',
           title: 'Disputa desestimada',
           message: `La disputa por "${dispute.contract_title}" fue desestimada por el equipo de soporte.`,
           referenceId: id,
@@ -344,7 +350,7 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
 
         await notificationService.createNotification({
           userId: dispute.seller_id,
-          type: 'dispute_created',
+          type: 'dispute_dismissed', 
           title: 'Disputa desestimada',
           message: `La disputa por "${dispute.contract_title}" fue desestimada por el equipo de soporte.`,
           actionUrl: '/vistas/disputas.html'

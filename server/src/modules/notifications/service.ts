@@ -11,8 +11,10 @@ export type NotificationType =
   | 'transaction_completed'
   | 'service_updated'
   | 'rating_received'
-  | 'dispute_created'
-  | 'service_removed';
+  | 'service_removed'
+  | 'dispute_opened' 
+  | 'dispute_resolved'
+  | 'dispute_dismissed';
 
 export interface CreateNotificationParams {
   userId: string;

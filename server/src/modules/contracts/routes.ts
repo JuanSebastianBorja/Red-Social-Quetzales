@@ -787,7 +787,7 @@ contractsRouter.post('/:id/dispute', authenticate, async (req: AuthRequest, res)
 
     await notificationService.createNotification({
       userId: contract.buyer_id,
-      type: 'dispute_created',
+      type: 'dispute_opened',
       title: 'Nueva disputa abierta',
       message,
       referenceId: disputeRes.rows[0].id,
@@ -797,7 +797,7 @@ contractsRouter.post('/:id/dispute', authenticate, async (req: AuthRequest, res)
     if (contract.buyer_id !== contract.seller_id) {
       await notificationService.createNotification({
         userId: contract.seller_id,
-        type: 'dispute_created',
+        type: 'dispute_opened',
         title: 'Nueva disputa abierta',
         message,
         referenceId: disputeRes.rows[0].id,

@@ -17,6 +17,7 @@ function hideMessage() {
 }
 
 function formatStatus(status) {
+  if (!status) return 'Estado desconocido';
   const labels = {
     'open': 'Abierta',
     'in_review': 'En revisión',
@@ -33,9 +34,9 @@ function renderDispute(dispute) {
   container.className = 'card';
   container.style.marginBottom = '16px';
 
-  const statusClass = dispute.dispute_status === 'resolved' ? 'success' :
-                      dispute.dispute_status === 'dismissed' ? 'secondary' :
-                      dispute.dispute_status === 'open' ? 'warning' : 'info';
+  const statusClass = dispute.status === 'resolved' ? 'success' :
+                    dispute.status === 'dismissed' ? 'secondary' :
+                    dispute.status === 'open' ? 'warning' : 'info';
 
   // Asegúrate de que todos los campos sean strings o vacíos
   const title = dispute.contract_title || 'Sin título';
@@ -46,7 +47,7 @@ function renderDispute(dispute) {
       <h3 class="card-title" style="margin: 0; font-size: 18px;">
         <i class="fas fa-file-contract"></i> ${title}
       </h3>
-      <span class="status-badge ${statusClass}">${statusText}</span>
+      <span class="status-badge ${statusClass}">${formatStatus(dispute.status)}</span>
     </div>
     <div class="card-body">
       <div class="form-group">
