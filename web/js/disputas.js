@@ -1,5 +1,6 @@
 import { API } from './api.js';
 import { AppState } from './state.js';
+import { CONFIG } from './config.js';
 
 const disputesList = document.getElementById('disputesList');
 const msgEl = document.getElementById('disputesMessage');
@@ -26,9 +27,10 @@ function formatStatus(status) {
 }
 
 function renderDispute(dispute) {
-  const container = document.createElement('div');
-  container.className = 'card';
-  container.style.marginBottom = '16px';
+    const userId = AppState.userId;
+    const container = document.createElement('div');
+    container.className = 'card';
+    container.style.marginBottom = '16px';
 
   const statusClass = dispute.dispute_status === 'resolved' ? 'success' :
                       dispute.dispute_status === 'dismissed' ? 'secondary' :
@@ -37,14 +39,14 @@ function renderDispute(dispute) {
   container.innerHTML = `
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
       <h3 class="card-title" style="margin: 0; font-size: 18px;">
-        <i class="fas fa-file-contract"></i> ${dispute.contract_title}
+        <i class="fas fa-file-contract"></i> ${dispute.contract_title || 'Sin título'}
       </h3>
       <span class="status-badge ${statusClass}">${formatStatus(dispute.dispute_status)}</span>
     </div>
     <div class="card-body">
       <div class="form-group">
         <label class="form-label"><i class="fas fa-user"></i> Contraparte</label>
-        <div class="helper">${dispute.buyer_name} ↔ ${dispute.seller_name}</div>
+        <div class="helper"> ${dispute.complainant_id === userId ? dispute.complainant_name : dispute.respondent_name} ↔ ${dispute.complainant_id === userId ? dispute.respondent_name : dispute.complainant_name}</div>
       </div>
       <div class="form-group">
         <label class="form-label"><i class="fas fa-exclamation-triangle"></i> Motivo</label>
@@ -101,5 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   AppState.token = token;
-  loadDisputes();
+
+  // Obtener el userId del token (si no está en AppState)
+  fetch(`${CONFIG.API_BASE_URL}/users/me`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(res => res.json())
+  .then(user => {
+    AppState.userId = user.id;
+    loadDisputes();
+  })
+  .catch(err => {
+    console.error('Error al obtener datos del usuario:', err);
+    window.location.href = '/login.html';
+  });
 });
