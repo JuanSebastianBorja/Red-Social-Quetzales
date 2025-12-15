@@ -496,29 +496,36 @@ passwordForm.addEventListener('submit', async (e) => {
 });
 
 // Avatar upload
-if (uploadAvatarBtn) {
+if (uploadAvatarBtn && avatarInput) {
   uploadAvatarBtn.addEventListener('click', () => {
     avatarInput.click();
   });
-}
 
-if (avatarInput) {
   avatarInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     // Validar tamaño (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      alert('La imagen no debe superar 2MB');
+      showMessage('editMessage', 'La imagen no debe superar 2MB', 'error');
       return;
     }
 
     // Validar tipo
     if (!file.type.startsWith('image/')) {
-      alert('Solo se permiten archivos de imagen');
+      showMessage('editMessage', 'Solo se permiten archivos de imagen', 'error');
       return;
     }
 
+    // Mostrar preview inmediatamente
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const avatarEl = document.getElementById('profileAvatar');
+      avatarEl.innerHTML = `<img src="${event.target.result}" alt="Preview" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+    };
+    reader.readAsDataURL(file);
+
+    // Subir al servidor
     const formData = new FormData();
     formData.append('avatar', file);
 
@@ -539,10 +546,11 @@ if (avatarInput) {
 
       const updated = await res.json();
       currentUser.avatar = updated.avatar;
-      renderProfile(currentUser);
-      alert('Avatar actualizado correctamente');
+      // showMessage('editMessage', '¡Avatar actualizado correctamente!', 'success');
     } catch (err) {
-      alert(err.message || 'No se pudo actualizar el avatar');
+      // Si falla, revertir al avatar anterior o iniciales
+      renderProfile(currentUser); // esto restaura el avatar guardado
+      showMessage('editMessage', err.message || 'No se pudo actualizar el avatar', 'error');
     }
   });
 }

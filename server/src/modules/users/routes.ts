@@ -1,12 +1,25 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import type { FileFilterCallback } from 'multer';
+import { createClient } from '@supabase/supabase-js';
 import { pool } from '../../lib/db';
 import { authenticate, AuthRequest } from '../../middleware/auth';
 import { hash, verify } from 'argon2';
 import multer from 'multer';
+import type { MulterError } from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { promisify } from 'util';
+const readFile = promisify(fs.readFile);
+const isProduction = process.env.NODE_ENV === 'production';
+
+let supabase: any = null;
+if (isProduction) {
+  supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY! // 👈 igual que en services
+  );
+}
 
 
 const uploadsDir = path.join(process.cwd(), '..', 'web', 'uploads', 'avatars');
@@ -15,45 +28,32 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 const storage = multer.diskStorage({
-  destination: (
-    req: Request,
-    file: Express.Multer.File,
-    cb: (error: Error | null, dest: string) => void
-  ) => {
+  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     cb(null, uploadsDir);
   },
-  filename: (
-    req: Request,
-    file: Express.Multer.File,
-    cb: (error: Error | null, filename: string) => void
-  ) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      'avatar-' + uniqueSuffix + path.extname(file.originalname)
-    );
+  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
+    const ext = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, '_');
+    cb(null, `avatar-${Date.now()}_${base}${ext}`);
   }
 });
 
 const avatarUpload = multer({
   storage,
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
-
   fileFilter: (
-  req: Request,
-  file: Express.Multer.File,
-  cb: (error: Error | null, acceptFile: boolean) => void
-) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase()
-  );
-  const mimetype = allowedTypes.test(file.mimetype);
-
-  if (mimetype && extname) return cb(null, true);
-
-  return cb(new Error('Solo se permiten imágenes (jpeg, jpg, png, gif, webp)'), false);
-}
+    req: Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, acceptFile: boolean) => void
+  ) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Solo se permiten imágenes (jpeg, jpg, png, gif, webp)'), false);
+  }
 });
 
 export const usersRouter = Router();
@@ -148,30 +148,78 @@ usersRouter.patch('/me/password', authenticate, async (req: AuthRequest, res) =>
 });
 
 // Avatar upload
-usersRouter.patch('/me/avatar', authenticate, avatarUpload.single('avatar'), async (req: AuthRequest & { file?: any }, res) => {
+usersRouter.patch('/me/avatar', authenticate, avatarUpload.single('avatar'), async (req: AuthRequest & { file?: Express.Multer.File }, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No se proporcionó imagen' });
     }
 
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    let avatarUrl: string | null = null;
 
-    // Obtener avatar anterior para eliminarlo
-    const oldAvatar = await pool.query('SELECT avatar FROM users WHERE id=$1', [req.userId]);
-    
-    // Actualizar en BD
-    const r = await pool.query(
-      'UPDATE users SET avatar=$1 WHERE id=$2 RETURNING avatar',
-      [avatarUrl, req.userId]
-    );
+    // Obtener avatar anterior para eliminarlo (solo si es local)
+    const oldAvatarResult = await pool.query('SELECT avatar FROM users WHERE id = $1', [req.userId]);
+    const oldAvatarUrl = oldAvatarResult.rows[0]?.avatar;
 
-    // Eliminar avatar anterior si existe
-    if (oldAvatar.rows[0]?.avatar) {
-      const oldPath = path.join(process.cwd(), '..', 'web', oldAvatar.rows[0].avatar);
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
+    if (isProduction) {
+      // 🌐 Supabase Storage (producción)
+      let fileBuffer: Buffer;
+      try {
+        fileBuffer = await readFile(req.file.path);
+      } catch (readErr) {
+        console.error('Error reading avatar file:', readErr);
+        return res.status(500).json({ error: 'No se pudo leer la imagen' });
+      }
+
+      const fileName = `avatars/${req.userId}-${Date.now()}_${encodeURIComponent(req.file.originalname)}`;
+      
+      const { data, error } = await supabase
+        .storage
+        .from('avatars') // 👈 bucket "avatars"
+        .upload(fileName, fileBuffer, {
+          contentType: req.file.mimetype,
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Supabase avatar upload error:', error);
+        return res.status(500).json({ error: 'No se pudo subir la imagen' });
+      }
+
+      const { data: urlData, error: urlError } = supabase
+        .storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      if (urlError) {
+        console.error('Error getting avatar public URL:', urlError);
+        return res.status(500).json({ error: 'No se pudo obtener la URL pública' });
+      }
+
+      avatarUrl = urlData.publicUrl.trim();
+
+      // Eliminar archivo temporal del servidor
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Error deleting temp avatar file:', err);
+      });
+
+    } else {
+      // 💻 Disco local (desarrollo)
+      avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+      // Eliminar avatar anterior del disco (solo si es local y existe)
+      if (oldAvatarUrl && !oldAvatarUrl.includes('supabase.co')) {
+        const oldPath = path.join(process.cwd(), '..', 'web', oldAvatarUrl);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
       }
     }
+
+    // Actualizar en base de datos
+    const r = await pool.query(
+      'UPDATE users SET avatar = $1 WHERE id = $2 RETURNING avatar',
+      [avatarUrl, req.userId]
+    );
 
     res.json({ avatar: r.rows[0].avatar });
   } catch (err) {
