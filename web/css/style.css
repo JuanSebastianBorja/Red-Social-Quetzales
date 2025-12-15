@@ -1674,3 +1674,28 @@ video {
     align-items: flex-start;
   }
 }
+/* ==== FIX ESPECÍFICO CARTERA ==== */
+@media (max-width: 768px) {
+
+  .main-content [style*="grid-template-columns: repeat(3, 1fr)"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+
+  .main-content [style*="grid-template-columns: repeat(3, 1fr)"] .card-body {
+    text-align: center;
+  }
+
+  .main-content [style*="grid-template-columns: repeat(3, 1fr)"] .helper,
+  .main-content [style*="grid-template-columns: repeat(3, 1fr)"] .stat-value {
+    text-align: center;
+  }
+
+
+  .main-content [style*="grid-template-columns: repeat(3, 1fr)"] .stat-value {
+    font-size: 22px;
+    word-break: break-word;
+  }
+}
