@@ -8,13 +8,16 @@ export type NotificationChannel = 'web' | 'email' | 'push';
 export type NotificationType =
   | 'new_message'
   | 'contract_updated'
+  | 'contract_created'  
   | 'transaction_completed'
   | 'service_updated'
   | 'rating_received'
   | 'service_removed'
   | 'dispute_opened' 
   | 'dispute_resolved'
-  | 'dispute_dismissed';
+  | 'dispute_dismissed'
+  | 'service_request_updated'
+  | 'service_request_rejected';
 
 export interface CreateNotificationParams {
   userId: string;

@@ -14,6 +14,8 @@
       </div>
       <nav class="sidebar-nav">
         <a href="/vistas/index.html" class="nav-item"><i class="nav-icon fas fa-home"></i><span>Inicio</span></a>
+        <a href="/vistas/publicar-servicio.html" class="nav-item"><i class="nav-icon fas fa-plus-circle"></i><span>Publicar Servicio</span></a>
+        <a href="/vistas/mis-servicios.html" class="nav-item"><i class="nav-icon fas fa-briefcase"></i><span>Mis Servicios</span></a>
         <a href="/vistas/buscar-servicios.html" class="nav-item"><i class="nav-icon fas fa-search"></i><span>Buscar Servicios</span></a>
         <a href="/vistas/buscar-usuarios.html" class="nav-item"><i class="nav-icon fas fa-users"></i><span>Buscar Proveedores</span></a>
         <a href="/vistas/contratos.html" class="nav-item"><i class="nav-icon fas fa-file-contract"></i><span>Contratos</span></a>
@@ -22,6 +24,8 @@
                 <span>Disputas</span>
         </a>
         <a href="/vistas/solicitudes.html" class="nav-item active"><i class="nav-icon fas fa-handshake"></i><span>Solicitudes</span></a>
+        <a href="/vistas/mensajes.html" class="nav-item" data-page="messages"><i class="nav-icon fas fa-comments"></i><span>Mensajes</span></a>
+        <a href="/vistas/cartera.html" class="nav-item" data-page="wallet"><i class="nav-icon fas fa-wallet"></i><span>Cartera</span></a>
         <a href="/vistas/perfil.html" class="nav-item"><i class="nav-icon fas fa-user"></i><span>Perfil</span></a>
       </nav>
       <div class="sidebar-footer">
@@ -30,9 +34,16 @@
     </aside>
 
     <main class="main-content">
+      <!-- Header único (correcto) -->
       <header class="header">
         <div class="header-left"><h2 class="page-title">Solicitudes</h2></div>
         <div class="header-right">
+          <!-- Botón de notificaciones -->
+          <button class="icon-btn" id="notifications-btn">
+            <i class="fas fa-bell"></i>
+            <span class="badge" id="notifications-count">0</span>
+          </button>
+          <!-- Foto del usuario -->
           <div class="user-menu">
             <img src="https://ui-avatars.com/api/?name=Usuario+Demo&background=6366f1&color=fff" alt="Usuario" class="avatar" id="user-avatar">
             <span class="user-role" id="user-role-badge"></span>
@@ -53,12 +64,32 @@
       </div>
     </main>
 
-    <script type="module" src="/js/solicitudes.js"></script>
-  
+    <!-- Modal de negociación -->
+    <div id="negotiateModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+      <div style="background:var(--bg-primary);padding:24px;border-radius:var(--radius-lg);width:90%;max-width:500px;">
+        <h3 id="negotiateTitle">Negociar Precio</h3>
+        <div style="margin:16px 0;">
+          <label>Precio (QZ)</label>
+          <input type="number" id="negotiatePrice" step="0.5" min="0.5" style="width:100%;padding:8px;">
+        </div>
+        <div style="margin:16px 0;">
+          <label>Mensaje (opcional)</label>
+          <textarea id="negotiateMessage" style="width:100%;height:80px;padding:8px;"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button id="negotiateCancel">Cancelar</button>
+          <button id="negotiateSubmit" class="btn-primary">Enviar</button>
+        </div>
+      </div>
+    </div>
 
-<button class="theme-toggle theme-toggle--floating" type="button" data-theme-toggle aria-label="Cambiar tema">
-  <span class="theme-toggle__icon">🌓</span>
-</button>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script type="module" src="/js/app.js"></script>
+    <script type="module" src="/js/solicitudes.js"></script>
+
+    <button class="theme-toggle theme-toggle--floating" type="button" data-theme-toggle aria-label="Cambiar tema">
+      <span class="theme-toggle__icon">🌓</span>
+    </button>
     <script src="/js/theme.js"></script>
-</body>
+  </body>
 </html>

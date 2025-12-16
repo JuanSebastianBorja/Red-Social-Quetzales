@@ -31,7 +31,7 @@ function renderServiceDetail(svc) {
          <i class="fas fa-image fa-4x" style="color:var(--text-tertiary);"></i>
        </div>`;
 
-  detailContainer.innerHTML = `
+  const mainContent = `
     <div class="card">
       <div class="card-body">
         ${imageSection}
@@ -51,11 +51,14 @@ function renderServiceDetail(svc) {
           <div style="text-align:right;display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
             <div style="font-size:32px;font-weight:700;color:var(--primary);margin-bottom:4px;">${priceQZ} QZ</div>
             <button class="btn-primary" id="contractBtn" style="width:100%;min-width:180px;">
-            <i class="fas fa-handshake"></i> Contratar Servicio
-          </button>
-          <button class="btn-secondary" id="reportBtn" style="display:none;width:100%;min-width:180px;">
-           <i class="fas fa-flag"></i> Reportar Servicio
-          </button>
+              <i class="fas fa-file-contract"></i> Contratar Servicio
+            </button>
+            <button class="btn-secondary" id="quoteBtn" style="width:100%;min-width:180px;">
+              <i class="fas fa-comment-dollar"></i> Solicitar Cotización
+            </button>
+            <button class="btn-secondary" id="reportBtn" style="display:none;width:100%;min-width:180px;">
+              <i class="fas fa-flag"></i> Reportar Servicio
+            </button>
           </div>
         </div>
 
@@ -95,33 +98,60 @@ function renderServiceDetail(svc) {
           </div>
         </div>
       </div>
-      <!-- Modal de reporte -->
-  <div id="reportModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
-  <div class="modal-content" style="background:var(--bg-primary);padding:24px;border-radius:var(--radius-lg);width:90%;max-width:500px;box-shadow:0 4px 20px rgba(0,0,0,0.2);">
-    <h3 style="margin-top:0;margin-bottom:16px;color:var(--text-primary);">Reportar Servicio</h3>
-    <p style="margin-bottom:16px;line-height:1.5;color:var(--text-secondary);">
-      Por favor, describe el motivo del reporte (mínimo 10 caracteres):
-      <br/>
-      - Contenido inapropiado<br/>
-      - Información falsa<br/>
-      - Spam o publicidad no solicitada<br/>
-      - Otro
-    </p>
-    <textarea 
-      id="reportReasonInput" 
-      placeholder="Escribe aquí tu razón..." 
-      style="width:100%;height:100px;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-tertiary);color:var(--text-primary);resize:none;font-family:inherit;"
-      maxlength="500"
-    ></textarea>
-    <div id="reportError" style="margin-top:6px;color:var(--danger);font-size:14px;display:none;"></div>
-    <div style="display:flex;gap:8px;margin-top:24px;justify-content:flex-end;">
-      <button id="reportCancelBtn" class="btn-secondary" style="min-width:100px;">Cancelar</button>
-      <button id="reportSubmitBtn" class="btn-primary" style="min-width:100px;">Enviar Reporte</button>
-    </div>
-  </div>
-</div>
     </div>
   `;
+
+  // Modal de reporte
+  const reportModal = `
+    <div id="reportModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+      <div class="modal-content" style="background:var(--bg-primary);padding:24px;border-radius:var(--radius-lg);width:90%;max-width:500px;box-shadow:0 4px 20px rgba(0,0,0,0.2);">
+        <h3 style="margin-top:0;margin-bottom:16px;color:var(--text-primary);">Reportar Servicio</h3>
+        <p style="margin-bottom:16px;line-height:1.5;color:var(--text-secondary);">
+          Por favor, describe el motivo del reporte (mínimo 10 caracteres):
+          <br/>
+          - Contenido inapropiado<br/>
+          - Información falsa<br/>
+          - Spam o publicidad no solicitada<br/>
+          - Otro
+        </p>
+        <textarea 
+          id="reportReasonInput" 
+          placeholder="Escribe aquí tu razón..." 
+          style="width:100%;height:100px;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-tertiary);color:var(--text-primary);resize:none;font-family:inherit;"
+          maxlength="500"
+        ></textarea>
+        <div id="reportError" style="margin-top:6px;color:var(--danger);font-size:14px;display:none;"></div>
+        <div style="display:flex;gap:8px;margin-top:24px;justify-content:flex-end;">
+          <button id="reportCancelBtn" class="btn-secondary" style="min-width:100px;">Cancelar</button>
+          <button id="reportSubmitBtn" class="btn-primary" style="min-width:100px;">Enviar Reporte</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Modal de cotización
+  const quoteModal = `
+    <div id="quoteModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+      <div style="background:var(--bg-primary);padding:24px;border-radius:var(--radius-lg);width:90%;max-width:500px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+        <h3 style="margin-top:0;margin-bottom:16px;color:var(--text-primary);">Solicitar Cotización</h3>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;margin-bottom:6px;font-weight:500;">Mensaje para el proveedor (opcional)</label>
+          <textarea id="quoteMessage" style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-tertiary);color:var(--text-primary);resize:vertical;"></textarea>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;margin-bottom:6px;font-weight:500;">Precio propuesto (QZ, opcional)</label>
+          <input type="number" id="quotePrice" step="0.5" min="0.5" placeholder="Ej: 10.5" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-tertiary);color:var(--text-primary);">
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button id="quoteCancel" class="btn-secondary" style="padding:8px 16px;">Cancelar</button>
+          <button id="quoteSubmit" class="btn-primary" style="padding:8px 16px;">Enviar Solicitud</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Montar todo en el contenedor
+  detailContainer.innerHTML = mainContent + reportModal + quoteModal;
 
   // Cargar información del proveedor
   loadProviderInfo(svc.user_id);
@@ -132,7 +162,7 @@ function renderServiceDetail(svc) {
       try {
         const token = localStorage.getItem(CONFIG.STORAGE_KEYS.TOKEN);
         if (!token) {
-          alert('Debes iniciar sesión para contratar servicios.');
+          showMessage('Debes iniciar sesión para contratar servicios.');
           window.location.href = '/vistas/login.html';
           return;
         }
@@ -151,7 +181,7 @@ function renderServiceDetail(svc) {
           throw new Error(error.error || 'Error al crear contrato');
         }
 
-        alert('Contrato creado exitosamente. El proveedor será notificado.');
+        showMessage('Contrato creado exitosamente. El proveedor será notificado.');
         window.location.href = '/vistas/contratos.html';
       } catch (err) {
         let message = 'No se pudo crear el contrato.';
@@ -166,10 +196,103 @@ function renderServiceDetail(svc) {
           message = err.message;
         }
         
-        alert(message);
+        showMessage(message);
       }
     });
   }
+
+  // Botón para solicitar cotización
+const quoteBtn = document.getElementById('quoteBtn');
+if (quoteBtn) {
+  quoteBtn.addEventListener('click', async () => {
+    try {
+      const token = localStorage.getItem(CONFIG.STORAGE_KEYS.TOKEN);
+      if (!token) {
+        showMessage('Debes iniciar sesión para solicitar cotizaciones.');
+        setTimeout(() => window.location.href = '/vistas/login.html', 2000);
+        return;
+      }
+
+      // Verificar que no sea tu propio servicio
+      const meRes = await fetch(`${CONFIG.API_BASE_URL}/users/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!meRes.ok) throw new Error('No autorizado');
+      const me = await meRes.json();
+      
+      if (me.id === svc.user_id) {
+        showMessage('No puedes solicitar cotización a tu propio servicio.');
+        return;
+      }
+
+      // Mostrar modal
+      const quoteModal = document.getElementById('quoteModal');
+      const quoteMessage = document.getElementById('quoteMessage');
+      const quotePrice = document.getElementById('quotePrice');
+      const quoteSubmit = document.getElementById('quoteSubmit');
+      const quoteCancel = document.getElementById('quoteCancel');
+
+      quoteMessage.value = '';
+      quotePrice.value = '';
+      quoteModal.style.display = 'flex';
+
+      // Cerrar modal
+      const closeQuoteModal = () => {
+        quoteModal.style.display = 'none';
+      };
+
+      // Eventos
+      quoteCancel.onclick = closeQuoteModal;
+      quoteModal.onclick = (e) => {
+        if (e.target === quoteModal) closeQuoteModal();
+      };
+
+      quoteSubmit.onclick = async () => {
+        const message = quoteMessage.value.trim();
+        const price = quotePrice.value ? parseFloat(quotePrice.value) : null;
+        
+        if (price !== null && (isNaN(price) || price <= 0)) {
+          showMessage('Precio inválido');
+          return;
+        }
+
+        const requestData = { service_id: svc.id };
+        if (message) requestData.message = message;
+        if (price !== null) requestData.proposed_price_qz_halves = Math.round(price * 2);
+
+        try {
+          const res = await fetch(`${CONFIG.API_BASE_URL}/service-requests`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(requestData)
+          });
+
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || 'Error al enviar solicitud');
+          }
+
+          closeQuoteModal();
+          showMessage('¡Solicitud de cotización enviada! El proveedor será notificado.');
+          setTimeout(() => window.location.href = '/vistas/solicitudes.html', 2000);
+        } catch (err) {
+          let msg = 'No se pudo enviar la solicitud.';
+          if (err.message.includes('own service')) {
+            msg = 'No puedes solicitar cotización a tu propio servicio.';
+          } else if (err.message) {
+            msg = err.message;
+          }
+          showMessage(msg);
+        }
+      };
+    } catch (err) {
+      showMessage(err.message || 'Error inesperado');
+    }
+  });
+}
 
 // Listener para reportar servicio (usando API y mensajes integrados)
 const reportBtn = document.getElementById('reportBtn');
