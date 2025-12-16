@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { pool } from '../../lib/db';
 import { notificationService } from '../notifications/service';
-import { authenticateAdmin, requireAdminRole } from '../../middleware/admin';
+import { authenticateAdmin, requireAdminRole, AdminRequest } from '../../middleware/admin';
 import jwt from 'jsonwebtoken';
 
 export const adminRouter = Router();
@@ -246,10 +246,11 @@ adminRouter.get('/disputes', authenticateAdmin, requireAdminRole(['moderator','s
 });
 
 // Disputas: resolver (moderator or superadmin)
-adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req: import('../../middleware/admin').AdminRequest, res) => {
+adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['moderator','superadmin']), async (req: AdminRequest, res) => {
   try {
     const { id } = req.params;
-    const { status, resolution } = req.body;
+    const { status, resolution, resolution_type } = req.body;
+    const adminId = req.adminId!;
 
     if (!['resolved', 'dismissed'].includes(status)) {
       return res.status(400).json({ error: 'Estado de disputa inválido' });
@@ -259,25 +260,23 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
       SELECT 
         d.*,
         e.id AS escrow_id,
+        e.amount_qz_halves,
         e.status AS escrow_status,
         c.buyer_id,
         c.seller_id,
-        c.title AS contract_title  
+        c.title AS contract_title
       FROM disputes d
       JOIN escrow_accounts e ON d.escrow_id = e.id
       JOIN contracts c ON e.id = c.escrow_id
-      WHERE d.id = $1
+      WHERE d.id = $1 AND d.status = 'open'
     `, [id]);
 
     if (disputeRes.rowCount === 0) {
-      return res.status(404).json({ error: 'Disputa no encontrada' });
+      return res.status(404).json({ error: 'Disputa no encontrada o ya resuelta' });
     }
 
     const dispute = disputeRes.rows[0];
-
-    if (['resolved', 'dismissed'].includes(dispute.status)) {
-      return res.status(400).json({ error: 'La disputa ya fue resuelta' });
-    }
+    const { escrow_id, amount_qz_halves, buyer_id, seller_id, contract_title } = dispute;
 
     if (dispute.escrow_status !== 'disputed') {
       return res.status(400).json({ error: 'El escrow no está en estado disputed' });
@@ -287,33 +286,84 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
     try {
       await client.query('BEGIN');
 
-      // Actualizar disputa
-      await client.query(`
-        UPDATE disputes 
-        SET status = $1, resolution = $2, resolved_by = $3, resolved_at = NOW()
-        WHERE id = $4
-      `, [status, resolution || '', req.adminId, id]);
+      // 1. Actualizar la disputa
+      await client.query(
+        `UPDATE disputes 
+         SET status = $1, resolution = $2, resolved_by = $3, resolved_at = NOW()
+         WHERE id = $4`,
+        [status, resolution || '', adminId, id]
+      );
 
       if (status === 'resolved') {
-        // Liberar al vendedor (comportamiento simple)
-        await client.query(`UPDATE escrow_accounts SET status = 'released' WHERE id = $1`, [dispute.escrow_id]);
-        await client.query(`UPDATE contracts SET status = 'completed' WHERE escrow_id = $1`, [dispute.escrow_id]);
+        if (resolution_type === 'refund_to_buyer') {
+          // === Reembolsar al cliente ===
+          await client.query(`UPDATE contracts SET status = 'cancelled' WHERE escrow_id = $1`, [escrow_id]);
+          await client.query(`UPDATE escrow_accounts SET status = 'refunded' WHERE id = $1`, [escrow_id]);
 
-        // Notificar
-        await notificationService.createNotification({
-          userId: dispute.seller_id,
-          type: 'transaction_completed',
-          title: 'Disputa resuelta a tu favor',
-          message: `La disputa fue resuelta. El pago por "${dispute.contract_title}" ha sido liberado.`,
-          referenceId: id,
-          actionUrl: '/vistas/cartera.html'
-        });
+          // Actualizar wallet del cliente
+          await client.query(
+            `INSERT INTO wallets (user_id, balance_qz_halves)
+             VALUES ($1, $2)
+             ON CONFLICT (user_id)
+             DO UPDATE SET balance_qz_halves = wallets.balance_qz_halves + $2`,
+            [buyer_id, amount_qz_halves]
+          );
+
+          // Registrar en transactions
+          await client.query(
+            `INSERT INTO transactions (user_id, type, payment_method, status, amount_qz_halves, description, reference_id)
+              VALUES ($1, 'refund', 'wallet', 'completed', $2, $3, $4)`,
+            [buyer_id, amount_qz_halves, `Reembolso por disputa: "${contract_title}"`, id]
+          );
+
+          // Notificación
+          await notificationService.createNotification({
+            userId: buyer_id,
+            type: 'dispute_resolved',
+            title: 'Disputa resuelta a tu favor',
+            message: `La disputa del contrato "${contract_title}" fue resuelta y tus Quetzales fueron reembolsados.`,
+            referenceId: id,
+            actionUrl: '/vistas/cartera.html'
+          });
+        } 
+        else {
+          // === Liberar al vendedor ===
+          await client.query(`UPDATE contracts SET status = 'completed' WHERE escrow_id = $1`, [escrow_id]);
+          await client.query(`UPDATE escrow_accounts SET status = 'released' WHERE id = $1`, [escrow_id]);
+
+          // Actualizar wallet del vendedor
+          await client.query(
+            `INSERT INTO wallets (user_id, balance_qz_halves)
+             VALUES ($1, $2)
+             ON CONFLICT (user_id)
+             DO UPDATE SET balance_qz_halves = wallets.balance_qz_halves + $2`,
+            [seller_id, amount_qz_halves]
+          );
+
+          // Registrar en transactions
+          await client.query(
+            `INSERT INTO transactions (user_id, type, payment_method, status, amount_qz_halves, description, reference_id)
+             VALUES ($1, 'payment_received', 'wallet', 'completed', $2, $3, $4)`,
+            [seller_id, amount_qz_halves, `Pago liberado por disputa: "${contract_title}"`, id]
+        );
+          // Notificación
+          await notificationService.createNotification({
+            userId: seller_id,
+            type: 'dispute_resolved',
+            title: 'Disputa resuelta a tu favor',
+            message: `La disputa del contrato "${contract_title}" fue resuelta y el pago fue liberado.`,
+            referenceId: id,
+            actionUrl: '/vistas/cartera.html'
+          });
+        }
+      } 
+      else if (status === 'dismissed') {
+        // Sin acción financiera
       }
 
       await client.query('COMMIT');
       client.release();
-
-      res.json({ id, status, message: 'Disputa actualizada exitosamente' });
+      res.json({ id, status, message: 'Disputa resuelta exitosamente' });
     } catch (err) {
       await client.query('ROLLBACK');
       client.release();
