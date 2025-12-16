@@ -367,38 +367,47 @@ document.addEventListener('click', async (e) => {
     }
   }
 
-  // Manejar disputas → SOLO el modal, NUNCA prompt()
-  if (e.target.matches?.('.disp-resolve')) {
-    const disputeId = e.target.dataset.id;
-    const modal = document.getElementById('resolveDisputeModal');
-    const actionSelect = document.getElementById('resolveAction');
-    const resolutionInput = document.getElementById('resolveResolution');
-    const confirmBtn = document.getElementById('resolveConfirmBtn');
-    const cancelBtn = document.getElementById('resolveCancelBtn');
+   // Manejar disputas → Resolver con acciones específicas
+if (e.target.classList.contains('disp-resolve')) {
+  const disputeId = e.target.dataset.id;
+  const modal = document.getElementById('resolveDisputeModal');
+  const actionSelect = document.getElementById('resolveAction');
+  const resolutionInput = document.getElementById('resolveResolution');
+  const confirmBtn = document.getElementById('resolveConfirmBtn');
+  const cancelBtn = document.getElementById('resolveCancelBtn');
 
-    modal.style.display = 'flex';
-    resolutionInput.value = '';
+  modal.style.display = 'flex';
+  resolutionInput.value = '';
 
-    const closeModal = () => {
-      modal.style.display = 'none';
-    };
+  const closeModal = () => {
+    modal.style.display = 'none';
+  };
 
-    const handleConfirm = async () => {
-      const status = actionSelect.value;
-      const resolution = resolutionInput.value.trim() || null;
-      try {
-        await API.patch(`/admin/disputes/${disputeId}/status`, { status, resolution });
-        loadDisputes();
-        closeModal();
-      } catch (err) {
-        alert('Error al resolver la disputa');
-      }
-    };
+  const handleConfirm = async () => {
+    const action = actionSelect.value; // ← 'release_to_seller', 'refund_to_buyer', o 'dismiss_no_action'
+    const resolution = resolutionInput.value.trim() || null;
 
-    confirmBtn.onclick = handleConfirm;
-    cancelBtn.onclick = closeModal;
-    modal.onclick = (e) => { if (e.target === modal) closeModal(); };
-  }
+    try {
+      // Llamar al nuevo endpoint: POST /disputes/:id/resolve
+      await API.post(`/disputes/${disputeId}/resolve`, { action, resolution });
+      loadDisputes(); // Recargar lista
+      closeModal();
+      // Opcional: mostrar mensaje de éxito
+      const msgEl = document.createElement('div');
+      msgEl.className = 'toast';
+      msgEl.textContent = 'Disputa resuelta correctamente';
+      msgEl.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--success);color:white;padding:12px;border-radius:8px;z-index:10000;';
+      document.body.appendChild(msgEl);
+      setTimeout(() => msgEl.remove(), 3000);
+    } catch (err) {
+      alert('Error al resolver la disputa: ' + (err.message || 'Inténtalo de nuevo.'));
+    }
+  };
+
+  confirmBtn.onclick = handleConfirm;
+  cancelBtn.onclick = closeModal;
+  modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+}
 });
 
 
