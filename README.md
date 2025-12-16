@@ -132,24 +132,6 @@ quetzal/
 ✅ CORS configurable  
 ✅ Límite de tamaño de archivos (2MB)  
 
-### Pendiente para Producción
-
-- [ ] Rate limiting en endpoints de auth
-- [ ] Validación de tipos de archivo (solo imágenes)
-- [ ] Sanitización de inputs
-- [ ] HTTPS/SSL
-- [ ] Secrets en manager externo
-- [ ] Logs estructurados
-
-Ver `BEST_PRACTICES.md` para más detalles.
-
----
-
-## 📖 Documentación
-
-- **[BEST_PRACTICES.md](./BEST_PRACTICES.md)** - Mejores prácticas, testing, monitoreo
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Guía completa de despliegue
-- **[ROLES.md](./ROLES.md)** - Sistema de roles y permisos
 
 ---
 
@@ -174,12 +156,6 @@ npm run test:coverage
 - `transactions` - Historial de transacciones
 - `messages` - Chat entre usuarios
 - `notifications` - Notificaciones
-
-### Ejecutar Migraciones
-
-```bash
-psql -U postgres -d quetzal_db -f server/migrations/archivo.sql
-```
 
 ---
 
@@ -220,25 +196,6 @@ Verificar que `CORS_ORIGIN` en `.env` coincida con la URL del frontend.
 
 ---
 
-## 📝 Roadmap
-
-### v1.1 (Próximo)
-- [ ] Rate limiting
-- [ ] Tests automatizados
-- [ ] Validación con Zod
-- [ ] Optimización de imágenes
-
-### v1.2
-- [ ] Sistema de mensajería completo
-- [ ] Notificaciones en tiempo real
-- [ ] Wallet funcional
-
-### v2.0
-- [ ] Integración con ePayco
-- [ ] Sistema de ratings
-- [ ] Dashboard de admin
-- [ ] App móvil
-
 ---
 
 ## 📄 Licencia
@@ -249,11 +206,9 @@ Este proyecto es privado. Todos los derechos reservados.
 
 ## 👨‍💻 Autor
 
-Desarrollado por [Tu Nombre]
+Desarrollado por
 
 ---
-
-## 🙏 Agradecimientos
 
 - PostgreSQL por la robustez de la BD
 - Express.js por la simplicidad
