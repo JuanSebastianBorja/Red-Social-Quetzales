@@ -59,6 +59,61 @@ function renderContractCard(contract) {
     </div>
   `;
 
+  // === Construir la sección de entregables (solo si aplica) ===
+  let deliverablesSection = '';
+  if (currentRole === 'client' && contract.status === 'delivered') {
+    const files = Array.isArray(contract.delivery_files) ? contract.delivery_files : [];
+    
+    if (files.length > 0) {
+      const fileList = files.map(url => {
+        const isImage = url.match(/\.(jpeg|jpg|gif|png|webp)$/i);
+        const isPdf = url.match(/\.pdf$/i);
+        
+        if (isImage) {
+          return `
+            <div style="margin-bottom:12px;">
+              <img src="${url}" alt="Entregable" style="max-width:100%;border-radius:8px;max-height:300px;object-fit:contain;">
+            </div>
+          `;
+        } else if (isPdf) {
+          return `
+            <div style="margin-bottom:12px;">
+              <a href="${url}" target="_blank" class="btn-secondary" style="display:inline-flex;align-items:center;gap:6px;">
+                <i class="fas fa-file-pdf"></i> Ver PDF
+              </a>
+            </div>
+          `;
+        } else {
+          const filename = url.split('/').pop() || 'archivo';
+          return `
+            <div style="margin-bottom:12px;">
+              <a href="${url}" target="_blank" class="btn-secondary" style="display:inline-flex;align-items:center;gap:6px;">
+                <i class="fas fa-file"></i> ${filename}
+              </a>
+            </div>
+          `;
+        }
+      }).join('');
+
+      deliverablesSection = `
+        <div style="margin:16px 0;padding:16px;background:var(--bg-tertiary);border-radius:var(--radius-md);">
+          <h4 style="margin:0 0 12px;font-weight:600;color:var(--text-primary);">
+            <i class="fas fa-box-open"></i> Entregables del proveedor
+          </h4>
+          ${fileList}
+        </div>
+      `;
+    } else {
+      deliverablesSection = `
+        <div style="margin:16px 0;padding:16px;background:var(--warning-bg);border-radius:var(--radius-md);">
+          <p style="margin:0;color:var(--warning);">
+            <i class="fas fa-exclamation-circle"></i> El proveedor marcó el contrato como entregado, pero no hay archivos adjuntos.
+          </p>
+        </div>
+      `;
+    }
+  }
+
   card.innerHTML = `
     <div class="card-body">
       <div style="display:flex;gap:16px;align-items:start;margin-bottom:16px;">
@@ -90,6 +145,8 @@ function renderContractCard(contract) {
           <i class="fas fa-user"></i> Ver Perfil
         </button>
       </div>
+
+      ${deliverablesSection}
 
       <div class="form-actions" style="justify-content:flex-start;">
         ${getActionButtons(contract)}
