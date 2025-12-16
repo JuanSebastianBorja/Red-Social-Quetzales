@@ -251,26 +251,23 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
     const { id } = req.params;
     const { status, resolution } = req.body;
 
-    // Validar estado
     if (!['resolved', 'dismissed'].includes(status)) {
       return res.status(400).json({ error: 'Estado de disputa inválido' });
     }
 
-    // Obtener disputa y escrow
-    const disputeRes = await pool.query(
-    `SELECT 
-     d.*,
-     e.amount_qz_halves,
-     e.status AS escrow_status,
-     c.buyer_id,
-     c.seller_id,
-     c.title AS contract_title  
-    FROM disputes d
-   JOIN escrow_accounts e ON d.escrow_id = e.id
-   JOIN contracts c ON e.id = c.escrow_id
-   WHERE d.id = $1`,
-  [id]
-);
+    const disputeRes = await pool.query(`
+      SELECT 
+        d.*,
+        e.id AS escrow_id,
+        e.status AS escrow_status,
+        c.buyer_id,
+        c.seller_id,
+        c.title AS contract_title  
+      FROM disputes d
+      JOIN escrow_accounts e ON d.escrow_id = e.id
+      JOIN contracts c ON e.id = c.escrow_id
+      WHERE d.id = $1
+    `, [id]);
 
     if (disputeRes.rowCount === 0) {
       return res.status(404).json({ error: 'Disputa no encontrada' });
@@ -278,12 +275,10 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
 
     const dispute = disputeRes.rows[0];
 
-    // No permitir resolver si ya está resuelta
     if (['resolved', 'dismissed'].includes(dispute.status)) {
       return res.status(400).json({ error: 'La disputa ya fue resuelta' });
     }
 
-    // Solo permitir resolver si el escrow está en estado 'disputed'
     if (dispute.escrow_status !== 'disputed') {
       return res.status(400).json({ error: 'El escrow no está en estado disputed' });
     }
@@ -292,31 +287,19 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
     try {
       await client.query('BEGIN');
 
-      // 1. Actualizar la disputa
-      await client.query(
-        `UPDATE disputes 
-         SET status = $1, resolution = $2, resolved_by = $3, resolved_at = NOW(), updated_at = NOW()
-         WHERE id = $4`,
-        [status, resolution || '', req.adminId, id]
-      );
+      // Actualizar disputa
+      await client.query(`
+        UPDATE disputes 
+        SET status = $1, resolution = $2, resolved_by = $3, resolved_at = NOW()
+        WHERE id = $4
+      `, [status, resolution || '', req.adminId, id]);
 
-      // 2. Actualizar el escrow según la resolución
       if (status === 'resolved') {
-        // Aquí debes decidir: ¿liberar al vendedor o reembolsar al comprador?
-        // Como no tenemos ese campo en el body, asumimos que "resolved" = liberar al vendedor
-        // (En una versión avanzada, podrías recibir una acción específica)
-        await client.query(
-          `UPDATE escrow_accounts SET status = 'released', released_at = NOW(), updated_at = NOW() WHERE id = $1`,
-          [dispute.escrow_id]
-        );
+        // Liberar al vendedor (comportamiento simple)
+        await client.query(`UPDATE escrow_accounts SET status = 'released' WHERE id = $1`, [dispute.escrow_id]);
+        await client.query(`UPDATE contracts SET status = 'completed' WHERE escrow_id = $1`, [dispute.escrow_id]);
 
-        // Actualizar contrato a 'completed'
-        await client.query(
-          `UPDATE contracts SET status = 'completed', completed_at = NOW(), updated_at = NOW() WHERE escrow_id = $1`,
-          [dispute.escrow_id]
-        );
-
-        // Notificar al vendedor (liberación de fondos)
+        // Notificar
         await notificationService.createNotification({
           userId: dispute.seller_id,
           type: 'transaction_completed',
@@ -324,36 +307,6 @@ adminRouter.patch('/disputes/:id/status', authenticateAdmin, requireAdminRole(['
           message: `La disputa fue resuelta. El pago por "${dispute.contract_title}" ha sido liberado.`,
           referenceId: id,
           actionUrl: '/vistas/cartera.html'
-        });
-
-        // Notificar al comprador
-        await notificationService.createNotification({
-          userId: dispute.buyer_id,
-          type: 'dispute_resolved',
-          title: 'Disputa resuelta',
-          message: `La disputa por "${dispute.contract_title}" fue resuelta a favor del vendedor.`,
-          referenceId: id,
-          actionUrl: '/vistas/disputas.html'
-        });
-      } else if (status === 'dismissed') {
-        // Si se desestima, el escrow permanece en 'disputed' (sin acción financiera)
-        // Pero podrías querer permitir que el flujo continúe manualmente después
-        // Notificación a ambas partes
-        await notificationService.createNotification({
-          userId: dispute.buyer_id,
-          type: 'dispute_dismissed',
-          title: 'Disputa desestimada',
-          message: `La disputa por "${dispute.contract_title}" fue desestimada por el equipo de soporte.`,
-          referenceId: id,
-          actionUrl: '/vistas/disputas.html'
-        });
-
-        await notificationService.createNotification({
-          userId: dispute.seller_id,
-          type: 'dispute_dismissed', 
-          title: 'Disputa desestimada',
-          message: `La disputa por "${dispute.contract_title}" fue desestimada por el equipo de soporte.`,
-          actionUrl: '/vistas/disputas.html'
         });
       }
 

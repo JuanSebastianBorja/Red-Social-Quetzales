@@ -389,7 +389,19 @@ if (e.target.classList.contains('disp-resolve')) {
 
     try {
       // Llamar al nuevo endpoint: POST /disputes/:id/resolve
-      await API.post(`/disputes/${disputeId}/resolve`, { action, resolution });
+    // Mapear acción → estado
+      const statusMap = {
+      release_to_seller: 'resolved',
+      refund_to_buyer: 'resolved',  // ← ¡OJO! Ambas son 'resolved', pero necesitas distinguirlas
+    dismiss_no_action: 'dismissed'
+    };
+
+// Pero necesitas indicar qué tipo de 'resolved' es → Usa un campo adicional
+await API.patch(`/admin/disputes/${disputeId}/status`, { 
+  status: statusMap[action], 
+  resolution: resolution || 'Resuelta por admin',
+  resolution_type: action  // ← Nuevo campo para diferenciar
+});
       loadDisputes(); // Recargar lista
       closeModal();
       // Opcional: mostrar mensaje de éxito
@@ -526,8 +538,8 @@ function renderDisputes(disputes) {
         <tr>
           <th>ID</th>
           <th>Contrato</th>
-          <th>Comprador → Vendedor</th>
-          <th>Motivo</th>
+          <th>Partes</th>
+          <th>Motivo y Pruebas</th>
           <th>Estado</th>
           <th>Acciones</th>
         </tr>
@@ -538,7 +550,18 @@ function renderDisputes(disputes) {
             <td>${d.id.substring(0, 8)}...</td>
             <td>${d.contract_title || '-'}</td>
             <td>${d.buyer_name} → ${d.seller_name}</td>
-            <td>${d.reason.substring(0, 30)}${d.reason.length > 30 ? '...' : ''}</td>
+            <td>
+              <div>${d.reason.substring(0, 50)}${d.reason.length > 50 ? '...' : ''}</div>
+              ${d.evidence_urls && d.evidence_urls.length > 0 ? `
+                <div class="evidence-preview" style="margin-top:6px;">
+                  ${d.evidence_urls.map(url => 
+                    `<a href="${url}" target="_blank" style="display:inline-block;margin-right:6px;">🖼️</a>`
+                  ).join('')}
+                </div>
+              ` : `
+                <div class="helper" style="font-size:0.85em;color:var(--text-tertiary);">Sin pruebas adjuntas</div>
+              `}
+            </td>
             <td><span class="status-badge ${d.dispute_status}">${translateDisputeStatus(d.dispute_status)}</span></td>
             <td class="table-action-cell">
               ${d.dispute_status === 'open' ? `

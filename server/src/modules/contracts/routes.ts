@@ -201,8 +201,7 @@ contractsRouter.post('/:id/deliver-files', authenticate, upload.array('files', 8
       for (const file of files) {
         try {
           const fileBuffer = file.buffer;
-          const fileName = `deliverables/${Date.now()}_${encodeURIComponent(file.originalname)}`;
-          
+          const fileName = `${Date.now()}_${encodeURIComponent(file.originalname)}`;
           const { data, error } = await supabase
             .storage
             .from('deliverables')
@@ -238,10 +237,9 @@ contractsRouter.post('/:id/deliver-files', authenticate, upload.array('files', 8
       for (const file of files) {
         try {
           const fileBuffer = await readFile(file.path);
-          // (Nota: en local también deberías subir a Supabase o guardar en uploads y generar URL pública si lo deseas)
-          // Por simplicidad, asumimos que ya tienes una lógica similar o estás en modo dev
-          const fileName = `deliverables/${path.basename(file.path)}`;
-          const publicUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/uploads/contracts/${path.basename(file.path)}`;
+          const fileName = path.basename(file.path);
+          const baseUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+          const publicUrl = `${baseUrl}/uploads/contracts/${encodeURIComponent(fileName)}`;
           urls.push(publicUrl);
         } catch (err) {
           console.error('Error reading local file:', err);
@@ -747,8 +745,19 @@ contractsRouter.get('/:id', authenticate, async (req: AuthRequest, res) => {
 contractsRouter.post('/:id/dispute', authenticate, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
-    const { reason, evidence_urls = [] } = req.body;
+    const { reason } = req.body;
+    let evidence_urls = Array.isArray(req.body.evidence_urls) ? req.body.evidence_urls : [];
     const userId = req.userId!;
+
+  // Si no se enviaron pruebas, usar los delivery_files del contrato
+      if (evidence_urls.length === 0) {
+        const contractRes = await pool.query('SELECT delivery_files FROM contracts WHERE id = $1', [id]);
+        const deliveryFiles = Array.isArray(contractRes.rows[0]?.delivery_files) ? contractRes.rows[0].delivery_files : [];
+      if (deliveryFiles.length > 0) {
+    // Usar los delivery_files como evidencia
+    evidence_urls = deliveryFiles;
+  }
+}
 
     if (!reason || reason.trim().length < 10) {
       return res.status(400).json({ error: 'La razón debe tener al menos 10 caracteres' });
@@ -838,5 +847,64 @@ contractsRouter.post('/:id/dispute', authenticate, async (req: AuthRequest, res)
   } catch (e: any) {
     console.error('Error al crear disputa:', e);
     res.status(500).json({ error: 'Error al crear la disputa' });
+  }
+});
+
+// Subir evidencia para disputa (cualquier parte)
+contractsRouter.post('/:id/dispute-evidence', authenticate, upload.array('files', 5), async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId!;
+    const files = (req.files as Express.Multer.File[]) || [];
+    
+    if (!files.length) {
+      return res.status(400).json({ error: 'No se enviaron archivos' });
+    }
+
+    // Verificar que el usuario pertenece al contrato
+    const contractRes = await pool.query(
+      'SELECT buyer_id, seller_id FROM contracts WHERE id = $1',
+      [id]
+    );
+    if (contractRes.rowCount === 0) {
+      return res.status(404).json({ error: 'Contrato no encontrado' });
+    }
+    const { buyer_id, seller_id } = contractRes.rows[0];
+    if (userId !== buyer_id && userId !== seller_id) {
+      return res.status(403).json({ error: 'No tienes permiso para este contrato' });
+    }
+
+    let urls: string[] = [];
+
+    if (isProduction) {
+      for (const file of files) {
+        const fileName = `disputes/${Date.now()}_${encodeURIComponent(file.originalname)}`;
+        const { error } = await supabase
+          .storage
+          .from('dispute-evidence') // ← Bucket nuevo
+          .upload(fileName, file.buffer, { contentType: file.mimetype });
+        
+        if (error) throw error;
+        
+        const { data } = supabase.storage.from('dispute-evidence').getPublicUrl(fileName);
+        urls.push(data.publicUrl);
+      }
+    } else {
+      // Guardar en local
+      for (const file of files) {
+        const ext = path.extname(file.originalname);
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
+        const destPath = path.join(process.cwd(), '..', 'web', 'uploads', 'disputes', fileName);
+        await fs.promises.writeFile(destPath, file.buffer || fs.readFileSync(file.path));
+        const baseUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+        const publicUrl = `${baseUrl}/uploads/disputes/${encodeURIComponent(fileName)}`;
+        urls.push(publicUrl);
+      }
+    }
+
+    res.json({ urls }); // ← Devuelve las URLs
+  } catch (e: any) {
+    console.error('Upload dispute evidence error:', e);
+    res.status(500).json({ error: 'Error al subir pruebas' });
   }
 });

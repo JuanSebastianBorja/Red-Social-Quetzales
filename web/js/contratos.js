@@ -374,12 +374,27 @@ if (contractsList) {
     if (action === 'dispute') {
   const modal = document.getElementById('disputeModal');
   const input = document.getElementById('disputeReasonInput');
+  const evidenceInput = document.getElementById('disputeEvidence');
   const submitBtn = document.getElementById('disputeSubmitBtn');
   const cancelBtn = document.getElementById('disputeCancelBtn');
   const errorElement = document.getElementById('disputeError');
 
+  // Crear el input de evidencia si no existe
+  if (!evidenceInput) {
+    const evidenceField = document.createElement('div');
+    evidenceField.innerHTML = `
+      <div style="margin-top:12px;">
+        <label class="form-label" style="display:block;margin-bottom:6px;font-weight:500;">Pruebas (opcional)</label>
+        <input type="file" id="disputeEvidence" multiple accept="image/*,application/pdf,.doc,.docx" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);" />
+        <small class="helper" style="display:block;margin-top:4px;">Puedes adjuntar capturas, documentos o entregables relevantes.</small>
+      </div>
+    `;
+    modal.querySelector('.modal-content').insertBefore(evidenceField, submitBtn.parentElement);
+  }
+
   // Limpiar campos y errores
   input.value = '';
+  if (evidenceInput) evidenceInput.value = '';
   errorElement.style.display = 'none';
   submitBtn.disabled = false;
 
@@ -425,14 +440,37 @@ if (contractsList) {
   // Manejar envío
   const handleSubmit = async () => {
     const reason = input.value.trim();
+    const evidenceFileInput = document.getElementById('disputeEvidence');
+    const files = Array.from(evidenceFileInput?.files || []);
+
     if (reason.length < 10) {
       errorElement.textContent = 'El motivo debe tener al menos 10 caracteres.';
       errorElement.style.display = 'block';
       return;
     }
 
+    let evidenceUrls = [];
+
+    if (files.length > 0) {
+      // Subir archivos a Supabase
+      const fd = new FormData();
+      files.forEach(f => fd.append('files', f));
+      try {
+        const uploadRes = await API.postMultipart(`/contracts/${contractId}/dispute-evidence`, fd);
+        // Asumiendo que el endpoint devuelve un objeto con propiedad `urls` o `delivery_files`
+        evidenceUrls = uploadRes.urls || uploadRes.delivery_files || [];
+      } catch (err) {
+        alert('Error al subir pruebas: ' + (err.message || 'Inténtalo más tarde.'));
+        return;
+      }
+    }
+
     try {
-      await API.post(`/contracts/${contractId}/dispute`, { reason });
+      // Enviar disputa con pruebas (o sin ellas)
+      await API.post(`/contracts/${contractId}/dispute`, { 
+        reason, 
+        evidence_urls: evidenceUrls 
+      });
       showMessage('Disputa abierta exitosamente.');
       fetchContracts();
       closeModal();
@@ -442,6 +480,8 @@ if (contractsList) {
   };
 
   // Eventos de botones
+  submitBtn.removeEventListener('click', handleSubmit); // Evitar duplicados
+  cancelBtn.removeEventListener('click', closeModal);
   submitBtn.addEventListener('click', handleSubmit);
   cancelBtn.addEventListener('click', closeModal);
 
