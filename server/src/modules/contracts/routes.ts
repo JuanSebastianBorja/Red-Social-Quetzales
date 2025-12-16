@@ -386,90 +386,98 @@ contractsRouter.patch('/:id/status', authenticate, async (req: AuthRequest, res)
 
     // Operaciones especiales para ciertos estados (escrow, pagos, etc.)
     if (status === 'paid' && isClient) {
-      // Pagar contrato: mover fondos del comprador a escrow
-      const client = await pool.connect();
-      try {
-        await client.query('BEGIN');
-        const cRes = await client.query('SELECT * FROM contracts WHERE id=$1 FOR UPDATE', [id]);
-        const c = cRes.rows[0];
-        // Permitir pagar en estados pending, accepted, in_progress
-        if (!['pending','accepted','in_progress'].includes(c.status)) {
-          await client.query('ROLLBACK');
-          client.release();
-          return res.status(400).json({ error: 'Contract cannot be paid in current status' });
-        }
-
-        const amount = Number(c.total_amount_qz_halves || c.service_price_qz_halves);
-        const balRes = await client.query('SELECT balance_qz_halves FROM wallets WHERE user_id=$1 FOR UPDATE', [c.buyer_id]);
-        const balance = Number(balRes.rows?.[0]?.balance_qz_halves || 0);
-        if (balance < amount) {
-          await client.query('ROLLBACK');
-          client.release();
-          return res.status(400).json({ error: 'Insufficient balance' });
-        }
-
-        // Crear escrow account record
-        const escIns = await client.query(
-          `INSERT INTO escrow_accounts (service_id, buyer_id, seller_id, amount_qz_halves, status, funded_at)
-           VALUES ($1,$2,$3,$4,'funded', NOW()) RETURNING id`,
-          [c.service_id, c.buyer_id, c.seller_id, amount]
-        );
-        const escrowId = escIns.rows[0].id;
-
-        // Ensure accounts
-        const buyerAcc = await client.query(
-          `INSERT INTO accounts (owner_type, owner_id, currency, name)
-           SELECT 'user', $1, 'QZ', 'user_wallet_qz'
-           WHERE NOT EXISTS (SELECT 1 FROM accounts WHERE owner_type='user' AND owner_id=$1 AND currency='QZ')
-           RETURNING id`,
-          [c.buyer_id]
-        );
-        const buyerAccountId = buyerAcc.rowCount ? buyerAcc.rows[0].id : (await client.query(
-          `SELECT id FROM accounts WHERE owner_type='user' AND owner_id=$1 AND currency='QZ'`, [c.buyer_id]
-        )).rows[0].id;
-
-        const escrowAcc = await client.query(
-          `INSERT INTO accounts (owner_type, owner_id, currency, name)
-           SELECT 'escrow', $1, 'QZ', 'escrow_qz'
-           WHERE NOT EXISTS (SELECT 1 FROM accounts WHERE owner_type='escrow' AND owner_id=$1 AND currency='QZ')
-           RETURNING id`,
-          [escrowId]
-        );
-        const escrowAccountId = escrowAcc.rowCount ? escrowAcc.rows[0].id : (await client.query(
-          `SELECT id FROM accounts WHERE owner_type='escrow' AND owner_id=$1 AND currency='QZ'`, [escrowId]
-        )).rows[0].id;
-
-        // Ledger transaction
-        const txIns = await client.query(
-          `INSERT INTO ledger_transactions (type, status, description, external_ref)
-           VALUES ('payment','pending','Contract payment', $1) RETURNING id`,
-          [id]
-        );
-        const ltx = txIns.rows[0].id;
-        await client.query(
-          `INSERT INTO ledger_entries (transaction_id, account_id, direction, amount_units)
-           VALUES ($1,$2,'debit',$4), ($1,$3,'credit',$4)`,
-          [ltx, buyerAccountId, escrowAccountId, amount]
-        );
-        await client.query(`UPDATE ledger_transactions SET status='completed' WHERE id=$1`, [ltx]);
-
-        // Update contract: if pending -> paid; if accepted/in_progress -> keep status and set escrow
-        const newStatus = c.status === 'pending' ? 'paid' : c.status;
-        const up = await client.query(
-          `UPDATE contracts SET status=$2, escrow_id=$3, paid_at=NOW(), updated_at=NOW() WHERE id=$1 RETURNING *`,
-          [id, newStatus, escrowId]
-        );
-
-        await client.query('COMMIT');
-        client.release();
-        return res.json(up.rows[0]);
-      } catch (err) {
-        await (client.query('ROLLBACK').catch(() => {}));
-        client.release();
-        console.error('Pay contract error:', err);
-        return res.status(500).json({ error: 'Failed to pay contract' });
-      }
+  // Pagar contrato: mover fondos del comprador a escrow
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const cRes = await client.query('SELECT * FROM contracts WHERE id=$1 FOR UPDATE', [id]);
+    const c = cRes.rows[0];
+    // Permitir pagar en estados pending, accepted, in_progress
+    if (!['pending','accepted','in_progress'].includes(c.status)) {
+      await client.query('ROLLBACK');
+      client.release();
+      return res.status(400).json({ error: 'Contract cannot be paid in current status' });
     }
+
+    const amount = Number(c.total_amount_qz_halves || c.service_price_qz_halves);
+    const balRes = await client.query('SELECT balance_qz_halves FROM wallets WHERE user_id=$1 FOR UPDATE', [c.buyer_id]);
+    const balance = Number(balRes.rows?.[0]?.balance_qz_halves || 0);
+    if (balance < amount) {
+      await client.query('ROLLBACK');
+      client.release();
+      return res.status(400).json({ error: 'Insufficient balance' });
+    }
+
+    // Crear escrow account record
+    const escIns = await client.query(
+      `INSERT INTO escrow_accounts (service_id, buyer_id, seller_id, amount_qz_halves, status, funded_at)
+       VALUES ($1,$2,$3,$4,'funded', NOW()) RETURNING id`,
+      [c.service_id, c.buyer_id, c.seller_id, amount]
+    );
+    const escrowId = escIns.rows[0].id;
+
+    // Ensure accounts
+    const buyerAcc = await client.query(
+      `INSERT INTO accounts (owner_type, owner_id, currency, name)
+       SELECT 'user', $1, 'QZ', 'user_wallet_qz'
+       WHERE NOT EXISTS (SELECT 1 FROM accounts WHERE owner_type='user' AND owner_id=$1 AND currency='QZ')
+       RETURNING id`,
+      [c.buyer_id]
+    );
+    const buyerAccountId = buyerAcc.rowCount ? buyerAcc.rows[0].id : (await client.query(
+      `SELECT id FROM accounts WHERE owner_type='user' AND owner_id=$1 AND currency='QZ'`, [c.buyer_id]
+    )).rows[0].id;
+
+    const escrowAcc = await client.query(
+      `INSERT INTO accounts (owner_type, owner_id, currency, name)
+       SELECT 'escrow', $1, 'QZ', 'escrow_qz'
+       WHERE NOT EXISTS (SELECT 1 FROM accounts WHERE owner_type='escrow' AND owner_id=$1 AND currency='QZ')
+       RETURNING id`,
+      [escrowId]
+    );
+    const escrowAccountId = escrowAcc.rowCount ? escrowAcc.rows[0].id : (await client.query(
+      `SELECT id FROM accounts WHERE owner_type='escrow' AND owner_id=$1 AND currency='QZ'`, [escrowId]
+    )).rows[0].id;
+
+    // Ledger transaction
+    const txIns = await client.query(
+      `INSERT INTO ledger_transactions (type, status, description, external_ref)
+       VALUES ('payment','pending','Contract payment', $1) RETURNING id`,
+      [id]
+    );
+    const ltx = txIns.rows[0].id;
+    await client.query(
+      `INSERT INTO ledger_entries (transaction_id, account_id, direction, amount_units)
+       VALUES ($1,$2,'debit',$4), ($1,$3,'credit',$4)`,
+      [ltx, buyerAccountId, escrowAccountId, amount]
+    );
+    await client.query(`UPDATE ledger_transactions SET status='completed' WHERE id=$1`, [ltx]);
+
+    // Registrar transacción para el cliente (gasto)
+    await client.query(
+      `INSERT INTO transactions (
+         user_id, type, payment_method, status, amount_qz_halves, description, reference_id
+       ) VALUES ($1, 'payment', 'wallet', 'completed', $2, $3, $4)`,
+      [c.buyer_id, amount, `Pago por servicio: "${c.title}"`, c.id]
+    );
+
+    // Update contract: if pending -> paid; if accepted/in_progress -> keep status and set escrow
+    const newStatus = c.status === 'pending' ? 'paid' : c.status;
+    const up = await client.query(
+      `UPDATE contracts SET status=$2, escrow_id=$3, paid_at=NOW(), updated_at=NOW() WHERE id=$1 RETURNING *`,
+      [id, newStatus, escrowId]
+    );
+
+    await client.query('COMMIT');
+    client.release();
+    return res.json(up.rows[0]);
+    } catch (err) {
+    await (client.query('ROLLBACK').catch(() => {}));
+    client.release();
+    console.error('Pay contract error:', err);
+    return res.status(500).json({ error: 'Failed to pay contract' });
+  }
+  }
 
     if (status === 'completed' && isClient) {
       // Liberar escrow al proveedor (menos fee de plataforma)
@@ -545,6 +553,24 @@ contractsRouter.patch('/:id/status', authenticate, async (req: AuthRequest, res)
           `UPDATE contracts SET status='completed', completed_at=NOW(), updated_at=NOW() WHERE id=$1 RETURNING *`,
           [id]
         );
+
+        // Registrar transacción para el proveedor (ingreso)
+          await client.query(
+        `INSERT INTO transactions (
+         user_id, type, payment_method, status, amount_qz_halves, description, reference_id
+          ) VALUES ($1, 'payment_received', 'wallet', 'completed', $2, $3, $4)`,
+         [c.seller_id, sellerAmount, `Pago por servicio: "${c.title}"`, c.id]
+        );
+
+      // Registrar transacción para la plataforma (si hay fee)
+      if (fee > 0) {
+        await client.query(
+        `INSERT INTO transactions (
+        user_id, type, payment_method, status, amount_qz_halves, description, reference_id
+      ) VALUES ((SELECT id FROM admin_users LIMIT 1), 'platform_fee', 'wallet', 'completed', $1, $2, $3)`,
+     [fee, `Comisión por servicio: "${c.title}"`, c.id]
+    );
+    }
 
         await client.query('COMMIT');
         client.release();

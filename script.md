@@ -911,6 +911,7 @@ ALTER TABLE services ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 ALTER TYPE contract_status ADD VALUE IF NOT EXISTS 'accepted';
 ALTER TYPE contract_status ADD VALUE IF NOT EXISTS 'rejected';
+ALTER TYPE transaction_type ADD VALUE IF NOT EXISTS 'payment_received';
 
 
 

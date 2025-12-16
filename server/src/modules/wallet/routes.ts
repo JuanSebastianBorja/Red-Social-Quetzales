@@ -243,7 +243,7 @@ walletRouter.post('/transfer', authenticate, async (req: AuthRequest, res) => {
 
     await client.query('COMMIT');
 
-    // ✅ Notificación con nombre del remitente
+    // Notificación con nombre del remitente
     await notificationService.createNotification({
       userId: recipient_id,
       type: 'transaction_completed',
@@ -265,5 +265,99 @@ walletRouter.post('/transfer', authenticate, async (req: AuthRequest, res) => {
     client.release();
     console.error('Transfer error:', err);
     res.status(500).json({ error: 'Error al procesar la transferencia' });
+  }
+});
+
+// Generar reporte fiscal de transacciones
+walletRouter.get('/reports', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { startDate, endDate, type } = req.query;
+    const today = new Date();
+    const oneYearAgo = new Date(today);
+    oneYearAgo.setFullYear(today.getFullYear() - 1);
+
+    // Validar fechas
+    const start = startDate ? new Date(startDate as string) : oneYearAgo;
+    const end = endDate ? new Date(endDate as string) : today;
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ error: 'Fechas inválidas' });
+    }
+    if (start > end) {
+      return res.status(400).json({ error: 'La fecha de inicio no puede ser mayor que la de fin' });
+    }
+
+    // Construir consulta
+    const conditions: string[] = [
+    'user_id = $1',
+    'status = \'completed\'',
+    'created_at >= ($2 AT TIME ZONE \'UTC\' AT TIME ZONE \'America/Bogota\')',
+    'created_at < (($3 AT TIME ZONE \'UTC\' AT TIME ZONE \'America/Bogota\') + INTERVAL \'1 day\')'
+    ];
+    const values: any[] = [req.userId, start, end];
+    let paramIndex = 4;
+
+    if (type && typeof type === 'string') {
+      conditions.push(`type = $${paramIndex}`);
+      values.push(type);
+      paramIndex++;
+    }
+
+    const query = `
+      SELECT 
+        id,
+        type,
+        amount_qz_halves,
+        description,
+        created_at,
+        CASE
+          WHEN type IN ('transfer_in', 'refund', 'payment_received') THEN 'income'
+          ELSE 'expense'
+        END AS category
+      FROM transactions
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY created_at DESC
+    `;
+
+    const result = await pool.query(query, values);
+
+    // Calcular totales
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    const report = result.rows.map(row => {
+      const amountQZ = (row.amount_qz_halves || 0) / 2;
+      if (row.category === 'income') {
+        totalIncome += amountQZ;
+      } else {
+        totalExpense += amountQZ;
+      }
+      return {
+        id: row.id,
+        type: row.type,
+        amount_qz: amountQZ,
+        description: row.description,
+        date: row.created_at,
+        category: row.category
+      };
+    });
+
+    res.json({
+      report,
+      summary: {
+        total_income_qz: Number(totalIncome.toFixed(2)),
+        total_expense_qz: Number(totalExpense.toFixed(2)),
+        net_balance_qz: Number((totalIncome - totalExpense).toFixed(2)),
+        period: {
+          start: start.toISOString().split('T')[0],
+          end: end.toISOString().split('T')[0]
+        },
+        count: report.length
+      },
+      generated_at: new Date().toISOString()
+    });
+  } catch (err: any) {
+    console.error('Generate report error:', err);
+    res.status(500).json({ error: 'Error al generar el reporte' });
   }
 });

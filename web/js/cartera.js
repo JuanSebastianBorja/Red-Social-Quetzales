@@ -1,5 +1,6 @@
 import { Utils } from './utils.js';
 import { API } from './api.js';
+import { CONFIG } from './config.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -11,6 +12,7 @@ const TRANSACTION_LABELS = {
   purchase: 'Compra de QZ',
   topup: 'Recarga de QZ',
   payment: 'Pago de servicio',
+  payment_received: 'Ingreso por servicio',
   refund: 'Reembolso',
   transfer: 'Transferencia enviada',
   transfer_in: 'Transferencia recibida',
@@ -24,8 +26,23 @@ const TRANSACTION_LABELS = {
   cancelled: 'Cancelado'
 };
 
+// Traducción de tipos de transacción
+const TRANSACTION_TYPE_LABELS = {
+  purchase: 'Compra de QZ',
+  topup: 'Recarga de QZ',
+  payment: 'Pago de servicio',
+  payment_received: 'Ingreso por servicio',
+  refund: 'Reembolso',
+  transfer: 'Transferencia enviada',
+  transfer_in: 'Transferencia recibida'
+};
+
 function fmtCOP(n) {
   return (n || 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+}
+
+function fmtCOPNumber(n) {
+  return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(n);
 }
 
 async function loadBalance() {
@@ -297,4 +314,103 @@ function showSuggestions(users) {
 
 function hideSuggestions() {
   $('recipientSuggestions').style.display = 'none';
+}
+
+// Generar y descargar reporte fiscal en CSV
+// Abrir modal de reporte
+function openReportModal() {
+  $('reportModal').style.display = 'block';
+  $('reportMessage').textContent = '';
+  
+  // Fechas por defecto: último año
+  const today = new Date();
+  const oneYearAgo = new Date(today);
+  oneYearAgo.setFullYear(today.getFullYear() - 1);
+  
+  $('reportEndDate').valueAsDate = today;
+  $('reportStartDate').valueAsDate = oneYearAgo;
+}
+
+// Cerrar modal
+function closeReportModal() {
+  $('reportModal').style.display = 'none';
+}
+
+// Generar y descargar reporte
+async function handleGenerateReport() {
+  const startDateInput = $('reportStartDate').value;
+  const endDateInput = $('reportEndDate').value;
+  const msgEl = $('reportMessage');
+
+  if (!startDateInput || !endDateInput) {
+    msgEl.textContent = 'Selecciona ambas fechas';
+    return;
+  }
+
+  const startDate = new Date(startDateInput);
+  const endDate = new Date(endDateInput);
+
+  if (startDate > endDate) {
+    msgEl.textContent = 'La fecha de inicio no puede ser mayor que la de fin';
+    return;
+  }
+
+  msgEl.textContent = 'Generando reporte...';
+  msgEl.style.color = 'var(--text-secondary)';
+
+  try {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/wallet/reports?startDate=${startDateInput}&endDate=${endDateInput}`, {
+      headers: API.getHeaders()
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `Error ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    // Convertir a CSV
+    const headers = ['Fecha', 'Tipo', 'Categoría', 'Monto (QZ)', 'Monto (COP)', 'Descripción'];
+    const rows = data.report.map(r => [
+    new Date(r.date).toISOString().split('T')[0],
+    TRANSACTION_TYPE_LABELS[r.type] || r.type,
+    r.category === 'income' ? 'Ingreso' : 'Gasto',
+    r.amount_qz,
+    Math.round(r.amount_qz * EX_RATE), // ← Número puro, sin comillas, sin formato
+    `"${(r.description || '').replace(/"/g, '""')}"`
+  ]);
+    
+
+    let csvContent = 'data:text/csv;charset=utf-8,\uFEFF';
+    csvContent += headers.join(',') + '\n';
+    csvContent += rows.map(e => e.join(',')).join('\n');
+
+    // Descargar
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `reporte_quetzales_${startDateInput}_a_${endDateInput}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    closeReportModal();
+    Utils.showToast('Reporte descargado exitosamente', 'success');
+  } catch (err) {
+    console.error('Report error:', err);
+    msgEl.textContent = err.message || 'Error al generar el reporte';
+    msgEl.style.color = 'var(--danger)';
+  }
+}
+
+// Event listeners
+if ($('generateReportBtn')) {
+  $('generateReportBtn').addEventListener('click', openReportModal);
+}
+if ($('cancelReport')) {
+  $('cancelReport').addEventListener('click', closeReportModal);
+}
+if ($('confirmReport')) {
+  $('confirmReport').addEventListener('click', handleGenerateReport);
 }
