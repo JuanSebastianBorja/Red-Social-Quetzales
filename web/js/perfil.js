@@ -62,6 +62,7 @@ async function loadProfile() {
     currentUser = await res.json();
     renderProfile(currentUser);
     await loadStats();
+    await loadSkills();
   } catch (err) {
     console.error('Load profile error:', err);
     showMessage('editMessage', 'No se pudo cargar el perfil', 'error');
@@ -242,8 +243,10 @@ async function loadSkills() {
     
     if (res.ok) {
       const skills = await res.json();
+      console.log('Habilidades cargadas:', skills);
       currentSkills = Array.isArray(skills) ? skills : [];
       renderSkills();
+      renderEditSkills();
     }
   } catch (err) {
     console.error('Load skills error:', err);
@@ -254,10 +257,12 @@ async function loadSkills() {
 function renderSkills() {
   const skillsList = document.getElementById('skillsList');
   const skillsSection = document.getElementById('skillsSection');
+  if (!skillsList || !skillsSection) return; // Prevenir errores
+  console.log('Renderizando skills. currentSkills:', currentSkills);
   
-  if (currentSkills.length > 0 && (currentUser.user_type === 'provider' || currentUser.user_type === 'both')) {
+  if (currentSkills.length > 0) {
     skillsList.innerHTML = currentSkills.map(skill => 
-      `<span class="badge" style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 16px;">
+      `<span class="skill-badge" style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 16px;">
         ${skill.skill_name}
       </span>`
     ).join('');
@@ -271,7 +276,7 @@ function renderSkills() {
 function renderEditSkills() {
   const skillsEditList = document.getElementById('skillsEditList');
   skillsEditList.innerHTML = currentSkills.map(skill => 
-    `<span class="badge" style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 16px; display: flex; align-items: center; gap: 8px;">
+    `<span class="skill-badge" style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 16px; display: flex; align-items: center; gap: 8px;">
       ${skill.skill_name}
       <button type="button" onclick="removeSkill('${skill.id}')" style="background: none; border: none; color: white; cursor: pointer; padding: 0; font-size: 16px;">
         <i class="fas fa-times"></i>
@@ -298,8 +303,10 @@ async function addSkill() {
 
     if (res.ok) {
       const newSkill = await res.json();
+      console.log('Nueva habilidad:', newSkill);
       currentSkills.push(newSkill);
       renderEditSkills();
+      renderSkills();
       skillInput.value = '';
     } else {
       const error = await res.json();
@@ -443,7 +450,6 @@ editForm.addEventListener('submit', async (e) => {
     const updated = await res.json();
     currentUser = updated;
     renderProfile(updated);
-    await loadSkills();
     cancelEdit();
     showMessage('editMessage', '¡Perfil actualizado correctamente!', 'success');
   } catch (err) {
@@ -696,7 +702,8 @@ if (logoutBtn) {
 }
 
 // Inicializar
-loadProfile();
-loadSkills();
-loadPreferences();
-loadPrivacySettings();
+document.addEventListener('DOMContentLoaded', () => {
+  loadProfile();
+  loadPreferences();
+  loadPrivacySettings();
+});

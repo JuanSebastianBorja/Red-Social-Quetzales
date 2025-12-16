@@ -364,12 +364,14 @@ async function loadUserSkills() {
       const skills = await res.json();
       if (Array.isArray(skills) && skills.length > 0) {
         const skillsList = document.getElementById('skillsList');
-        skillsList.innerHTML = skills.map(skill => 
-          `<span class="badge" style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 16px;">
-            ${skill.skill_name}
-          </span>`
-        ).join('');
-        document.getElementById('skillsSection').style.display = 'block';
+        if (skillsList) {
+          skillsList.innerHTML = skills.map(skill => 
+            `<span class="skill-badge" style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 16px;">
+              ${skill.skill_name}
+            </span>`
+          ).join('');
+          document.getElementById('skillsSection').style.display = 'block';
+        }
       }
     }
   } catch (err) {
