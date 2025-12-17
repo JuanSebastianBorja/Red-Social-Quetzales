@@ -313,12 +313,17 @@ servicesRouter.patch('/:id', authenticate, upload.single('image'), async (req: A
     if (ownerCheck.rows[0].user_id !== req.userId) {
       return res.status(403).json({ error: 'You do not own this service' });
     }
-
-    // Si no hay nueva imagen, mantén la antigua
+    
     if (!req.file) {
-    image_url = ownerCheck.rows[0].image_url; 
-    }
-
+  // Solo conserva la imagen si ya es una URL pública de Supabase
+  const currentImageUrl = ownerCheck.rows[0].image_url;
+  if (currentImageUrl && currentImageUrl.startsWith('https://')) {
+    image_url = currentImageUrl;
+  } else {
+    // Si no es una URL pública, déjala como null o vacía
+    image_url = null;
+  }
+}
     // Validaciones básicas (si vienen)
     if (title && (title.length < 10 || title.length > 255)) {
       return res.status(400).json({ error: 'Title must be between 10 and 255 characters' });
@@ -343,6 +348,7 @@ servicesRouter.patch('/:id', authenticate, upload.single('image'), async (req: A
     if (fields.length === 0) return res.status(400).json({ error: 'No fields to update' });
     values.push(id);
 
+    console.log('Image URL to save:', image_url);
     const sql = `UPDATE services SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`;
     const r = await pool.query(sql, values);
     if (r.rowCount === 0) return res.status(404).json({ error: 'Not found' });
