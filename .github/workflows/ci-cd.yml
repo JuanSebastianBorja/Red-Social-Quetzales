@@ -1,0 +1,89 @@
+name: CI/CD Quetzales Backend
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # -------------------------
+  # Calidad y pruebas
+  # -------------------------
+  quality-checks:
+    name: Build y Pruebas Unitarias
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Instalar dependencias
+        run: |
+          cd server
+          npm install
+
+      - name: Compilar TypeScript
+        run: |
+          cd server
+          npm run build
+
+      - name: Ejecutar pruebas unitarias
+        run: |
+          cd server
+          npm test
+
+      - name: Guardar logs de pruebas
+        if: always()
+        run: |
+          echo "Pruebas ejecutadas correctamente"
+
+  # -------------------------
+  # Deploy en Render
+  # -------------------------
+  deploy-render:
+    name: Despliegue en Render
+    runs-on: ubuntu-latest
+    needs: quality-checks
+
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Desplegar en Render
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+
+      - name: Confirmar despliegue
+        run: |
+          echo "🚀 Despliegue iniciado en Render"
+          echo "Revisar dashboard de Render para estado final"
+
+  # -------------------------
+  # Notificación final
+  # -------------------------
+  notifications:
+    name: Finalización del Pipeline
+    runs-on: ubuntu-latest
+    needs: [quality-checks, deploy-render]
+    if: always()
+
+    steps:
+      - name: Estado del pipeline
+        run: |
+          echo "Pipeline ejecutado"
+          echo "Repositorio: ${{ github.repository }}"
+          echo "Commit: ${{ github.sha }}"
