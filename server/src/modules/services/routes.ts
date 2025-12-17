@@ -56,9 +56,8 @@ servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
       offset = '0'
     } = req.query;
     
-    // Si se solicita servicios de un usuario específico (query parameter)
+    // Si se solicita servicios de un usuario específico
     if (user_id) {
-      // Solo mostrar servicios activos de ese usuario (para perfil público)
       const r = await pool.query(
         'SELECT id, user_id, title, category, description, price_qz_halves, delivery_time, requirements, image_url, status FROM services WHERE user_id=$1 AND status=$2 ORDER BY created_at DESC',
         [user_id, 'active']
@@ -66,7 +65,7 @@ servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
       return res.json(r.rows);
     }
     
-    // Si el usuario está autenticado y no hay otros filtros, devolver sus servicios (activos e inactivos)
+    // Si el usuario está autenticado y no hay otros filtros
     if (req.userId && !search && !category && !priceMin && !priceMax && !minRating && !city) {
       const r = await pool.query(
         'SELECT id, user_id, title, category, description, price_qz_halves, delivery_time, requirements, image_url, status FROM services WHERE user_id=$1 AND status != $2 ORDER BY created_at DESC',
@@ -77,113 +76,118 @@ servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
     
     // Búsqueda avanzada con filtros
     const conditions: string[] = ['status = $1'];
-const values: any[] = ['active'];
-let paramIndex = 2;
+    const values: any[] = ['active'];
+    let paramIndex = 2;
 
-// Filtro de búsqueda por texto (título o descripción)
-if (search && typeof search === 'string') {
-  conditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`);
-  values.push(`%${search}%`);
-  paramIndex++;
-}
+    if (search && typeof search === 'string') {
+      conditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`);
+      values.push(`%${search}%`);
+      paramIndex++;
+    }
 
-// Filtro por categoría
-if (category && typeof category === 'string') {
-  conditions.push(`category = $${paramIndex}`);
-  values.push(category);
-  paramIndex++;
-}
+    if (category && typeof category === 'string') {
+      conditions.push(`category = $${paramIndex}`);
+      values.push(category);
+      paramIndex++;
+    }
 
-// Filtro por precio mínimo
-if (priceMin && typeof priceMin === 'string') {
-  const minHalves = parseFloat(priceMin) * 2;
-  conditions.push(`price_qz_halves >= $${paramIndex}`);
-  values.push(minHalves);
-  paramIndex++;
-}
+    if (priceMin && typeof priceMin === 'string') {
+      const minHalves = parseFloat(priceMin) * 2;
+      conditions.push(`price_qz_halves >= $${paramIndex}`);
+      values.push(minHalves);
+      paramIndex++;
+    }
 
-// Filtro por precio máximo
-if (priceMax && typeof priceMax === 'string') {
-  const maxHalves = parseFloat(priceMax) * 2;
-  conditions.push(`price_qz_halves <= $${paramIndex}`);
-  values.push(maxHalves);
-  paramIndex++;
-}
+    if (priceMax && typeof priceMax === 'string') {
+      const maxHalves = parseFloat(priceMax) * 2;
+      conditions.push(`price_qz_halves <= $${paramIndex}`);
+      values.push(maxHalves);
+      paramIndex++;
+    }
 
-// Filtro por calificación mínima
-let joinRatings = false;
-if (minRating && typeof minRating === 'string') {
-  joinRatings = true;
-  conditions.push(`COALESCE(sr.average_rating, 0) >= $${paramIndex}`);
-  values.push(parseFloat(minRating));
-  paramIndex++;
-}
+    let joinRatings = false;
+    if (minRating && typeof minRating === 'string') {
+      joinRatings = true;
+    }
 
-// Filtro por ciudad
-if (city && typeof city === 'string') {
-  conditions.push(`u.city ILIKE $${paramIndex}`);
-  values.push(`%${city}%`);
-  paramIndex++;
-}
+    if (city && typeof city === 'string') {
+      conditions.push(`u.city ILIKE $${paramIndex}`);
+      values.push(`%${city}%`);
+      paramIndex++;
+    }
 
-// Validar sortBy
-const validSortFields = ['created_at', 'price_qz_halves', 'title', 'rating'];
-const sortField = validSortFields.includes(sortBy as string) ? (sortBy as string) : 'created_at';
-const sortDirection = sortOrder === 'ASC' ? 'ASC' : 'DESC';
+    const validSortFields = ['created_at', 'price_qz_halves', 'title', 'rating'];
+    const sortField = validSortFields.includes(sortBy as string) ? (sortBy as string) : 'created_at';
+    const sortDirection = sortOrder === 'ASC' ? 'ASC' : 'DESC';
+    const joinUsers = !!city;
 
-const joinUsers = !!city;
+    let query: string;
+    if (joinUsers || joinRatings) {
+      const selectFields = `
+        s.id, s.user_id, s.title, s.category, s.description, s.price_qz_halves,
+        s.delivery_time, s.requirements, s.image_url, s.status, s.created_at,
+        COALESCE(ratings_summary.avg_rating, 0) AS service_rating`;
 
-let query: string;
-if (joinUsers || joinRatings) {
-  const selectFields = `
-    s.id, s.user_id, s.title, s.category, s.description, s.price_qz_halves,
-    s.delivery_time, s.requirements, s.image_url, s.status, s.created_at,
-    COALESCE(sr.average_rating, 0) AS service_rating`;
+      let fromClause = `FROM services s`;
+      if (joinUsers) fromClause += ` JOIN users u ON s.user_id = u.id`;
+      if (joinRatings) fromClause += `
+        LEFT JOIN (
+          SELECT service_id, AVG(rating) AS avg_rating
+          FROM ratings
+          GROUP BY service_id
+        ) ratings_summary ON ratings_summary.service_id = s.id`;
 
-  let fromClause = `FROM services s`;
-  if (joinUsers) fromClause += ` JOIN users u ON s.user_id = u.id`;
-  if (joinRatings) fromClause += ` LEFT JOIN user_service_stats sr ON sr.user_id = s.user_id`;
+      if (minRating && typeof minRating === 'string') {
+        conditions.push(`COALESCE(ratings_summary.avg_rating, 0) >= $${paramIndex}`);
+        values.push(parseFloat(minRating));
+        paramIndex++;
+      }
 
-  const orderByClause = sortField === 'rating' 
-    ? `COALESCE(sr.average_rating, 0)` 
-    : `s.${sortField}`;
+      const orderByClause = sortField === 'rating' 
+        ? `COALESCE(ratings_summary.avg_rating, 0)` 
+        : `s.${sortField}`;
 
-  query = `
-    SELECT ${selectFields}
-    ${fromClause}
-    WHERE ${conditions.join(' AND ')}
-    ORDER BY ${orderByClause} ${sortDirection}
-    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-  `;
-} else {
-  query = `
-    SELECT id, user_id, title, category, description, price_qz_halves,
-           delivery_time, requirements, image_url, status, created_at
-    FROM services
-    WHERE ${conditions.join(' AND ')}
-    ORDER BY ${sortField} ${sortDirection}
-    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-  `;
-}
+      query = `
+        SELECT ${selectFields}
+        ${fromClause}
+        WHERE ${conditions.join(' AND ')}
+        ORDER BY ${orderByClause} ${sortDirection}
+        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+      `;
+    } else {
+      query = `
+        SELECT id, user_id, title, category, description, price_qz_halves,
+               delivery_time, requirements, image_url, status, created_at
+        FROM services
+        WHERE ${conditions.join(' AND ')}
+        ORDER BY ${sortField} ${sortDirection}
+        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+      `;
+    }
+    const mainValues = [...values, parseInt(limit as string), parseInt(offset as string)];
+    const r = await pool.query(query, mainValues);
 
-values.push(parseInt(limit as string), parseInt(offset as string));
-const r = await pool.query(query, values);
+    // Obtener total de resultados
+    let countQuery: string;
+    if (joinUsers || joinRatings) {
+      let fromCount = `FROM services s`;
+      if (joinUsers) fromCount += ` JOIN users u ON s.user_id = u.id`;
+      if (joinRatings) fromCount += `
+        LEFT JOIN (
+          SELECT service_id, AVG(rating) AS avg_rating
+          FROM ratings
+          GROUP BY service_id
+        ) ratings_summary ON ratings_summary.service_id = s.id`;
 
-// Obtener total de resultados
-let countQuery: string;
-if (joinUsers || joinRatings) {
-  let fromCount = `FROM services s`;
-  if (joinUsers) fromCount += ` JOIN users u ON s.user_id = u.id`;
-  if (joinRatings) fromCount += ` LEFT JOIN user_service_stats sr ON sr.user_id = s.user_id`;
-  countQuery = `SELECT COUNT(*) ${fromCount} WHERE ${conditions.join(' AND ')}`;
-} else {
-  countQuery = `SELECT COUNT(*) FROM services WHERE ${conditions.join(' AND ')}`;
-}
+      countQuery = `SELECT COUNT(*) ${fromCount} WHERE ${conditions.join(' AND ')}`;
+    } else {
+      countQuery = `SELECT COUNT(*) FROM services WHERE ${conditions.join(' AND ')}`;
+    }
 
-const countResult = await pool.query(countQuery, values.slice(0, -2));
-const total = parseInt(countResult.rows[0].count);
-
-res.json({
+    const countValues = [...values];
+    const countResult = await pool.query(countQuery, countValues);
+    const total = parseInt(countResult.rows[0].count);
+    res.json({
       services: r.rows,
       total,
       limit: parseInt(limit as string),
