@@ -12,17 +12,18 @@ Plataforma de servicios profesionales con sistema de contratos, pagos en moneda 
 - **Upload de Imágenes** - Subida de imágenes para servicios (max 2MB)
 - **Búsqueda y Filtros** - Buscar servicios por texto y categoría
 - **Roles de Usuario** - Consumer, Provider, Both, Admin
-- **Auto-refresh** - Actualización automática de contratos cada 30 segundos
 - **Sistema de Mensajería en Tiempo Real** - Chat 1:1 entre usuarios con WebSockets, preview de mensajes, indicadores de lectura y notificaciones
+- **Sistema de negociación** - Negociar precios y terminos
+- **Búsqueda de usuarios** - Para contatar con cualquier usuario
+- **Sistema de notificaciones** - Notificaicones por transacciones, mensajes, etc
+- **Sistema de Calificaciones** - Ratings y reviews
+- **Cartea** - Balance de Quetzales, historial de transacciones y movimientos
+- **Transferencias** - Transferencias de quetzales entre usuarios
 
 
 ### 🚧 En Desarrollo
 
-- Wallet y pagos con ePayco
-- Sistema de notificaciones
-- Ratings y reviews
-
----
+- pagos con ePayco 
 
 ## 🛠️ Stack Tecnológico
 
@@ -91,20 +92,28 @@ http://localhost:3000
 quetzal/
 ├── server/                 # Backend Node.js + TypeScript
 │   ├── src/
-│   │   ├── app.ts         # Entry point
-│   │   ├── lib/           # Utilidades (auth, db)
-│   │   ├── middleware/    # Middleware de Express
-│   │   └── modules/       # Módulos por feature
-│   │       ├── auth/      # Autenticación
-│   │       ├── services/  # CRUD de servicios
-│   │       ├── contracts/ # Sistema de contratos
-│   │       ├── users/     # Gestión de usuarios
-│   │       └── messaging/ # Chat (WebSockets)
-│   ├── migrations/        # Migraciones de BD
-│   ├── scripts/           # Scripts de utilidad
-│   └── .env              # Variables de entorno
+│   │   ├── app.ts             # Entry point
+│   │   ├── lib/               # Utilidades (auth, db)
+│   │   ├── middleware/        # Middleware de Express
+│   │   └── modules/           # Módulos por feature
+│   │       ├── admin/         # Gestión de admins 
+│   │       ├── auth/          # Autenticación
+│   │       ├── services/      # CRUD de servicios
+│   │       ├── contracts/     # Sistema de contratos
+│   │       ├── disputes/      # Sistema de disputas
+│   │       ├── notifications/ # Sistema de notificaciones
+│   │       ├── payments/      # Sistema de pagos 
+│   │       ├── ratings/       # sistema de calificaciones
+│   │       ├── service-req/   # Sistema de negociación
+│   │       ├── wallet/        # Gestion de cartera
+│   │       ├── users/         # Gestión de usuarios
+│   │       └── messaging/     # Chat (WebSockets)
+│   ├── migrations/            # Migraciones de BD
+│   ├── scripts/               # Scripts de utilidad
+│   ├── tests/                 # pruebas unitarias
+│   └── .env                   # Variables de entorno
 │
-├── web/                   # Frontend estático
+├── web/                  # Frontend estático
 │   ├── vistas/           # Páginas HTML
 │   ├── css/              # Estilos globales
 │   ├── js/               # Módulos JavaScript
@@ -198,23 +207,5 @@ Verificar que `CORS_ORIGIN` en `.env` coincida con la URL del frontend.
 
 ---
 
-## 📄 Licencia
-
-Este proyecto es privado. Todos los derechos reservados.
-
----
-
-## 👨‍💻 Autor
-
-Desarrollado por
-
----
-
-- PostgreSQL por la robustez de la BD
-- Express.js por la simplicidad
-- La comunidad de Node.js
-
----
-
-**Versión:** 1.1.0 
+**Versión:** 1.4.0 
 **Última actualización:** Diciembre 2025
