@@ -1,6 +1,16 @@
 import { CONFIG } from './config.js';
-import { AppState } from './state.js';
+import { AppState, clearState } from './state.js';
 import { Utils } from './utils.js';
+
+function handleUnauthorized() {
+    // Limpia sesión y redirige al login cuando el token es inválido/expira
+    clearState();
+    localStorage.removeItem(CONFIG.STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_ROLE);
+    localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_DATA);
+    Utils.showToast('Tu sesión expiró, por favor inicia sesión nuevamente', 'error');
+    window.location.href = '/vistas/login.html';
+}
 
 // API Client
 export const API = {
@@ -25,6 +35,9 @@ export const API = {
                 headers, // No set Content-Type; browser sets multipart boundaries
                 body: formData
             });
+            if (response.status === 401) {
+                handleUnauthorized();
+            }
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error || `HTTP ${response.status}`);
@@ -45,6 +58,9 @@ export const API = {
                 headers: this.getHeaders()
             });
             
+            if (response.status === 401) {
+                handleUnauthorized();
+            }
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
@@ -66,6 +82,9 @@ export const API = {
                 body: JSON.stringify(data)
             });
             
+            if (response.status === 401) {
+                handleUnauthorized();
+            }
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error || `HTTP ${response.status}`);
@@ -88,7 +107,13 @@ export const API = {
                 body: JSON.stringify(data)
             });
             
+            if (response.status === 401) {
+                handleUnauthorized();
+            }
             if (!response.ok) {
+                if (response.status === 401) {
+                    handleUnauthorized();
+                }
                 throw new Error(`HTTP ${response.status}`);
             }
             
@@ -109,6 +134,9 @@ export const API = {
                 body: JSON.stringify(data)
             });
             
+            if (response.status === 401) {
+                handleUnauthorized();
+            }
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error || `HTTP ${response.status}`);
@@ -130,6 +158,9 @@ export const API = {
                 headers: this.getHeaders()
             });
             
+            if (response.status === 401) {
+                handleUnauthorized();
+            }
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
