@@ -11,6 +11,8 @@ const chatHeader = document.getElementById('chatHeader');
 const chatTitle = document.getElementById('chatTitle');
 const chatInputArea = document.getElementById('chatInputArea');
 const selectConversationMessage = document.getElementById('selectConversationMessage');
+const chatPanel = document.getElementById('chatPanel');
+const backToConversations = document.getElementById('backToConversations');
 
 let currentConversationId = null;
 let socket = null;
@@ -74,37 +76,31 @@ function renderConversationItem(conv) {
   };
 
   const container = document.createElement('div');
-  container.className = 'card';
-  container.style.marginBottom = '8px';
-  container.style.cursor = 'pointer';
+  container.className = 'conversation-item';
   container.setAttribute('data-conversation-id', conv.id);
-  container.onclick = () => openConversation(conv.id, otherUser.name);
-  container.setAttribute('data-conversation-id', conv.id);
+  container.onclick = () => {
+    // Remover active de todos
+    document.querySelectorAll('.conversation-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    // Agregar active al actual
+    container.classList.add('active');
+    openConversation(conv.id, otherUser.name);
+  };
 
-  const content = document.createElement('div');
-  content.style.padding = '12px';
-  content.style.display = 'flex';
-  content.style.alignItems = 'center';
-  content.style.gap = '12px';
+  const avatarUrl = otherUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(otherUser.name)}&background=6366f1&color=fff`;
 
-  const avatar = otherUser.avatar 
-    ? `<img src="${otherUser.avatar}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" />`
-    : `<div style="width:40px;height:40px;border-radius:50%;background: var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">
-         ${otherUser.name.charAt(0)}
-       </div>`;
-
-  content.innerHTML = `
-    ${avatar}
-    <div style="flex:1;">
-      <div style="font-weight:600;">${otherUser.name}</div>
-      <div class="helper" style="font-size:12px;color:var(--text-secondary);">${conv.last_message_preview || 'Ningún mensaje'}</div>
+  container.innerHTML = `
+    <img src="${avatarUrl}" alt="${otherUser.name}" class="avatar" />
+    <div class="conversation-info">
+      <div class="conversation-name">${otherUser.name}</div>
+      <div class="conversation-preview">${conv.last_message_preview || 'Ningún mensaje'}</div>
     </div>
-    <div style="text-align:right;font-size:11px;color:var(--text-tertiary);">
-      ${new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    <div class="conversation-meta">
+      ${conv.last_message_at ? new Date(conv.last_message_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''}
     </div>
   `;
 
-  container.appendChild(content);
   return container;
 }
 
@@ -127,10 +123,17 @@ async function fetchConversations() {
 function openConversation(conversationId, title) {
   currentConversationId = conversationId;
   chatTitle.textContent = title;
-  chatHeader.style.display = 'block';
-  messagesContainer.style.display = 'block';
-  chatInputArea.style.display = 'flex';
+  
+  // Mostrar chat
   selectConversationMessage.style.display = 'none';
+  messagesContainer.style.display = 'flex';
+  chatInputArea.style.display = 'block';
+  
+  // En mobile, activar panel de chat
+  if (window.innerWidth <= 768) {
+    chatPanel.classList.add('active');
+  }
+  
   loadMessages(conversationId);
 }
 
@@ -148,33 +151,29 @@ async function loadMessages(conversationId) {
 }
 
 function appendMessage(msg) {
-const isSent = msg.sender_id === currentUserId; 
-
-  const msgEl = document.createElement('div');
-  msgEl.style.display = 'flex';
-  msgEl.style.justifyContent = isSent ? 'flex-end' : 'flex-start'; 
-  msgEl.style.marginBottom = '12px';
+  const isSent = msg.sender_id === currentUserId; 
+  
+  // Debug: ver qué datos llegan
+  console.log('Mensaje recibido:', msg);
 
   const bubble = document.createElement('div');
-  bubble.style.maxWidth = '70%';
-  bubble.style.padding = '10px 14px';
-  bubble.style.borderRadius = '18px';
-  bubble.style.wordBreak = 'break-word';
-  bubble.style.fontSize = '14px';
-
-  if (isSent) {
-    bubble.style.backgroundColor = 'var(--primary)';
-    bubble.style.color = 'white';
-    bubble.style.borderBottomRightRadius = '4px';
-  } else {
-    bubble.style.backgroundColor = 'var(--bg-secondary)';
-    bubble.style.color = 'var(--text)';
-    bubble.style.borderBottomLeftRadius = '4px';
-  }
-
-  bubble.textContent = msg.message;
-  msgEl.appendChild(bubble);
-  messagesContainer.appendChild(msgEl);
+  bubble.className = `message-bubble ${isSent ? 'sent' : 'received'}`;
+  
+  const textEl = document.createElement('div');
+  textEl.className = 'message-text';
+  // Intentar diferentes campos posibles del mensaje
+  textEl.textContent = msg.content || msg.message || msg.text || '';
+  
+  const timeEl = document.createElement('div');
+  timeEl.className = 'message-time';
+  timeEl.textContent = new Date(msg.created_at).toLocaleTimeString('es-ES', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+  
+  bubble.appendChild(textEl);
+  bubble.appendChild(timeEl);
+  messagesContainer.appendChild(bubble);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
@@ -249,6 +248,13 @@ async function initApp() {
 
   initSocket(token);
   fetchConversations();
+
+  // Botón volver en mobile
+  if (backToConversations) {
+    backToConversations.addEventListener('click', () => {
+      chatPanel.classList.remove('active');
+    });
+  }
 
   // Manejo de URL con conversationId (opcional pero útil)
   const urlParams = new URLSearchParams(window.location.search);

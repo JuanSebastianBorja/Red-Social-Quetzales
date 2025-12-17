@@ -16,11 +16,11 @@
         <h1 class="logo">Quetzal</h1>
       </div>
       <nav class="sidebar-nav">
-        <a href="/vistas/index.html" class="nav-item">
+        <a href="/vistas/index.html" class="nav-item" data-mobile-priority="1">
           <i class="nav-icon fas fa-home"></i>
           <span>Inicio</span>
         </a>
-        <a href="/vistas/publicar-servicio.html" class="nav-item">
+        <a href="/vistas/publicar-servicio.html" class="nav-item" data-mobile-priority="2">
           <i class="nav-icon fas fa-plus-circle"></i>
           <span>Publicar Servicio</span>
         </a>
@@ -28,7 +28,7 @@
           <i class="nav-icon fas fa-briefcase"></i>
           <span>Mis Servicios</span>
         </a>
-        <a href="/vistas/buscar-servicios.html" class="nav-item">
+        <a href="/vistas/buscar-servicios.html" class="nav-item" data-mobile-priority="3">
           <i class="nav-icon fas fa-search"></i>
           <span>Buscar Servicios</span>
         </a>
@@ -44,7 +44,7 @@
                 <i class="nav-icon fas fa-balance-scale"></i>
                 <span>Disputas</span>
         </a>
-        <a href="/vistas/mensajes.html" class="nav-item" data-page="messages">
+        <a href="/vistas/mensajes.html" class="nav-item" data-page="messages" data-mobile-priority="4">
           <i class="nav-icon fas fa-comments"></i>
           <span>Mensajes</span>
         </a>
@@ -57,10 +57,14 @@
           <span>Perfil</span>
         </a>
       </nav>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menú">
+        <i class="fas fa-bars"></i>
+      </button>
       <div class="sidebar-footer">
-        <button class="btn-secondary" id="logoutBtn" style="width:100%;">
-          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-        </button>
+        <a href="#" class="nav-item" id="logout-btn">
+          <i class="nav-icon fas fa-sign-out-alt"></i>
+          <span>Cerrar Sesión</span>
+        </a>
       </div>
     </aside>
 
@@ -248,12 +252,44 @@
     </main>
   </div>
 
-  <script type="module" src="/js/ver-perfil.js"></script>
+  <!-- Mobile Dropdown Menu -->
+  <div class="mobile-dropdown-menu" id="mobile-dropdown-menu">
+      <a href="/vistas/mis-servicios.html" class="nav-item">
+          <i class="nav-icon fas fa-briefcase"></i>
+          <span>Mis Servicios</span>
+      </a>
+      <a href="/vistas/buscar-usuarios.html" class="nav-item">
+          <i class="nav-icon fas fa-users"></i>
+          <span>Buscar Proveedores</span>
+      </a>
+      <a href="/vistas/contratos.html" class="nav-item">
+          <i class="nav-icon fas fa-file-contract"></i>
+          <span>Contratos</span>
+      </a>
+      <a href="/vistas/disputas.html" class="nav-item">
+          <i class="nav-icon fas fa-balance-scale"></i>
+          <span>Disputas</span>
+      </a>
+      <a href="/vistas/solicitudes.html" class="nav-item">
+          <i class="nav-icon fas fa-handshake"></i>
+          <span>Solicitudes</span>
+      </a>
+      <a href="/vistas/cartera.html" class="nav-item">
+          <i class="nav-icon fas fa-wallet"></i>
+          <span>Cartera</span>
+      </a>
+      <a href="/vistas/perfil.html" class="nav-item">
+          <i class="nav-icon fas fa-user"></i>
+          <span>Perfil</span>
+      </a>
+
 
 
 <button class="theme-toggle theme-toggle--floating" type="button" data-theme-toggle aria-label="Cambiar tema">
   <span class="theme-toggle__icon">🌓</span>
 </button>
+    <script type="module" src="/js/app.js"></script>
+    <script src="/js/mobile-menu.js"></script>
     <script src="/js/theme.js"></script>
     <script src="/js/chat-bot.js"></script>
 </body>

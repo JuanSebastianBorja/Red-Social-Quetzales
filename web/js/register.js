@@ -10,7 +10,12 @@ async function handleSubmit(e) {
   const email = $('email').value.trim();
   const password = $('password').value;
   const confirm = $('confirm').value;
-  const city = $('city').value.trim();
+  const citySelect = $('city');
+  const cityOther = $('cityOther');
+  let city = citySelect.value.trim();
+  if (citySelect.value === 'Otra') {
+    city = cityOther.value.trim();
+  }
   const user_type = 'both';
   const submitBtn = $('submitBtn');
   const emailError = $('emailError');
@@ -28,7 +33,7 @@ async function handleSubmit(e) {
   }
   if (!city || city.length < 2) {
     formMessage.className = 'error';
-    formMessage.textContent = 'La ciudad es obligatoria';
+    formMessage.textContent = citySelect.value === 'Otra' ? 'Ingresa tu ciudad' : 'La ciudad es obligatoria';
     return;
   }
   if (!Utils.isValidEmail(email)) {
@@ -69,6 +74,22 @@ async function handleSubmit(e) {
 function init() {
   const form = document.getElementById('registerForm');
   form.addEventListener('submit', handleSubmit);
+
+  const citySelect = $('city');
+  const cityOtherWrapper = $('cityOtherWrapper');
+  const cityOther = $('cityOther');
+
+  if (citySelect) {
+    citySelect.addEventListener('change', () => {
+      if (citySelect.value === 'Otra') {
+        cityOtherWrapper.style.display = 'block';
+        cityOther.focus();
+      } else {
+        cityOtherWrapper.style.display = 'none';
+        cityOther.value = '';
+      }
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
