@@ -225,9 +225,10 @@ servicesRouter.post('/', authenticate, upload.single('image'), async (req: AuthR
     if (req.file) {
   if (isProduction) {
     // ✅ memoryStorage → el archivo ya está en memoria
-    const fileBuffer = req.file.buffer; // 👈 CORRECTO
+    const fileBuffer = req.file.buffer; 
 
-    const fileName = `services/${Date.now()}_${encodeURIComponent(req.file.originalname)}`;
+    const safeName = req.file.originalname.replace(/\s+/g, '_').replace(/[^\w\-.()]/g, '');
+    const fileName = `services/${Date.now()}_${safeName}`;
     
     const { data, error } = await supabase
       .storage
@@ -281,7 +282,8 @@ servicesRouter.patch('/:id', authenticate, upload.single('image'), async (req: A
   if (isProduction) {
     const fileBuffer = req.file.buffer; // ✅
 
-    const fileName = `services/${Date.now()}_${encodeURIComponent(req.file.originalname)}`;
+    const safeName = req.file.originalname.replace(/\s+/g, '_').replace(/[^\w\-.()]/g, '');
+    const fileName = `services/${Date.now()}_${safeName}`;
     
     const { data, error } = await supabase
       .storage
