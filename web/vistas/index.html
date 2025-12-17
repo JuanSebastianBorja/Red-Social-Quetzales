@@ -6,6 +6,7 @@
     <title>Quetzal - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/chat-bot.css">
 </head>
 <body>
     <!-- Sidebar -->
@@ -205,48 +206,12 @@
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script type="module" src="/js/app.js"></script>
-
+        <script src="/js/chat-bot.js"></script>
+        <script src="/js/mobile-menu.js"></script>
 
 <button class="theme-toggle theme-toggle--floating" type="button" data-theme-toggle aria-label="Cambiar tema">
-  <span class="theme-toggle__icon">🌓</span>
+    <span class="theme-toggle__icon">🌓</span>
 </button>
-    <script src="/js/theme.js"></script>
-    <script>
-      // Toggle mobile menu
-      const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-      const mobileDropdownMenu = document.getElementById('mobile-dropdown-menu');
-      
-      if (mobileMenuToggle && mobileDropdownMenu) {
-        mobileMenuToggle.addEventListener('click', () => {
-          mobileMenuToggle.classList.toggle('active');
-          mobileDropdownMenu.classList.toggle('active');
-        });
-        
-        // Cerrar menú al hacer click fuera
-        document.addEventListener('click', (e) => {
-          if (!mobileMenuToggle.contains(e.target) && !mobileDropdownMenu.contains(e.target)) {
-            mobileMenuToggle.classList.remove('active');
-            mobileDropdownMenu.classList.remove('active');
-          }
-        });
-        
-        // Cerrar menú al hacer click en un enlace
-        mobileDropdownMenu.querySelectorAll('a').forEach(link => {
-          link.addEventListener('click', () => {
-            mobileMenuToggle.classList.remove('active');
-            mobileDropdownMenu.classList.remove('active');
-          });
-        });
-      }
-      
-      // Conectar logout mobile con el existente
-      const logoutBtnMobile = document.getElementById('logout-btn-mobile');
-      if (logoutBtnMobile) {
-        logoutBtnMobile.addEventListener('click', (e) => {
-          e.preventDefault();
-          document.getElementById('logout-btn')?.click();
-        });
-      }
-    </script>
+        <script src="/js/theme.js"></script>
 </body>
 </html>
