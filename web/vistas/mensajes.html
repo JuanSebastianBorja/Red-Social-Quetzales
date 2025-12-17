@@ -14,11 +14,11 @@
         <h1 class="logo">Quetzal</h1>
       </div>
       <nav class="sidebar-nav">
-        <a href="/vistas/index.html" class="nav-item">
+        <a href="/vistas/index.html" class="nav-item" data-mobile-priority="1">
           <i class="nav-icon fas fa-home"></i>
           <span>Inicio</span>
         </a>
-        <a href="/vistas/publicar-servicio.html" class="nav-item">
+        <a href="/vistas/publicar-servicio.html" class="nav-item" data-mobile-priority="2">
           <i class="nav-icon fas fa-plus-circle"></i>
           <span>Publicar Servicio</span>
         </a>
@@ -26,7 +26,7 @@
           <i class="nav-icon fas fa-briefcase"></i>
           <span>Mis Servicios</span>
         </a>
-        <a href="/vistas/buscar-servicios.html" class="nav-item">
+        <a href="/vistas/buscar-servicios.html" class="nav-item" data-mobile-priority="3">
           <i class="nav-icon fas fa-search"></i>
           <span>Buscar Servicios</span>
         </a>
@@ -46,7 +46,7 @@
                 <i class="nav-icon fas fa-handshake"></i>
                 <span>Solicitudes</span>
         </a>
-        <a href="/vistas/mensajes.html" class="nav-item active">
+        <a href="/vistas/mensajes.html" class="nav-item active" data-mobile-priority="4">
           <i class="nav-icon fas fa-comments"></i>
           <span>Mensajes</span>
         </a>
@@ -59,6 +59,9 @@
           <span>Perfil</span>
         </a>
       </nav>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menú">
+        <i class="fas fa-bars"></i>
+      </button>
       <div class="sidebar-footer">
         <a href="#" class="nav-item" id="logout-btn">
           <i class="nav-icon fas fa-sign-out-alt"></i>
@@ -86,9 +89,9 @@
       </header>
 
       <div class="content-grid">
-        <div class="card" style="width:100%; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: row; gap: 24px;">
+        <div class="messages-container">
           <!-- Lista de conversaciones -->
-          <div style="flex: 1; min-width: 300px; max-width: 400px; border-right: 1px solid var(--border);">
+          <div class="conversations-panel" id="conversationsPanel">
             <div class="card-header">
               <h3 class="card-title">
                 <i class="fas fa-comments" style="color: var(--primary);"></i>
@@ -96,27 +99,31 @@
               </h3>
             </div>
             <div class="card-body" style="padding: 0;">
-              <div id="conversationsList" style="overflow-y: auto; max-height: 600px;"></div>
+              <div id="conversationsList" class="conversations-list"></div>
               <div id="conversationsMessage" class="helper" style="display:none; padding: 12px;"></div>
             </div>
           </div>
 
           <!-- Área de chat -->
-          <div style="flex: 2; display: flex; flex-direction: column;">
-            <div id="chatHeader" style="padding: 16px; border-bottom: 1px solid var(--border); display: none;">
-              <h3 id="chatTitle" style="margin: 0; font-size: 18px;"></h3>
+          <div class="chat-panel" id="chatPanel">
+            <div id="chatHeader" class="chat-header">
+              <button class="back-to-conversations" id="backToConversations">
+                <i class="fas fa-arrow-left"></i>
+              </button>
+              <h3 id="chatTitle"></h3>
             </div>
-            <div id="messagesContainer" style="flex: 1; padding: 16px; overflow-y: auto; display: none;"></div>
-            <div id="chatInputArea" style="padding: 16px; border-top: 1px solid var(--border); display: none;">
+            <div id="messagesContainer" class="messages-container-area"></div>
+            <div id="chatInputArea" class="chat-input-area">
               <div class="form-group">
-                <textarea id="messageInput" class="input" rows="2" placeholder="Escribe tu mensaje..." style="width: 100%; resize: none;"></textarea>
+                <textarea id="messageInput" class="input" rows="2" placeholder="Escribe tu mensaje..."></textarea>
               </div>
               <div class="form-actions" style="justify-content: flex-end; margin-top: 8px;">
                 <button id="sendMessageBtn" class="btn-primary"><i class="fas fa-paper-plane"></i> Enviar</button>
               </div>
             </div>
-            <div id="selectConversationMessage" class="helper" style="text-align: center; padding: 32px;">
-              Selecciona una conversación para empezar a chatear
+            <div id="selectConversationMessage" class="select-conversation-message">
+              <i class="fas fa-comments" style="font-size: 48px; color: var(--text-secondary); opacity: 0.3;"></i>
+              <p>Selecciona una conversación para empezar a chatear</p>
             </div>
           </div>
         </div>
@@ -125,7 +132,40 @@
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script type="module" src="/js/mensajes.js"></script>
+    <!-- Mobile Dropdown Menu -->
+    <div class="mobile-dropdown-menu" id="mobile-dropdown-menu">
+        <a href="/vistas/mis-servicios.html" class="nav-item">
+            <i class="nav-icon fas fa-briefcase"></i>
+            <span>Mis Servicios</span>
+        </a>
+        <a href="/vistas/buscar-usuarios.html" class="nav-item">
+            <i class="nav-icon fas fa-users"></i>
+            <span>Buscar Proveedores</span>
+        </a>
+        <a href="/vistas/contratos.html" class="nav-item">
+            <i class="nav-icon fas fa-file-contract"></i>
+            <span>Contratos</span>
+        </a>
+        <a href="/vistas/disputas.html" class="nav-item">
+            <i class="nav-icon fas fa-balance-scale"></i>
+            <span>Disputas</span>
+        </a>
+        <a href="/vistas/solicitudes.html" class="nav-item">
+            <i class="nav-icon fas fa-handshake"></i>
+            <span>Solicitudes</span>
+        </a>
+        <a href="/vistas/cartera.html" class="nav-item">
+            <i class="nav-icon fas fa-wallet"></i>
+            <span>Cartera</span>
+        </a>
+        <a href="/vistas/perfil.html" class="nav-item">
+            <i class="nav-icon fas fa-user"></i>
+            <span>Perfil</span>
+        </a>
+    </div>
+
     <script type="module" src="/js/app.js"></script>
+    <script src="/js/mobile-menu.js"></script>
   
 
 <button class="theme-toggle theme-toggle--floating" type="button" data-theme-toggle aria-label="Cambiar tema">

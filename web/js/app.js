@@ -14,16 +14,16 @@ import { NotificationUI } from './notifications-ui.js';
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Quetzal Platform iniciando...');
+    console.log('Quetzal Platform iniciando...');
     
     // Verificar si el usuario está autenticado
     if (!Auth.isAuthenticated()) {
-        console.log('👤 Usuario no autenticado, redirigiendo a landing...');
+        console.log('Usuario no autenticado, redirigiendo a landing...');
         window.location.href = '/vistas/visitante.html';
         return;
     }
     
-    // 🌐 Inicializar WebSocket y notificaciones globales
+    // Inicializar WebSocket y notificaciones globales
     await initGlobalNotifications();
     
     // Inicializar dashboard
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             const page = item.getAttribute('data-page');
             if (page) {
-                console.log('📄 Navegando a:', page);
+                console.log('Navegando a:', page);
             }
         });
     });
@@ -64,8 +64,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
-    console.log('✅ Aplicación lista');
-    console.log('💡 Tip: Usa testRole("provider") para cambiar de rol en desarrollo');
+    console.log('Aplicación lista');
+    console.log('Tip: Usa testRole("provider") para cambiar de rol en desarrollo');
 });
 
 // Sistema global de notificaciones
