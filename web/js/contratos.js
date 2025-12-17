@@ -344,7 +344,7 @@ if (contractsList) {
     if (target.hasAttribute('data-view-profile')) {
       e.stopPropagation();
       const userId = target.getAttribute('data-view-profile');
-      if (userId) window.location.href = `/ver-perfil?id=${userId}`;
+      if (userId) window.location.href = `/vistas/ver-perfil?id=${userId}`;
       return;
     }
 
