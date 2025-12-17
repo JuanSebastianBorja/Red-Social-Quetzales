@@ -1,89 +1,55 @@
-name: CI/CD Quetzales Backend
+name: CI/CD Quetzal Platform
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
-env:
-  NODE_VERSION: '20'
-
 jobs:
-  # -------------------------
-  # Calidad y pruebas
-  # -------------------------
-  quality-checks:
-    name: Build y Pruebas Unitarias
+  test-backend:
+    name: 🧪 Tests Backend
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
-      - name: Instalar dependencias
-        run: |
-          cd server
-          npm install
+    - name: Install dependencies
+      working-directory: server
+      run: npm ci
 
-      - name: Compilar TypeScript
-        run: |
-          cd server
-          npm run build
+    - name: Run unit tests
+      working-directory: server
+      run: npm test
 
-      - name: Ejecutar pruebas unitarias
-        run: |
-          cd server
-          npm test
-
-      - name: Guardar logs de pruebas
-        if: always()
-        run: |
-          echo "Pruebas ejecutadas correctamente"
-
-  # -------------------------
-  # Deploy en Render
-  # -------------------------
-  deploy-render:
-    name: Despliegue en Render
+  deploy-backend:
+    name: 🚀 Deploy Backend
     runs-on: ubuntu-latest
-    needs: quality-checks
-
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: test-backend
+    if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
+    - name: Deploy backend to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
 
-      - name: Desplegar en Render
-        uses: johnbeynon/render-deploy-action@v0.0.8
-        with:
-          service-id: ${{ secrets.RENDER_SERVICE_ID }}
-          api-key: ${{ secrets.RENDER_API_KEY }}
-
-      - name: Confirmar despliegue
-        run: |
-          echo "🚀 Despliegue iniciado en Render"
-          echo "Revisar dashboard de Render para estado final"
-
-  # -------------------------
-  # Notificación final
-  # -------------------------
-  notifications:
-    name: Finalización del Pipeline
+  deploy-frontend:
+    name: 🎨 Deploy Frontend
     runs-on: ubuntu-latest
-    needs: [quality-checks, deploy-render]
-    if: always()
+    needs: test-backend
+    if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Estado del pipeline
-        run: |
-          echo "Pipeline ejecutado"
-          echo "Repositorio: ${{ github.repository }}"
-          echo "Commit: ${{ github.sha }}"
+    - name: Deploy frontend to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
