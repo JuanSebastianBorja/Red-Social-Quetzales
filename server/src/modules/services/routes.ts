@@ -18,16 +18,26 @@ if (isProduction) {
 export const servicesRouter = Router();
 
 // Configuración de subida de imágenes
-const uploadDir = path.join(process.cwd(), '..', 'web', 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-const storage = multer.diskStorage({
-  destination: (_req: Request, _file: any, cb: (error: any, destination: string) => void) => cb(null, uploadDir),
-  filename: (_req: Request, file: any, cb: (error: any, filename: string) => void) => {
-    const ext = path.extname(file.originalname);
-    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, '_');
-    cb(null, `${Date.now()}_${base}${ext}`);
-  }
-});
+const uploadDir = isProduction ? '/tmp' // Render permite escritura aquí
+  : path.join(process.cwd(), '..', 'web', 'uploads');
+
+if (!isProduction && !fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = isProduction
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
+        cb(null, uploadDir);
+      },
+      filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
+        const ext = path.extname(file.originalname);
+        const base = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, '_');
+        cb(null, `${Date.now()}_${base}${ext}`);
+      }
+    });
+
 const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 } });
 
 servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
@@ -213,53 +223,35 @@ servicesRouter.post('/', authenticate, upload.single('image'), async (req: AuthR
 
     // Subir imagen según entorno
     if (req.file) {
-      if (isProduction) {
-  // 🌐 Supabase Storage
-  let fileBuffer: Buffer;
-  try {
-    fileBuffer = await readFile(req.file.path);
-  } catch (readErr) {
-    console.error('Error reading file:', readErr);
-    return res.status(500).json({ error: 'No se pudo leer la imagen' });
+  if (isProduction) {
+    // ✅ memoryStorage → el archivo ya está en memoria
+    const fileBuffer = req.file.buffer; // 👈 CORRECTO
+
+    const fileName = `services/${Date.now()}_${encodeURIComponent(req.file.originalname)}`;
+    
+    const { data, error } = await supabase
+      .storage
+      .from('service-images')
+      .upload(fileName, fileBuffer, {
+        contentType: req.file.mimetype,
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Supabase upload error:', error);
+      return res.status(500).json({ error: 'No se pudo subir la imagen' });
+    }
+
+    const { data: urlData } = supabase
+      .storage
+      .from('service-images')
+      .getPublicUrl(fileName);
+
+    image_url = urlData.publicUrl.trim();
+    // ✅ No hay archivo temporal que borrar
+  } else {
+    image_url = `/uploads/${req.file.filename}`;
   }
-
-  const fileName = `services/${Date.now()}_${encodeURIComponent(req.file.originalname)}`;
-  
-  const { data, error } = await supabase
-    .storage
-    .from('service-images')
-    .upload(fileName, fileBuffer, {
-      contentType: req.file.mimetype,
-      upsert: false
-    });
-
-  if (error) {
-    console.error('Supabase upload error:', error);
-    return res.status(500).json({ error: 'No se pudo subir la imagen' });
-  }
-
-  // Obtener la URL pública
-  const { data: urlData, error: urlError } = supabase
-    .storage
-    .from('service-images')
-    .getPublicUrl(fileName);
-
-  if (urlError) {
-    console.error('Error getting public URL:', urlError);
-    return res.status(500).json({ error: 'No se pudo obtener la URL pública' });
-  }
-
-  const { publicUrl } = urlData;
-  image_url = publicUrl.trim();
-  
-  // Opcional: elimina el archivo temporal del disco
-  fs.unlink(req.file.path, (err) => {
-    if (err) console.error('Error deleting temp file:', err);
-  });
-} else {
-  // 💻 Disco local
-  image_url = `/uploads/${req.file.filename}`;
-}
 }
 
     // Insertar servicio
@@ -285,16 +277,9 @@ servicesRouter.patch('/:id', authenticate, upload.single('image'), async (req: A
     const { title, category, description, price_qz_halves, delivery_time, requirements } = req.body;
     let image_url = undefined;
 
-if (req.file) {
+    if (req.file) {
   if (isProduction) {
-    // 🌐 Supabase Storage
-    let fileBuffer: Buffer;
-    try {
-      fileBuffer = await readFile(req.file.path);
-    } catch (readErr) {
-      console.error('Error reading file:', readErr);
-      return res.status(500).json({ error: 'No se pudo leer la imagen' });
-    }
+    const fileBuffer = req.file.buffer; // ✅
 
     const fileName = `services/${Date.now()}_${encodeURIComponent(req.file.originalname)}`;
     
@@ -311,26 +296,13 @@ if (req.file) {
       return res.status(500).json({ error: 'No se pudo subir la imagen' });
     }
 
-
-    const { data: urlData, error: urlError } = supabase
+    const { data: urlData } = supabase
       .storage
       .from('service-images')
       .getPublicUrl(fileName);
 
-    if (urlError) {
-      console.error('Error getting public URL:', urlError);
-      return res.status(500).json({ error: 'No se pudo obtener la URL pública' });
-    }
-
-    const { publicUrl } = urlData;
-    image_url = publicUrl.trim();
-    
-    // Eliminar archivo temporal
-    fs.unlink(req.file.path, (err) => {
-      if (err) console.error('Error deleting temp file:', err);
-    });
+    image_url = urlData.publicUrl.trim();
   } else {
-    // 💻 Disco local
     image_url = `/uploads/${req.file.filename}`;
   }
 }
@@ -340,6 +312,11 @@ if (req.file) {
     if (ownerCheck.rowCount === 0) return res.status(404).json({ error: 'Service not found' });
     if (ownerCheck.rows[0].user_id !== req.userId) {
       return res.status(403).json({ error: 'You do not own this service' });
+    }
+
+    // Si no hay nueva imagen, mantén la antigua
+    if (!req.file) {
+    image_url = ownerCheck.rows[0].image_url; 
     }
 
     // Validaciones básicas (si vienen)
