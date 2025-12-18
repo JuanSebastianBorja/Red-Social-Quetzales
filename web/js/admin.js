@@ -349,6 +349,27 @@ function renderServices(services) {
 }
 
 document.addEventListener('click', async (e) => {
+  // Guardar cambio de estado de servicio
+  if (e.target.classList.contains('svc-save')) {
+    const id = e.target.getAttribute('data-id');
+    const select = document.querySelector(`select.svc-status[data-id="${id}"]`);
+    const newStatus = select ? select.value : null;
+    if (!newStatus) return;
+    try {
+      await API.patch(`/admin/services/${id}/status`, { status: newStatus });
+      loadServices();
+      // Toast visual
+      const msgEl = document.createElement('div');
+      msgEl.className = 'toast';
+      msgEl.textContent = 'Estado actualizado correctamente';
+      msgEl.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--success);color:white;padding:12px;border-radius:8px;z-index:10000;';
+      document.body.appendChild(msgEl);
+      setTimeout(() => msgEl.remove(), 2500);
+    } catch (err) {
+      alert('No se pudo actualizar el estado: ' + (err.message || 'Inténtalo de nuevo.'));
+    }
+    return;
+  }
   // Manejar reportes
   if (e.target.classList.contains('rep-save')) {
     const id = e.target.getAttribute('data-id');
