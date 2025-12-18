@@ -426,32 +426,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // IMPORTANTE: El formato debe ser: https://tu-instancia/webhook/WEBHOOK_ID/chat
     // Tu webhookId es: 44038449-ed55-44a0-893c-8962b0a15b90
     
-    // Detectar entorno y configurar URL apropiada
-    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    // Para n8n local (si usas n8n desktop o self-hosted):
+    chatBotInstance.setN8nWebhook('http://localhost:5678/webhook/44038449-ed55-44a0-893c-8962b0a15b90/chat');
     
-    if (isProduction) {
-        // CONFIGURACIÓN PARA PRODUCCIÓN (Render)
-        
-        // Opción 1: n8n desplegado en Render (recomendado) ⭐
-        // Reemplaza 'tu-n8n-app' con el nombre de tu servicio de n8n en Render
-        // chatBotInstance.setN8nWebhook('https://tu-n8n-app.onrender.com/webhook/44038449-ed55-44a0-893c-8962b0a15b90/chat');
-        
-        // Opción 2: n8n cloud
-        // chatBotInstance.setN8nWebhook('https://tu-instancia.n8n.cloud/webhook/44038449-ed55-44a0-893c-8962b0a15b90/chat');
-        
-        // Opción 3: Otro servidor de n8n
-        // chatBotInstance.setN8nWebhook('https://tu-n8n-production.com/webhook/44038449-ed55-44a0-893c-8962b0a15b90/chat');
-        
-        // TEMPORAL: Usar modo fallback en producción hasta configurar n8n
-        chatBotInstance.setFallbackMode(true);
-        console.log('Chat Bot: Modo fallback activado (sin conexión a n8n)');
-        console.log('Para conectar con n8n, descomenta una de las opciones arriba');
-    } else {
-        // CONFIGURACIÓN PARA DESARROLLO LOCAL
-        chatBotInstance.setN8nWebhook('http://localhost:5678/webhook/44038449-ed55-44a0-893c-8962b0a15b90/chat');
-        chatBotInstance.setFallbackMode(false);
-        console.log('Chat Bot: Conectado a n8n local');
-    }
+    // Para n8n cloud:
+    // chatBotInstance.setN8nWebhook('https://tu-instancia.n8n.cloud/webhook/44038449-ed55-44a0-893c-8962b0a15b90/chat');
+    
+    // Activar modo fallback mientras configuras (usa respuestas predefinidas)
+    chatBotInstance.setFallbackMode(false);
 });
 
 // Exponer instancia globalmente para configuración dinámica

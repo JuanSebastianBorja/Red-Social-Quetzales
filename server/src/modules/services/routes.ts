@@ -142,7 +142,10 @@ servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
 
       let fromClause = `FROM services s`;
       if (joinUsers) fromClause += ` JOIN users u ON s.user_id = u.id`;
-      if (joinRatings) fromClause += `
+      
+      // Siempre incluir JOIN con ratings cuando estamos en este bloque
+      // ya que el SELECT siempre incluye service_rating
+      fromClause += `
         LEFT JOIN (
           SELECT service_id, AVG(rating) AS avg_rating
           FROM ratings
@@ -184,7 +187,9 @@ servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
     if (joinUsers || joinRatings) {
       let fromCount = `FROM services s`;
       if (joinUsers) fromCount += ` JOIN users u ON s.user_id = u.id`;
-      if (joinRatings) fromCount += `
+      
+      // Siempre incluir JOIN con ratings cuando estamos en este bloque
+      fromCount += `
         LEFT JOIN (
           SELECT service_id, AVG(rating) AS avg_rating
           FROM ratings
