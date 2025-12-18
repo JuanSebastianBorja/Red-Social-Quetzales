@@ -30,7 +30,11 @@ authRouter.post('/register', async (req, res) => {
     // Generar token de verificación (expira en 24h)
     const verificationToken = signVerificationToken(userId);
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const verificationUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
+    // En producción usar ruta completa al HTML, en desarrollo usar ruta corta
+    const verificationPath = process.env.NODE_ENV === 'production' 
+      ? '/vistas/verificar-email.html' 
+      : '/verify-email';
+    const verificationUrl = `${frontendUrl}${verificationPath}?token=${verificationToken}`;
     
     // Enviar email de verificación
     await sendVerificationEmail(email, verificationUrl);
@@ -189,7 +193,11 @@ authRouter.post('/resend-verification', async (req, res) => {
     // Generar nuevo token
     const verificationToken = signVerificationToken(user.id);
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const verificationUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
+    // En producción usar ruta completa al HTML, en desarrollo usar ruta corta
+    const verificationPath = process.env.NODE_ENV === 'production' 
+      ? '/vistas/verificar-email.html' 
+      : '/verify-email';
+    const verificationUrl = `${frontendUrl}${verificationPath}?token=${verificationToken}`;
     
     // Reenviar email
     await sendVerificationEmail(user.email, verificationUrl);
