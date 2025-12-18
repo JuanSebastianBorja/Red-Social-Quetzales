@@ -2,10 +2,25 @@ import nodemailer from 'nodemailer';
 
 /**
  * Configuración del transporte de email
- * En desarrollo usa Gmail u otro SMTP
- * En producción usa un servicio como Resend, SendGrid, etc.
+ * En desarrollo usa cuenta de prueba Ethereal
+ * En producción usa Resend/SendGrid/etc.
  */
-function createTransporter() {
+async function createTransporter() {
+  // En desarrollo, usar Ethereal Mail (emails de prueba)
+  if (process.env.NODE_ENV === 'development' && process.env.USE_ETHEREAL === 'true') {
+    console.log('📧 Using Ethereal Mail for testing (no real emails sent)');
+    const testAccount = await nodemailer.createTestAccount();
+    return nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
+  }
+
   // Verificar que las variables de entorno estén configuradas
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.warn('⚠️  Email configuration missing. Emails will NOT be sent.');
@@ -30,7 +45,7 @@ export async function sendVerificationEmail(
   to: string,
   verificationUrl: string
 ): Promise<boolean> {
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
   
   if (!transporter) {
     console.error('Email transporter not configured. Skipping email send.');
@@ -155,8 +170,15 @@ export async function sendVerificationEmail(
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Verification email sent to: ${to}`);
+    
+    // Si es Ethereal, mostrar link de previsualización
+    if (process.env.NODE_ENV === 'development' && process.env.USE_ETHEREAL === 'true') {
+      console.log('📬 Preview URL:', nodemailer.getTestMessageUrl(info));
+      console.log(`📧 Verification URL: ${verificationUrl}`);
+    }
+    
     return true;
   } catch (error) {
     console.error('❌ Error sending verification email:', error);
@@ -168,7 +190,7 @@ export async function sendVerificationEmail(
  * Enviar email de bienvenida después de verificar
  */
 export async function sendWelcomeEmail(to: string, fullName: string): Promise<boolean> {
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
   
   if (!transporter) {
     console.log('📧 [DEV] Welcome email would be sent to:', to);
