@@ -1,8 +1,9 @@
 // verificar-email.js - Manejo de verificación de email
 
+// Usar la misma lógica que config.js
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3000'
-  : '';
+  : 'https://red-social-quetzales.onrender.com';
 
 // Obtener token de la URL
 const urlParams = new URLSearchParams(window.location.search);
