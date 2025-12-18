@@ -41,3 +41,41 @@ export function verifyToken(token: string): string | JwtPayload {
   const secret: string = process.env.JWT_SECRET ?? 'dev-secret';
   return jwt.verify(token, secret);
 }
+
+/**
+ * Generar token JWT para verificación de email
+ * Expira en 24 horas por defecto
+ */
+export function signVerificationToken(userId: string): string {
+  const secret: string = process.env.JWT_SECRET ?? 'dev-secret';
+  
+  return jwt.sign(
+    { 
+      userId, 
+      type: 'email_verification' 
+    },
+    secret,
+    { expiresIn: '24h' }
+  );
+}
+
+/**
+ * Verificar token de verificación de email
+ * Retorna el userId si el token es válido
+ */
+export function verifyEmailToken(token: string): { userId: string } | null {
+  try {
+    const secret: string = process.env.JWT_SECRET ?? 'dev-secret';
+    const decoded = jwt.verify(token, secret) as any;
+    
+    // Validar que sea un token de verificación de email
+    if (decoded.type !== 'email_verification') {
+      return null;
+    }
+    
+    return { userId: decoded.userId };
+  } catch (error) {
+    // Token inválido o expirado
+    return null;
+  }
+}

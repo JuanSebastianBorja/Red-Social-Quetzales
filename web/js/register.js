@@ -50,12 +50,25 @@ async function handleSubmit(e) {
   submitBtn.disabled = true;
   formMessage.textContent = 'Creando cuenta...';
   try {
-    const ok = await Auth.register(payload);
-    if (ok) {
-      Utils.showToast('Cuenta creada exitosamente', 'success');
+    const response = await Auth.register(payload);
+    
+    // Nueva respuesta: el servidor ya no da token inmediatamente
+    if (response && response.requiresVerification) {
       formMessage.className = 'success';
-      formMessage.textContent = '¡Bienvenido! Redirigiendo al panel...';
-      setTimeout(() => { window.location.href = '/'; }, 800);
+      formMessage.innerHTML = `
+        <strong>✅ ¡Cuenta creada exitosamente!</strong><br><br>
+        📧 Hemos enviado un correo de verificación a <strong>${email}</strong><br><br>
+        Por favor revisa tu bandeja de entrada (y spam) y haz clic en el enlace para activar tu cuenta.<br><br>
+        <small>No podrás iniciar sesión hasta que verifiques tu correo.</small>
+      `;
+      
+      // Limpiar formulario
+      document.getElementById('registerForm').reset();
+      
+      // Opcional: redirigir a login después de 8 segundos
+      setTimeout(() => {
+        window.location.href = '/vistas/login.html';
+      }, 8000);
     } else {
       formMessage.className = 'error';
       formMessage.textContent = 'No se pudo crear la cuenta.';
@@ -64,7 +77,9 @@ async function handleSubmit(e) {
     console.error(err);
     formMessage.className = 'error';
     const msg = (err && err.message) ? err.message : 'Error del servidor. Intenta de nuevo.';
-    const normalized = msg.includes('Email exists') ? 'El correo ya está registrado.' : msg;
+    const normalized = msg.includes('Email already registered') || msg.includes('Email exists') 
+      ? 'El correo ya está registrado.' 
+      : msg;
     formMessage.textContent = normalized;
   } finally {
     submitBtn.disabled = false;

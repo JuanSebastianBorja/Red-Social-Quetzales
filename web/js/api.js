@@ -87,7 +87,11 @@ export const API = {
             }
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `HTTP ${response.status}`);
+                const error = new Error(errorData.error || errorData.message || `HTTP ${response.status}`);
+                // Preservar código de error si existe (para email no verificado, etc)
+                if (errorData.code) error.code = errorData.code;
+                if (errorData.message) error.serverMessage = errorData.message;
+                throw error;
             }
             
             return await response.json();

@@ -38,6 +38,13 @@ export const Auth = {
         try {
             const response = await API.post('/auth/register', userData);
             
+            // Nueva lógica: el servidor ya no retorna token, requiere verificación
+            if (response.requiresVerification) {
+                // No guardar token, solo retornar la respuesta
+                return response;
+            }
+            
+            // Mantener compatibilidad con respuesta antigua (por si acaso)
             if (response.token) {
                 AppState.token = response.token;
                 localStorage.setItem(CONFIG.STORAGE_KEYS.TOKEN, response.token);

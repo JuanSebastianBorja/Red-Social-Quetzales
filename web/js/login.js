@@ -40,10 +40,73 @@ async function handleSubmit(e) {
   } catch (err) {
     console.error(err);
     formMessage.className = 'error';
-    const msg = (err && err.message) ? err.message : 'Error del servidor. Intenta de nuevo.';
-    // Normalizar mensajes del backend a español
-    const normalized = msg.includes('Invalid credentials') ? 'Credenciales inválidas.' : msg;
-    formMessage.textContent = normalized;
+    
+    // Detectar error de email no verificado
+    if (err.code === 'EMAIL_NOT_VERIFIED' || (err.message && err.message.includes('Email not verified'))) {
+      formMessage.innerHTML = `
+        <strong>⚠️ Email no verificado</strong><br><br>
+        Debes verificar tu correo electrónico antes de iniciar sesión.<br>
+        Revisa tu bandeja de entrada (y spam).<br><br>
+        <button id="resendVerificationBtn" style="
+          padding: 10px 20px;
+          background: #2196F3;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 14px;
+          margin-top: 10px;
+        ">
+          📧 Reenviar correo de verificación
+        </button>
+        <div id="resendMessage" style="margin-top: 10px; font-size: 14px;"></div>
+      `;
+      
+      // Manejar click en botón de reenviar
+      setTimeout(() => {
+        const resendBtn = document.getElementById('resendVerificationBtn');
+        const resendMsg = document.getElementById('resendMessage');
+        
+        if (resendBtn) {
+          resendBtn.addEventListener('click', async () => {
+            resendBtn.disabled = true;
+            resendBtn.textContent = 'Enviando...';
+            resendMsg.textContent = '';
+            
+            try {
+              const response = await fetch(`${window.location.origin}/auth/resend-verification`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+              });
+              
+              const data = await response.json();
+              
+              if (response.ok) {
+                resendMsg.style.color = '#4CAF50';
+                resendMsg.textContent = '✅ ' + data.message;
+                resendBtn.style.display = 'none';
+              } else {
+                resendMsg.style.color = '#f44336';
+                resendMsg.textContent = '❌ ' + (data.message || data.error);
+                resendBtn.disabled = false;
+                resendBtn.textContent = '📧 Reenviar correo de verificación';
+              }
+            } catch (error) {
+              resendMsg.style.color = '#f44336';
+              resendMsg.textContent = '❌ Error de conexión. Intenta de nuevo.';
+              resendBtn.disabled = false;
+              resendBtn.textContent = '📧 Reenviar correo de verificación';
+            }
+          });
+        }
+      }, 100);
+    } else {
+      // Otros errores
+      const msg = (err && err.message) ? err.message : 'Error del servidor. Intenta de nuevo.';
+      const normalized = msg.includes('Invalid credentials') ? 'Credenciales inválidas.' : msg;
+      formMessage.textContent = normalized;
+    }
   } finally {
     submitBtn.disabled = false;
   }
