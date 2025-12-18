@@ -67,7 +67,7 @@ async function handleSubmit(e) {
       
       // Opcional: redirigir a login después de 8 segundos
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/vistas/login.html';
       }, 8000);
     } else {
       formMessage.className = 'error';

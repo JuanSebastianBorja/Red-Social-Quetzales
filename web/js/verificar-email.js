@@ -58,7 +58,7 @@ async function verifyEmail() {
         
         // Redirigir automáticamente después de 3 segundos
         setTimeout(() => {
-          window.location.href = '/login';
+          window.location.href = '/vistas/login.html';
         }, 3000);
       }
     } else {
