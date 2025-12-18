@@ -111,8 +111,15 @@ servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
     }
 
     if (city && typeof city === 'string') {
-      conditions.push(`u.city ILIKE $${paramIndex}`);
-      values.push(`%${city}%`);
+      // Normalizar búsqueda de ciudad para ignorar tildes y espacios
+      const normalizedCity = city.trim();
+      conditions.push(`
+        (
+          u.city ILIKE $${paramIndex} OR
+          unaccent(u.city) ILIKE unaccent($${paramIndex})
+        )
+      `);
+      values.push(`%${normalizedCity}%`);
       paramIndex++;
     }
 
@@ -120,6 +127,11 @@ servicesRouter.get('/', optionalAuth, async (req: AuthRequest, res) => {
     const sortField = validSortFields.includes(sortBy as string) ? (sortBy as string) : 'created_at';
     const sortDirection = sortOrder === 'ASC' ? 'ASC' : 'DESC';
     const joinUsers = !!city;
+    
+    // Si se ordena por rating, activar el JOIN con ratings
+    if (sortField === 'rating') {
+      joinRatings = true;
+    }
 
     let query: string;
     if (joinUsers || joinRatings) {
