@@ -40,14 +40,18 @@ if (!isProduction) {
 
   // Rutas de vistas HTML (solo en desarrollo)
   const htmlRoutes = [
-    '/', '/register', '/login', '/publicar-servicio',
+    '/', '/register', '/login', '/verify-email', '/publicar-servicio',
     '/mis-servicios', '/buscar-servicios', '/detalle-servicio',
     '/contratos', '/perfil', '/ver-perfil', '/cartera'
   ];
 
   htmlRoutes.forEach(route => {
     app.get(route, (req, res) => {
-      const view = route === '/' ? 'visitante.html' : route.slice(1) + '.html';
+      let view = route === '/' ? 'visitante.html' : route.slice(1) + '.html';
+      // Mapeo especial para verify-email
+      if (route === '/verify-email') {
+        view = 'verificar-email.html';
+      }
       const fullPath = path.join(webPath, 'vistas', view);
       res.sendFile(fullPath);
     });
