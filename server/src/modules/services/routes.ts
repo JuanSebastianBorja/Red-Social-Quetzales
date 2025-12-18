@@ -316,23 +316,17 @@ servicesRouter.patch('/:id', authenticate, upload.single('image'), async (req: A
   }
 }
     
-    // Verificar que el servicio pertenece al usuario
-    const ownerCheck = await pool.query('SELECT user_id FROM services WHERE id=$1', [id]);
+    // Verificar que el servicio pertenece al usuario y obtener la imagen actual
+    const ownerCheck = await pool.query('SELECT user_id, image_url FROM services WHERE id=$1', [id]);
     if (ownerCheck.rowCount === 0) return res.status(404).json({ error: 'Service not found' });
     if (ownerCheck.rows[0].user_id !== req.userId) {
       return res.status(403).json({ error: 'You do not own this service' });
     }
     
     if (!req.file) {
-  // Solo conserva la imagen si ya es una URL pública de Supabase
-  const currentImageUrl = ownerCheck.rows[0].image_url;
-  if (currentImageUrl && currentImageUrl.startsWith('https://')) {
-    image_url = currentImageUrl;
-  } else {
-    // Si no es una URL pública, déjala como null o vacía
-    image_url = null;
-  }
-}
+      // Si no se envió una nueva imagen, conservar la actual
+      image_url = ownerCheck.rows[0].image_url;
+    }
     // Validaciones básicas (si vienen)
     if (title && (title.length < 10 || title.length > 255)) {
       return res.status(400).json({ error: 'Title must be between 10 and 255 characters' });
