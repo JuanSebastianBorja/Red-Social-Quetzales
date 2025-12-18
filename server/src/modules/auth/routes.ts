@@ -36,8 +36,10 @@ authRouter.post('/register', async (req, res) => {
       : '/verify-email';
     const verificationUrl = `${frontendUrl}${verificationPath}?token=${verificationToken}`;
     
-    // Enviar email de verificación
-    await sendVerificationEmail(email, verificationUrl);
+    // Enviar email de verificación (sin esperar, no bloquea la respuesta)
+    sendVerificationEmail(email, verificationUrl).catch(err => 
+      console.error('Error al enviar email de verificación:', err)
+    );
     
     // NO dar token de acceso hasta que verifique
     res.status(201).json({ 
